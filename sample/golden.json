@@ -1,0 +1,21 @@
+{
+  "_source": "captured from Pitch Profiler production modules (app.utils.league.*)",
+  "_sample": "sample_trackman_ccu.parquet - Cameron Flukey, Coastal Carolina, 2026",
+  "n_raw": 216,
+  "n_scored": 215,
+  "grades": {
+    "proStuff+": 115.0081507301915,
+    "proPitching+": 111.4554021535214,
+    "proLocation+": 99.79558693651116
+  },
+  "xrv_means": {
+    "stuff_xrv": -0.049741433992975745,
+    "pitching_xrv": -0.006842833122069405,
+    "location_xrv": 0.042898600870906335
+  },
+  "xstats": {
+    "xba": 0.2530383117994632,
+    "xslg": 0.41871003166763643,
+    "xwoba": 0.3236254368457924
+  }
+}

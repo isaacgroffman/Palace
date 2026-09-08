@@ -1,0 +1,90 @@
+{
+  "reference": {
+    "stuff": {
+      "mean": -0.03754883905254666,
+      "std": 0.008123982201152579
+    },
+    "pitching": {
+      "mean": 0.0051336046728626475,
+      "std": 0.010454838367460088
+    },
+    "location": {
+      "mean": 0.04268244372540931,
+      "std": 0.010574526980210715
+    }
+  },
+  "FIXED_ITERS": {
+    "stage1": 500,
+    "stage2_stuff": 171,
+    "stage2_pitch": 665,
+    "stage2t": 293,
+    "hr_stuff": 53,
+    "hr_pitch": 115,
+    "foil": 500
+  },
+  "FIXED_CATEGORIES": {
+    "hand_split": [
+      "SHH",
+      "OHH"
+    ],
+    "p_throws": [
+      "R",
+      "L"
+    ],
+    "balls": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "strikes": [
+      0,
+      1,
+      2
+    ],
+    "outs_when_up": [
+      0,
+      1,
+      2
+    ]
+  },
+  "STUFF_FEATURES": [
+    "release_speed",
+    "induced_vertical_acceleration",
+    "horizontal_acceleration_normalized",
+    "release_spin_rate",
+    "release_pos_z",
+    "release_pos_x_normalized",
+    "release_extension",
+    "hand_split",
+    "p_throws"
+  ],
+  "PITCH_FEATURES": [
+    "release_speed",
+    "induced_vertical_acceleration",
+    "horizontal_acceleration_normalized",
+    "release_spin_rate",
+    "release_pos_z",
+    "release_pos_x_normalized",
+    "release_extension",
+    "hand_split",
+    "plate_x_normalized",
+    "plate_z_normalized",
+    "vra",
+    "hra_normalized",
+    "vra_diff",
+    "hra_normalized_diff",
+    "times_through_order",
+    "times_seen_pitch_type",
+    "balls",
+    "strikes",
+    "outs_when_up",
+    "p_throws"
+  ],
+  "n_train_rows": 837723,
+  "stuff_scalars": {
+    "W_whiff_stuff": -0.18536592559283838,
+    "W_foul_stuff": -0.06819321943974332,
+    "HR_RV": 1.4928170960977507
+  }
+}
