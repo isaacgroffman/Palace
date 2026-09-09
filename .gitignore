@@ -1,0 +1,26 @@
+# secrets / local env
+.env
+.Renviron
+.Rhistory
+.RData
+.Rproj.user/
+rsconnect/
+.DS_Store
+
+# raw inputs for scripts/build_serving_data.R (fetched, never committed)
+raw/*
+!raw/.gitkeep
+serving_build/
+hf_cache/
+
+# data never lives in git — it lives in the serving repo (HF now, Supabase later)
+*.parquet
+*.csv
+!reference/*.csv
+
+# python bundle scratch
+__pycache__/
+*.pyc
+
+# local secrets
+R/palace_secrets.R

@@ -15,6 +15,11 @@
 init_pitchprofiler <- function() {
   if (!is.null(.pp_env$bundle)) return(invisible(TRUE))
   ok <- tryCatch({
+    # the bundle package lives under models/ in this repo; put it on sys.path
+    if (dir.exists("models/pitchprofiler_models")) {
+      sys <- reticulate::import("sys", convert = FALSE)
+      sys$path$insert(0L, normalizePath("models"))
+    }
     .pp_env$mod    <- reticulate::import("pitchprofiler_models",
                                          delay_load = FALSE, convert = FALSE)
     .pp_env$pl     <- reticulate::import("polars",
@@ -352,7 +357,48 @@ PP_SCORE_LABELS <- c("data_ind", "fall_ind", "prespring_ind",
                      "spring26_ind", "ncaa_ind",
                      "mm_pool")   # matchup-matrix team pools (on-demand, cached)
 
+# Rows read from Supabase pitchprofiler.pitches (R/palace_supabase.R) already
+# carry the bundle's per-pitch xRV, computed by scripts/process_master.py on
+# the full season stream. Only rows WITHOUT a finite stuff_xrv are sent to
+# Python. Sequencing features are per game, and unscored rows are always whole
+# games (2025 parquet, TruMedia), so scoring the subset is exact.
 score_promodel <- function(df, label = "") {
+  if (is.null(df) || !is.data.frame(df) || nrow(df) == 0) return(.pp_na_fill(df))
+  # Supabase rows carry PitchTypeSource; the bundle already evaluated every
+  # one of them (a missing score there means the pitch failed a plausibility
+  # check, and rescoring it out of its game stream would not help).
+  from_sb <- if ("PitchTypeSource" %in% names(df))
+    !is.na(df$PitchTypeSource) & nzchar(as.character(df$PitchTypeSource)) else rep(FALSE, nrow(df))
+  if ("stuff_xrv" %in% names(df) || any(from_sb)) {
+    if (!"stuff_xrv" %in% names(df)) df <- .pp_na_fill(df)
+    todo <- !from_sb & !is.finite(suppressWarnings(as.numeric(df$stuff_xrv)))
+    if (!any(todo)) {
+      df$stuff_plus    <- xrv_to_plus(df$stuff_xrv,    PP_REF$stuff)
+      df$pitching_plus <- xrv_to_plus(df$pitching_xrv, PP_REF$pitching)
+      df$location_plus <- xrv_to_plus(df$location_xrv, PP_REF$location)
+      cat(sprintf("  [proModel] %s using precomputed Pitch Profiler scores for all %d pitches\n",
+                  label, nrow(df)))
+      return(df)
+    }
+    if (any(!todo)) {
+      done <- df[!todo, , drop = FALSE]
+      rest <- .score_promodel_core(df[todo, , drop = FALSE], label)
+      for (cc in c("stuff_xrv", "pitching_xrv", "location_xrv",
+                   "stuff_plus", "pitching_plus", "location_plus"))
+        if (!cc %in% names(rest)) rest[[cc]] <- NA_real_
+      done$stuff_plus    <- xrv_to_plus(done$stuff_xrv,    PP_REF$stuff)
+      done$pitching_plus <- xrv_to_plus(done$pitching_xrv, PP_REF$pitching)
+      done$location_plus <- xrv_to_plus(done$location_xrv, PP_REF$location)
+      cat(sprintf("  [proModel] %s kept precomputed scores for %d pitches, scored %d\n",
+                  label, nrow(done), nrow(rest)))
+      out <- dplyr::bind_rows(harmonize_types(list(done, rest)))
+      return(out)
+    }
+  }
+  .score_promodel_core(df, label)
+}
+
+.score_promodel_core <- function(df, label = "") {
   if (is.null(df) || !is.data.frame(df) || nrow(df) == 0) return(.pp_na_fill(df))
   if (nzchar(label) && !label %in% PP_SCORE_LABELS) {
     cat("  [proModel]", label, "skipped (legacy pool, not graded)\n")

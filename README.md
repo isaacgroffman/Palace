@@ -55,7 +55,7 @@ where data comes from:
 |---|---|---|
 | `PALACE_SERVING_REPO` (HF dataset, default `CoastalBaseball/PalaceServing`) | `pools/*.parquet`, `artifacts/*.rds`, `files/*.csv` written by `scripts/build_serving_data.R` | serve |
 | `CoastalBaseball/PitcherAppFiles`, `CoastalBaseball/2026MasterDataset`, `CoastalBaseball/AdvancePitcher` | raw TrackMan pools, NCAA pbp, bios | build (and NCAA per-pitcher loads in both modes) |
-| Supabase | bullpen/practice pitches, players (migration in progress) | both |
+| Supabase | bullpen/practice pitches, players; `pitchprofiler.*` = every 2026 NCAA pitch reclassified + scored (see below) | both |
 | TruMedia / TrackMan APIs | leaderboards, stats, video tokens | both |
 
 ### `PALACE_DATA_MODE`
@@ -69,6 +69,23 @@ where data comes from:
   every raw pool, runs `process_pitcher_data()` and Python scoring on all of
   them, binds, filters back. Slow, but it is also what the build script runs,
   so serve mode can never diverge from it.
+
+### Scoring the full master TrackMan file
+
+`scripts/process_master.py` runs `~/master_trackman_2026.parquet` (2.6M NCAA
+pitches, TrackMan v3 API export) through the Pitch Profiler bundle: pitch-type
+reclassification, per-pitch proStuff+/proPitching+/proLocation+, per-pitch
+expected-stat terms, and four aggregate tables ready for Supabase
+(`scripts/upload_supabase.R`). See `scripts/README_process_master.md`.
+
+Once uploaded, the app reads those tables through `R/palace_supabase.R`
+(`pp_pitcher_rows`, `pp_batter_rows`, `pp_team_rows`, `pp_directory`,
+`pp_table`): NCAA pitcher pages, hitter pages and matchup pools take their
+2026 rows from Supabase already reclassified and scored, so no Python scoring
+runs per request; TruMedia and the parquet datasets stay as fallbacks.
+`score_promodel()` only sends rows without a score to the bundle, and the
+reclassifier skips pitcher-seasons that arrived typed. Needs `SB_DB_HOST`,
+`SB_DB_USER`, `SB_DB_PASS` (read-only role is enough).
 
 ### Rebuilding the serving data
 

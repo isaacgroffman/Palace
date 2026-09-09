@@ -104,6 +104,13 @@ load_ncaa_batter_data <- function(display_name, team_disp = NULL) {
   # hitter workbook both pick a batter team explicitly). Reverse-resolving
   # it from the directory only works for hitters already in .hb_env$pairs,
   # which is why opponent bats fell through to parquet.
+  # 2026: Supabase pitchprofiler.pitches first (every pitch, already
+  # reclassified + scored), then the TruMedia / parquet paths as fallbacks.
+  sb26 <- tryCatch(pp_batter_rows(raws), error = function(e) NULL)
+  if (!is.null(sb26) && nrow(sb26) > 0) {
+    cat("  [Hitter 2026 source] Supabase pitchprofiler:", nrow(sb26), "pitches\n")
+    tm26 <- sb26
+  } else {
   if (is.null(team_disp) || !nzchar(team_disp %||% ""))
     team_disp <- tm_current_batter_team(display_name)
   tm26 <- tryCatch(tm_load_batter_pitches(display_name, team_disp),
@@ -112,6 +119,7 @@ load_ncaa_batter_data <- function(display_name, team_disp = NULL) {
                          conditionMessage(e), "\n")
                      NULL
                    })
+  }
   src26 <- if (!is.null(tm26) && nrow(tm26) > 0) {
     cat("  [Hitter 2026 source] TruMedia API:", nrow(tm26), "pitches\n")
     tm26
@@ -156,7 +164,7 @@ ncaa_pitcher_fast_cache <- new.env(parent = emptyenv())  # parquet-only frames
 # scouting notes); tempdir() keeps local runs working. Frames are keyed by
 # pitcher + today's date: pitch data only changes when a game finishes, so
 # same-day reuse is safe and tomorrow's first load naturally refreshes.
-.SCOUT_CACHE_VER <- 1L
+.SCOUT_CACHE_VER <- 2L   # bumped: 2026 frames now come from Supabase
 .scout_cache_dir <- function() {
   d <- if (dir.exists("/data")) "/data/scout_cache"
        else file.path(tempdir(), "scout_cache")
@@ -213,9 +221,12 @@ load_ncaa_pitcher_fast <- function(display_name) {
   raws <- raws[!is.na(raws) & nzchar(raws)]
   if (length(raws) == 0) return(data.frame())
 
+  # 2026 from Supabase when available (already scored, so the "fast" frame
+  # is the full frame for 2026 rows); parquet fallback otherwise.
+  sb26 <- tryCatch(pp_pitcher_rows(raws), error = function(e) NULL)
+  src26 <- if (!is.null(sb26) && nrow(sb26) > 0) sb26 else .ncaa_pull_rows(NCAA26_DS, raws)
   frames <- Filter(function(d) !is.null(d) && nrow(d) > 0,
-                   list(.ncaa_pull_rows(NCAA25_DS, raws),
-                        .ncaa_pull_rows(NCAA26_DS, raws)))
+                   list(.ncaa_pull_rows(NCAA25_DS, raws), src26))
   if (length(frames) == 0) return(data.frame())
 
   df <- bind_rows(harmonize_types(frames))
@@ -258,15 +269,22 @@ load_ncaa_pitcher_data <- function(display_name) {
   # transfer-aware: search the API on the pitcher's CURRENT (2026)
   # team, not the alphabetical-first of every team he's ever been on
   t_tm <- Sys.time()
-  team_disp <- tm_current_team(display_name)
-  tm26 <- tryCatch(tm_load_pitcher_pitches(display_name, team_disp),
-                   error = function(e) {
-                     cat("TruMedia 2026 load failed:", conditionMessage(e), "\n")
-                     NULL
-                   })
-  cat("  [scout timing] TruMedia 2026 pull:", .scout_elapsed(t_tm), "\n")
+  # Supabase pitchprofiler.pitches first: the whole 2026 season, already
+  # reclassified and scored by the production bundle. TruMedia, then the
+  # parquet dataset, remain as fallbacks.
+  sb26 <- tryCatch(pp_pitcher_rows(raws), error = function(e) NULL)
+  tm26 <- if (!is.null(sb26) && nrow(sb26) > 0) sb26 else {
+    team_disp <- tm_current_team(display_name)
+    tryCatch(tm_load_pitcher_pitches(display_name, team_disp),
+             error = function(e) {
+               cat("TruMedia 2026 load failed:", conditionMessage(e), "\n")
+               NULL
+             })
+  }
+  cat("  [scout timing] 2026 pull:", .scout_elapsed(t_tm), "\n")
   src26 <- if (!is.null(tm26) && nrow(tm26) > 0) {
-    cat("  [2026 source] TruMedia API:", nrow(tm26), "pitches\n")
+    cat("  [2026 source]", if (!is.null(sb26) && nrow(sb26) > 0) "Supabase pitchprofiler:" else "TruMedia API:",
+        nrow(tm26), "pitches\n")
     tm26
   } else {
     cat("  [2026 source] TruMedia unavailable (",

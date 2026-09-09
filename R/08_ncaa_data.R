@@ -169,6 +169,24 @@ if (palace_serve_mode()) {
   })
 }
 
+# Every 2026 arm in Supabase pitchprofiler.pitcher_season joins the directory
+# (both modes), so the global search offers the whole scored season.
+ncaa_dir_pairs <- tryCatch({
+  sb <- pp_directory()
+  if (is.null(sb) || nrow(sb) == 0) stop("no Supabase directory")
+  sb <- sb %>%
+    filter(!is.na(Pitcher), nzchar(Pitcher)) %>%
+    mutate(display   = ifelse(grepl(",", Pitcher), normalize_lastfirst(Pitcher), Pitcher),
+           team_disp = prettify_team(PitcherTeam))
+  out <- bind_rows(harmonize_types(list(ncaa_dir_pairs, sb))) %>%
+    distinct(Pitcher, PitcherTeam, display, team_disp, src)
+  cat("[pitchprofiler] directory:", nrow(sb), "Supabase pitcher-team pairs merged\n")
+  out
+}, error = function(e) {
+  cat("NOTE: Supabase directory not merged -", conditionMessage(e), "\n")
+  ncaa_dir_pairs
+})
+
 ncaa_directory <- tryCatch({
   if (nrow(ncaa_dir_pairs) == 0) stop("empty NCAA directory")
   ncaa_dir_pairs %>%
