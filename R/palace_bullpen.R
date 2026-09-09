@@ -25,6 +25,59 @@
 
 # Shared UI generator. The classic Bullpens tab in app.R should now contain
 # just palace_bullpen_ui("bp"); the 2027 roster page uses palace_bullpen_ui("r27bp").
+# ---- helpers the module needs (ported from Bullpen Central's R/helpers.R) ----
+drop_untagged <- function(df) {
+  dplyr::filter(df, !is.na(TaggedPitchType),
+                !TaggedPitchType %in% c("", "Other", "Undefined"))
+}
+
+bp_in_zone <- function(side, height) {
+  !is.na(side) & !is.na(height) &
+    side >= -0.8333 & side <= 0.8333 & height >= 1.5 & height <= 3.5
+}
+
+# Spin efficiency arrives as a 0-1 fraction from the practice API.
+fmt_pct <- function(x) ifelse(is.na(x), "\u2014", sprintf("%.0f%%", 100 * x))
+
+# Per-pitch-type summary for the gt table. First column must be `Pitch` --
+# the renderer colors it via pitch_colors.
+calculate_bullpen_summary <- function(df) {
+  df <- drop_untagged(df)
+  if (!nrow(df)) return(tibble::tibble())
+  total <- nrow(df)
+  eff <- if ("SpinAxis3dSpinEfficiency" %in% names(df)) df$SpinAxis3dSpinEfficiency else NA_real_
+  df$.eff <- eff
+  df |>
+    dplyr::group_by(Pitch = TaggedPitchType) |>
+    dplyr::summarise(
+      Count      = dplyr::n(),
+      `Usage %`  = sprintf("%.0f%%", 100 * dplyr::n() / total),
+      Velo       = round(mean(RelSpeed, na.rm = TRUE), 1),
+      Max        = round(suppressWarnings(max(RelSpeed, na.rm = TRUE)), 1),
+      Spin       = round(mean(SpinRate, na.rm = TRUE), 0),
+      `Eff %`    = fmt_pct(mean(.eff, na.rm = TRUE)),
+      IVB        = round(mean(InducedVertBreak, na.rm = TRUE), 1),
+      HB         = round(mean(HorzBreak, na.rm = TRUE), 1),
+      VAA        = round(mean(VertApprAngle, na.rm = TRUE), 1),
+      `Rel Ht`   = round(mean(RelHeight, na.rm = TRUE), 2),
+      `Rel Side` = round(mean(RelSide, na.rm = TRUE), 2),
+      Ext        = round(mean(Extension, na.rm = TRUE), 1),
+      `Zone %`   = sprintf("%.0f%%", 100 * mean(bp_in_zone(PlateLocSide, PlateLocHeight))),
+      .groups = "drop"
+    ) |>
+    dplyr::arrange(dplyr::desc(Count)) |>
+    dplyr::mutate(dplyr::across(dplyr::where(is.numeric),
+                                ~ ifelse(is.nan(.x) | is.infinite(.x), NA, .x)))
+}
+
+gt_theme_guardian <- function(gt_tbl, ...) {
+  if (requireNamespace("gtExtras", quietly = TRUE)) {
+    gtExtras::gt_theme_guardian(gt_tbl, ...)
+  } else {
+    gt_tbl
+  }
+}
+
 palace_bullpen_ui <- function(prefix = "bp") {
   p <- function(id) paste0(prefix, "_", id)
   tabsetPanel(id = p("tabs"), type = "pills",

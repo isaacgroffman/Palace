@@ -106,8 +106,7 @@ odu_data_loaded    <- FALSE
 
 # ---- 2026 reference pools (lazy) ---------------------------------------
 # Power 5 and Sun Belt pitches from Supabase, processed exactly like the
-# Coastal pool. The inches-convention processed frame is kept for the ecdf
-# maps (they were always built from it); the feet version is the app pool.
+# Coastal pool and kept in the app-wide FEET convention.
 .ref_env <- new.env(parent = emptyenv())
 # Processed reference pools are cached on disk, keyed by the scored tables'
 # build stamp: /data survives restarts on the deployment host, tempdir()
@@ -157,7 +156,8 @@ odu_data_loaded    <- FALSE
     parts <- Filter(function(d) is.data.frame(d) && nrow(d) > 0, parts)
     if (length(parts) == length(.REF_PARTS[[label]])) {
       t1 <- Sys.time()
-      proc <- dplyr::bind_rows(harmonize_types(parts))
+      proc <- .pool_to_feet(dplyr::bind_rows(harmonize_types(parts)))
+      rm(parts)
       cat(sprintf("[pools]   bind + harmonize in %.0fs\n", as.numeric(difftime(Sys.time(), t1, units = "secs"))))
       cat(sprintf("[pools] %s reference pool: %d pitches from Storage in %.0fs\n", label, nrow(proc),
                   as.numeric(difftime(Sys.time(), t0, units = "secs"))))
@@ -175,7 +175,7 @@ odu_data_loaded    <- FALSE
     .ref_env[[key]] <- spring26_processed$data[0, , drop = FALSE]
     return(.ref_env[[key]])
   }
-  proc <- add_roster_flag(process_pitcher_data(raw, bio_heights, ind)$data)
+  proc <- .pool_to_feet(add_roster_flag(process_pitcher_data(raw, bio_heights, ind)$data))
   cat(sprintf("[pools] %s reference pool: %d pitches ready in %.0fs\n", label, nrow(proc),
               as.numeric(difftime(Sys.time(), t0, units = "secs"))))
   if (!is.null(cp)) tryCatch(saveRDS(proc, cp), error = function(e) NULL)
@@ -187,10 +187,14 @@ SBC_LEAGUES <- c("NCAA Sun Belt")
 # Storage object names per pool (the P5 pool is shipped as one file per league)
 .REF_PARTS <- list(P5 = c("P5_SEC", "P5_ACC", "P5_Big12", "P5_BigTen"), SBC = "SBC")
 
-delayedAssign("P5_2026",  .pool_to_feet(.ref_processed("P5",  P5_LEAGUES,  "P5_ind")))
-delayedAssign("SBC_2026", .pool_to_feet(.ref_processed("SBC", SBC_LEAGUES, "SBC_ind")))
+# One copy of each pool in memory (feet convention). The ecdf maps read only
+# the indicator columns process_pitcher_data() added, so they are built from
+# the same frame; the old inches-convention duplicate is gone (Connect Cloud
+# memory).
+delayedAssign("P5_2026",  .ref_processed("P5",  P5_LEAGUES,  "P5_ind"))
+delayedAssign("SBC_2026", .ref_processed("SBC", SBC_LEAGUES, "SBC_ind"))
 delayedAssign("full_data_p5_compare", pool_all())
-delayedAssign("p5_maps",           build_p5_ecdf_maps(.ref_processed("P5", P5_LEAGUES, "P5_ind")))
+delayedAssign("p5_maps",           build_p5_ecdf_maps(P5_2026))
 delayedAssign("exp_movement_grid", build_expected_movement_grid(P5_2026, bin_size = 0.10))
 delayedAssign("p5_slot_grid",      build_p5_slot_grid(P5_2026, bin = 0.10))
 
