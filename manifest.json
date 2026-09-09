@@ -4578,27 +4578,6 @@
     "models/pitchprofiler_models/__init__.py": {
       "checksum": "ea96d02ac272ee93d260532e6fe67c87"
     },
-    "models/pitchprofiler_models/__pycache__/__init__.cpython-312.pyc": {
-      "checksum": "790acf1a46870ecd0e6484ae467d9038"
-    },
-    "models/pitchprofiler_models/__pycache__/cleaning.cpython-312.pyc": {
-      "checksum": "ce67ea861d3ccf3468426fbbc2372de4"
-    },
-    "models/pitchprofiler_models/__pycache__/loader.cpython-312.pyc": {
-      "checksum": "59fbc5cf4ef88e0c6a31a6041eac4489"
-    },
-    "models/pitchprofiler_models/__pycache__/physics.cpython-312.pyc": {
-      "checksum": "9a2382fe61073bba359ba6346e96cd3c"
-    },
-    "models/pitchprofiler_models/__pycache__/pipeline.cpython-312.pyc": {
-      "checksum": "993cc971140ee5055fa39550186f57c9"
-    },
-    "models/pitchprofiler_models/__pycache__/scoring.cpython-312.pyc": {
-      "checksum": "a6afa47809b4140526c9c44af521890d"
-    },
-    "models/pitchprofiler_models/__pycache__/xstats.cpython-312.pyc": {
-      "checksum": "de7f11ea4b65ea2e6d8c32043abff4a6"
-    },
     "models/pitchprofiler_models/cleaning.py": {
       "checksum": "cfc4504b446219cc8cb936cbcbf1baa5"
     },

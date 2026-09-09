@@ -4,3 +4,5 @@ hf_cache/
 .env
 .Renviron
 R/palace_secrets.R
+__pycache__/
+*.pyc
