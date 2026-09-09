@@ -422,9 +422,8 @@ clrspitching <- colorRampPalette(c("#E1463E","white","#00840D"))(length(brkspitc
     if (!is.null(hit)) return(hit)
     pool <- tryCatch(grade_pool_df(), error = function(e) NULL)
     if (is.null(pool) || !nrow(pool)) return(NULL)
-    xs <- tryCatch(
-      pp_expected_stats_cached(pool, group_cols = c("Pitcher", "TaggedPitchType")),
-      error = function(e) NULL)
+    xs <- tryCatch(pp_pool_xstats(pool, by = "PitcherPitchType"),   # pitcher_season_pitch_type
+                   error = function(e) NULL)
     if (is.null(xs) || !"TaggedPitchType" %in% names(xs)) return(NULL)
     have <- intersect(c("xBA", "xSLG", "xwOBA"), names(xs))
     if (!length(have)) return(NULL)

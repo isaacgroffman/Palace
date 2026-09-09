@@ -4558,7 +4558,7 @@
       "checksum": "07bd53ba6a2809506e2b36c6fe060850"
     },
     "app.R": {
-      "checksum": "7b1392bda9d264caef64d91a9448a4b1"
+      "checksum": "f5b998c33a03a1f36433faf2a0359957"
     },
     "CONTRIBUTING.md": {
       "checksum": "4c0d9bffa643b69149966548b2ee257a"
@@ -4663,7 +4663,7 @@
       "checksum": "141525d254e618527e0992ff69c6996d"
     },
     "R/07_pools.R": {
-      "checksum": "a6a9f4858964928f5fc07327610ea4d7"
+      "checksum": "0640a56dd6bc0e98152a405169fe66c6"
     },
     "R/08_ncaa_data.R": {
       "checksum": "1fcad2ebeca808489ab8de8e5aaca8d8"
@@ -4704,11 +4704,14 @@
     "R/20_pitch_arsenal.R": {
       "checksum": "70a978a61bb4c9b8c5d9ac7f3c23037c"
     },
+    "R/palace_artifacts.R": {
+      "checksum": "0ebdb3d016f6449bed38480e820c3519"
+    },
     "R/palace_bullpen.R": {
-      "checksum": "50aedcb8f746f2eb869a704f0b2ec620"
+      "checksum": "d2d4ca864750adb1d6dc5ecd3e1dbff2"
     },
     "R/palace_supabase.R": {
-      "checksum": "b556da685e0d03278a8a268ddb32cfab"
+      "checksum": "8b79e096de0639826f897035e343df6d"
     },
     "R/palace_video.R": {
       "checksum": "fb4ef274c03692d97a9087918d2a0966"
@@ -4723,13 +4726,13 @@
       "checksum": "fa8309662a81447e3e08631db133d2df"
     },
     "R/server/03_pitcher_tables.R": {
-      "checksum": "bd06e24511703afff8153592071d2334"
+      "checksum": "09ddcf5eec528a17e0502876142b6900"
     },
     "R/server/04_pitcher_grades_viz.R": {
-      "checksum": "8ca02cda09abbcefb6c0e9fd163879ab"
+      "checksum": "9c2947279e05ef0e516f9bddd7f7be58"
     },
     "R/server/05_pitcher_page.R": {
-      "checksum": "591191eac03c514514bf485f783569e7"
+      "checksum": "97b27ac3d2e808ff213b271e5cbe18fd"
     },
     "R/server/06_bullpen_roster_team.R": {
       "checksum": "76900a4a0d7e7d28d576468fd6e5c12a"
@@ -4768,7 +4771,7 @@
       "checksum": "a06272a7a8f3869789c7f67a27a2c3ef"
     },
     "README.md": {
-      "checksum": "8e1b5539055ab65b2083d5243fd955a3"
+      "checksum": "2a611b0d600eddbd1691ad560665d064"
     },
     "reference/batter_heights.csv": {
       "checksum": "96597461d934d8fd7d064cf4e6916edc"
@@ -4804,7 +4807,7 @@
       "checksum": "c741fb4656ab00c5174e80101eceaa4a"
     },
     "scripts/build_reference_pools.R": {
-      "checksum": "f2307a525241727c24076ddc72ad040e"
+      "checksum": "b81d1b9bcb6759f2699af293a92a644b"
     },
     "scripts/check_sources.R": {
       "checksum": "4ae456f55c8b04714359d7ffffe681fa"

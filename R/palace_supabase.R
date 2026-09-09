@@ -400,6 +400,39 @@ pp_league_pool <- function(leagues) {
   if (length(parts) == 1) parts[[1]] else dplyr::bind_rows(parts)
 }
 
+# Expected stats for the pitchers in a grading pool, from the aggregate
+# tables (computed by the pipeline with the bundle's Savant-style rules), so
+# the app never runs the Python expected-stats chain over 600k pool pitches.
+# Joins on TrackMan pitcher id and returns the pool's own Pitcher spelling.
+pp_pool_xstats <- function(pool, by = c("Pitcher", "PitcherPitchType")) {
+  by <- match.arg(by)
+  if (is.null(pool) || !nrow(pool) || !all(c("Pitcher", "PitcherId") %in% names(pool))) return(NULL)
+  ids <- pool[!is.na(pool$PitcherId) & nzchar(as.character(pool$PitcherId)), c("PitcherId", "Pitcher")]
+  ids <- ids[!duplicated(ids$PitcherId), , drop = FALSE]
+  if (!nrow(ids)) return(NULL)
+  tbl <- if (by == "Pitcher") "pitcher_season" else "pitcher_season_pitch_type"
+  cols <- if (by == "Pitcher") "pitcher_id, pitches, xba, xslg, xwoba" else "pitcher_id, pitch_type, pitches, xba, xslg, xwoba"
+  parts <- list()
+  for (chunk in split(as.character(ids$PitcherId), ceiling(seq_len(nrow(ids)) / 400))) {
+    q <- .pp_quote_in(chunk)
+    d <- tryCatch(DBI::dbGetQuery(palace_pool(), sprintf("select %s from pitchprofiler.%s where pitcher_id in (%s)", cols, tbl, q)),
+                  error = function(e) { cat("[pitchprofiler] pool xstats failed -", conditionMessage(e), "\n"); NULL })
+    if (is.null(d)) return(NULL)
+    parts[[length(parts) + 1]] <- d
+  }
+  d <- dplyr::bind_rows(parts)
+  if (!nrow(d)) return(NULL)
+  d$pitcher_id <- as.character(d$pitcher_id)
+  # one row per pitcher (the most-pitched season row wins if an id repeats)
+  d <- d[order(-d$pitches), , drop = FALSE]
+  key <- if (by == "Pitcher") d$pitcher_id else paste(d$pitcher_id, d$pitch_type)
+  d <- d[!duplicated(key), , drop = FALSE]
+  out <- data.frame(Pitcher = ids$Pitcher[match(d$pitcher_id, as.character(ids$PitcherId))],
+                    xBA = d$xba, xSLG = d$xslg, xwOBA = d$xwoba, stringsAsFactors = FALSE)
+  if (by != "Pitcher") out$TaggedPitchType <- d$pitch_type
+  out[!is.na(out$Pitcher), , drop = FALSE]
+}
+
 # Batter/team directory for the hitter search (one row per batter-team).
 pp_batter_directory <- function() {
   if (!pp_sb_available()) return(NULL)
@@ -478,6 +511,12 @@ sb_storage_upload <- function(local, path, content_type = "application/octet-str
     httr2::req_method("POST") |>
     httr2::req_headers(`x-upsert` = "true", `Content-Type` = content_type) |>
     httr2::req_body_file(local) |>
+    httr2::req_error(is_error = function(r) FALSE) |>
     httr2::req_perform()
-  invisible(httr2::resp_status(resp) < 300)
+  if (httr2::resp_status(resp) >= 300) {
+    body <- tryCatch(httr2::resp_body_string(resp), error = function(e) "")
+    stop(sprintf("[storage] upload of %s (%.1f MB) failed: HTTP %d %s", path,
+                 file.size(local) / 1e6, httr2::resp_status(resp), substr(body, 1, 300)))
+  }
+  invisible(TRUE)
 }

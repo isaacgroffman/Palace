@@ -7,7 +7,8 @@
 #   prespring, sprayprespring                        frames with the game schema
 #   P5_2026, SBC_2026          2026 reference pools (LAZY: pulled on first use)
 #   full_data_p5_compare       everything bound together (LAZY)
-#   p5_maps, exp_movement_grid, p5_slot_grid   derived from P5_2026 (LAZY)
+#   P5_slim, SBC_slim          slim grading pools (LAZY, precomputed artifacts)
+#   p5_maps, exp_movement_grid, p5_slot_grid   precomputed artifacts (LAZY)
 #
 # Every frame arrives already scored (stuff_xrv / plus per pitch) and typed,
 # so process_pitcher_data() only builds indicators, heights, arm angles and
@@ -36,13 +37,9 @@ build_p5_slot_grid <- function(p5, bin = 0.10) {
 }
 
 # process_pitcher_data() works in inches internally; the app-wide convention
-# for a finished pool is FEET.
-.pool_to_feet <- function(df) {
-  if (is.null(df) || !is.data.frame(df) || nrow(df) == 0) return(df)
-  df %>% mutate(Date = as.Date(Date),
-                PlateLocHeight = PlateLocHeight / 12,
-                PlateLocSide   = PlateLocSide / 12)
-}
+# for a finished pool is FEET (pool_to_feet in R/palace_artifacts.R detects
+# the unit, so it is safe on frames that are already in feet).
+.pool_to_feet <- pool_to_feet
 
 # ---- Coastal 2026 games -------------------------------------------------
 # Storage first (ref/<stamp>/coastal_games.parquet, written by
@@ -139,33 +136,14 @@ odu_data_loaded    <- FALSE
   }
   # 2) Supabase Storage: the processed pool built by scripts/build_reference_pools.R
   stamp <- gsub("[^0-9]", "", pp_built_at() %||% "")
-  if (!force && nzchar(stamp) && sb_storage_enabled()) {
-    t0 <- Sys.time()
-    parts <- list()
-    for (part in .REF_PARTS[[label]]) {
-      dest <- tempfile(fileext = ".parquet")
-      t1 <- Sys.time()
-      if (sb_storage_download(sprintf("ref/%s/%s.parquet", stamp, part), dest)) {
-        dl <- as.numeric(difftime(Sys.time(), t1, units = "secs")); t1 <- Sys.time()
-        parts[[part]] <- tryCatch(as.data.frame(arrow::read_parquet(dest)), error = function(e) NULL)
-        cat(sprintf("[pools]   %s: %.1f MB downloaded in %.0fs, read in %.0fs\n", part,
-                    file.size(dest) / 1e6, dl, as.numeric(difftime(Sys.time(), t1, units = "secs"))))
-        unlink(dest)
-      }
-    }
-    parts <- Filter(function(d) is.data.frame(d) && nrow(d) > 0, parts)
-    if (length(parts) == length(.REF_PARTS[[label]])) {
-      t1 <- Sys.time()
-      proc <- .pool_to_feet(dplyr::bind_rows(harmonize_types(parts)))
-      rm(parts)
-      cat(sprintf("[pools]   bind + harmonize in %.0fs\n", as.numeric(difftime(Sys.time(), t1, units = "secs"))))
-      cat(sprintf("[pools] %s reference pool: %d pitches from Storage in %.0fs\n", label, nrow(proc),
-                  as.numeric(difftime(Sys.time(), t0, units = "secs"))))
+  if (!force) {
+    proc <- tryCatch(storage_pool(label, stamp), error = function(e) NULL)
+    if (is.data.frame(proc) && nrow(proc) > 0) {
       if (!is.null(cp)) tryCatch(saveRDS(proc, cp), error = function(e) NULL)
       .ref_env[[key]] <- proc
       return(proc)
     }
-    cat("[pools]", label, "reference pool not in Storage for build", stamp, "- pulling from the database\n")
+    if (nzchar(stamp)) cat("[pools]", label, "reference pool not in Storage for build", stamp, "- pulling from the database\n")
   }
   # 3) live pull from pitchprofiler.pitches (slow: the pooler throttles big pulls)
   t0 <- Sys.time()
@@ -184,21 +162,41 @@ odu_data_loaded    <- FALSE
 }
 P5_LEAGUES  <- c("NCAA SEC", "NCAA ACC", "NCAA Big 12", "NCAA Big Ten")
 SBC_LEAGUES <- c("NCAA Sun Belt")
-# Storage object names per pool (the P5 pool is shipped as one file per league)
-.REF_PARTS <- list(P5 = c("P5_SEC", "P5_ACC", "P5_Big12", "P5_BigTen"), SBC = "SBC")
 
-# One copy of each pool in memory (feet convention). The ecdf maps read only
-# the indicator columns process_pitcher_data() added, so they are built from
-# the same frame; the old inches-convention duplicate is gone (Connect Cloud
-# memory).
+# ---- precomputed artifacts (R/palace_artifacts.R) --------------------------
+# Percentile maps, movement grids and the slim grading pools are built once
+# per scored-table build by scripts/build_reference_pools.R and read from
+# Storage; the fallbacks compute them from the full pools.
+.artifact <- function(name, kind, compute) {
+  cp <- tryCatch(.ref_cache_path(paste0("art_", name)), error = function(e) NULL)
+  if (!is.null(cp) && file.exists(cp)) {
+    obj <- tryCatch(readRDS(cp), error = function(e) NULL)
+    if (!is.null(obj)) { cat("[artifacts]", name, ": disk cache hit\n"); return(obj) }
+  }
+  stamp <- gsub("[^0-9]", "", pp_built_at() %||% "")
+  obj <- tryCatch(artifact_download(name, stamp, kind), error = function(e) NULL)
+  if (is.null(obj)) {
+    cat("[artifacts]", name, "not in Storage - computing from the reference pool\n")
+    obj <- compute()
+  }
+  if (!is.null(cp) && !is.null(obj)) tryCatch(saveRDS(obj, cp), error = function(e) NULL)
+  obj
+}
+
+# One copy of each full pool in memory (feet convention); only the matchup
+# matrix, hitter process model and pitch arsenal touch these.
 delayedAssign("P5_2026",  .ref_processed("P5",  P5_LEAGUES,  "P5_ind"))
 delayedAssign("SBC_2026", .ref_processed("SBC", SBC_LEAGUES, "SBC_ind"))
 delayedAssign("full_data_p5_compare", pool_all())
-delayedAssign("p5_maps",           build_p5_ecdf_maps(P5_2026))
-delayedAssign("exp_movement_grid", build_expected_movement_grid(P5_2026, bin_size = 0.10))
-delayedAssign("p5_slot_grid",      build_p5_slot_grid(P5_2026, bin = 0.10))
+
+# What the pitcher page needs: ~1 MB of maps plus a ~40-column grading pool.
+delayedAssign("p5_maps",           .artifact("p5_maps", "rds", function() slim_ecdf_maps(build_p5_ecdf_maps(P5_2026))))
+delayedAssign("exp_movement_grid", .artifact("exp_movement_grid", "rds", function() build_expected_movement_grid(P5_2026, bin_size = 0.10)))
+delayedAssign("p5_slot_grid",      .artifact("p5_slot_grid", "rds", function() build_p5_slot_grid(P5_2026, bin = 0.10)))
+delayedAssign("P5_slim",  .artifact("grade_P5",  "parquet", function() build_grade_pool(P5_2026)))
+delayedAssign("SBC_slim", .artifact("grade_SBC", "parquet", function() build_grade_pool(SBC_2026)))
 
 if (PALACE_PREWARM) {
   cat("[pools] PALACE_PREWARM=TRUE: forcing lazy reference pools at boot\n")
-  invisible(list(p5_maps, exp_movement_grid, p5_slot_grid, P5_2026, SBC_2026, full_data_p5_compare))
+  invisible(list(p5_maps, exp_movement_grid, p5_slot_grid, P5_slim, SBC_slim, P5_2026, SBC_2026, full_data_p5_compare))
 }

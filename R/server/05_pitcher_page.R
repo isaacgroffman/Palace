@@ -330,10 +330,16 @@
     if (!"xSLG" %in% names(per)) per$xSLG <- NA_real_
 
     # xwOBAcon = xwOBA over balls in play only
+    # xwOBAcon straight from the per-pitch expected terms the pipeline stored
+    # (xwobacon_bbe: model value on tracked contact, actual outcome otherwise)
     con <- tryCatch({
-      bip <- pool[as.character(pool$PitchCall) == "InPlay", , drop = FALSE]
-      if (nrow(bip) > 0)
-        pp_expected_stats_cached(bip, group_cols = c("Pitcher")) else NULL
+      if ("xwobacon_bbe" %in% names(pool)) {
+        bip <- pool[!is.na(pool$xwobacon_bbe), , drop = FALSE]
+        if (nrow(bip) > 0)
+          bip %>% dplyr::group_by(Pitcher) %>%
+            dplyr::summarise(xwOBA = mean(xwobacon_bbe, na.rm = TRUE), .groups = "drop") %>%
+            as.data.frame() else NULL
+      } else NULL
     }, error = function(e) NULL)
     if (!is.null(con) && all(c("Pitcher", "xwOBA") %in% names(con))) {
       con <- con[, c("Pitcher", "xwOBA"), drop = FALSE]

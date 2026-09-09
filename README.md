@@ -57,12 +57,25 @@ is downloaded from anywhere else, and no 2025 data is used.
 | `pitchprofiler.pitcher_season`, `..._pitch_type`, `pitcher_game`, `..._pitch_type` | aggregates with plus grades and expected stats | NCAA directory at boot (`pp_directory`); available to leaderboards via `pp_table()` |
 | `public.pitches` | Coastal bullpens with Edgertronic clips | Fall 2026 pill, Bullpens tab |
 
-`R/07_pools.R` builds the app's frames: `spring26` (Coastal 2026 games,
-processed at boot in ~20s) and the lazy `P5_2026` / `SBC_2026` reference
-pools, `full_data_p5_compare`, `p5_maps`, `exp_movement_grid`,
-`p5_slot_grid`. `PALACE_PREWARM=TRUE` forces the lazy pools at boot. The
-retired seasons (`data`, `fall25`, `prespring`) exist as zero-row frames so
-nothing downstream had to change.
+`R/07_pools.R` builds the app's frames. `spring26` (Coastal 2026 games) is
+read from Storage and processed at boot in a few seconds. Everything the
+pitcher page grades against is a **precomputed artifact** in Supabase Storage
+(bucket `palace-serving`, `ref/<build stamp>/`), built once per scored-table
+build by `scripts/build_reference_pools.R`:
+
+| Artifact | What | Size |
+|---|---|---|
+| `p5_maps.rds` | percentile maps (1,001-knot step functions, 0.1% precision) | ~1 MB |
+| `exp_movement_grid.rds`, `p5_slot_grid.rds` | expected movement by arm slot | KB |
+| `grade_P5.parquet`, `grade_SBC.parquet` | slim grading pools (`P5_slim`, `SBC_slim`): only the columns the grading code reads | ~40 cols |
+| `P5_*.parquet`, `SBC.parquet` | full processed reference pools (`P5_2026`, `SBC_2026`) | ~150 MB |
+
+The full pools only load for the matchup matrix, hitter process model and
+pitch arsenal. Per-pitcher expected stats for a grading pool come from
+`pitchprofiler.pitcher_season(_pitch_type)`, so no Python runs at request
+time. `PALACE_PREWARM=TRUE` forces everything at boot. The retired seasons
+(`data`, `fall25`, `prespring`) exist as zero-row frames so nothing
+downstream had to change.
 
 The Supabase Postgres pooler throttles and drops large result sets, so the
 Coastal games (boot) and the reference pools (~600k pitches, first use) come
@@ -85,6 +98,7 @@ When the master TrackMan file changes, rerun the pipeline and reload:
 ```
 PYTHONPATH=models:scripts python scripts/process_master.py --master ~/master_trackman_2026.parquet
 Rscript scripts/upload_supabase.R serving_build/master_2026
+Rscript scripts/build_reference_pools.R            # pools + artifacts into Storage (~25 min)
 ```
 
 See `scripts/README_process_master.md`. The pipeline reclassifies pitch types

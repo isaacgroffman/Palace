@@ -521,15 +521,20 @@
   # =====================================================================
 
   # Resolve the selected grading pool to a data frame (D1 = full P5+SBC).
+  # These are the SLIM pools (R/palace_artifacts.R): every column the grading
+  # code reads, none of the 100 it does not, precomputed and ~5x smaller.
+  .grade_pool_cache <- new.env(parent = emptyenv())
   grade_pool_df <- reactive({
     pool <- input$global_pool %||% "D1"
+    hit <- .grade_pool_cache[[pool]]
+    if (!is.null(hit)) return(hit)
     out <- switch(pool,
-                  "Power 5"  = P5_2026,
-                  "Sun Belt" = SBC_2026,
-                  "D1"       = dplyr::bind_rows(
-                                 harmonize_types(list(P5_2026, SBC_2026))),
-                  P5_2026)
-    if (is.null(out) || !is.data.frame(out) || nrow(out) == 0) return(P5_2026)
+                  "Power 5"  = P5_slim,
+                  "Sun Belt" = SBC_slim,
+                  "D1"       = dplyr::bind_rows(harmonize_types(list(P5_slim, SBC_slim))),
+                  P5_slim)
+    if (is.null(out) || !is.data.frame(out) || nrow(out) == 0) out <- P5_slim
+    .grade_pool_cache[[pool]] <- out
     out
   })
 
@@ -586,7 +591,8 @@
   xs_pool_arm <- reactive({
     pool <- tryCatch(grade_pool_df(), error = function(e) NULL)
     if (is.null(pool) || !nrow(pool)) return(NULL)
-    tryCatch(pp_expected_stats_cached(pool, group_cols = c("Pitcher")),
+    # from pitchprofiler.pitcher_season (same bundle rules, no Python at runtime)
+    tryCatch(pp_pool_xstats(pool, by = "Pitcher"),
              error = function(e) {
                cat("[Grades] pool expected stats unavailable -",
                    conditionMessage(e), "\n"); NULL })
