@@ -1586,8 +1586,7 @@ app_ui <- fluidPage(
   # Header with three logos
   div(class = "app-header",
       div(class = "header-left",
-          tags$a(href = "https://huggingface.co/spaces/CoastalBaseball/TealPages",
-                 target = "_blank", class = "header-brand",
+          tags$a(href = "#", class = "header-brand",
                  title = "Palace",
                  div(class = "header-brand-logo",
                      HTML(palace_lockup("dark", "signal",
@@ -1606,9 +1605,7 @@ app_ui <- fluidPage(
                   pickerInput(
                     inputId = "season_type",
                     label   = NULL,
-                    choices = c("Spring 2025" = "Spring25", "Fall 2025" = "Fall25",
-                                "Pre-Spring 2026" = "PreSpring26",
-                                "Spring 2026" = "Spring26",
+                    choices = c("Spring 2026" = "Spring26",
                                 "Fall 2026" = "Fall26"),
                     selected = "Spring26",
                     width = "100%",

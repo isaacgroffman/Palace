@@ -16,27 +16,54 @@ library(pool)
 library(RPostgres)
 library(DBI)
 
-palace_pool <- local({
-  p <- NULL
-  function() {
-    if (!is.null(p) && pool::dbIsValid(p)) return(p)
-    host <- Sys.getenv("SB_DB_HOST"); user <- Sys.getenv("SB_DB_USER")
-    pass <- Sys.getenv("SB_DB_PASS")
-    if (!nzchar(host) || !nzchar(user) || !nzchar(pass))
-      stop("Supabase credentials missing: set SB_DB_HOST, SB_DB_USER, SB_DB_PASS")
-    # Session pooler (5432) by default: the transaction pooler (6543) cuts off
-    # wide multi-thousand-row result sets from pitchprofiler.pitches.
-    port <- suppressWarnings(as.integer(Sys.getenv("SB_DB_PORT", "5432")))
-    if (is.na(port)) port <- 5432L
-    p <<- pool::dbPool(
+.palace_pool_env <- new.env(parent = emptyenv())
+
+palace_pool <- function() {
+  p <- .palace_pool_env$p
+  if (!is.null(p) && pool::dbIsValid(p)) return(p)
+  host <- Sys.getenv("SB_DB_HOST"); user <- Sys.getenv("SB_DB_USER")
+  pass <- Sys.getenv("SB_DB_PASS")
+  if (!nzchar(host) || !nzchar(user) || !nzchar(pass))
+    stop("Supabase credentials missing: set SB_DB_HOST, SB_DB_USER, SB_DB_PASS")
+  # Session pooler (5432) by default: the transaction pooler (6543) cuts off
+  # wide multi-thousand-row result sets from pitchprofiler.pitches.
+  port <- suppressWarnings(as.integer(Sys.getenv("SB_DB_PORT", "5432")))
+  if (is.na(port)) port <- 5432L
+  # the pooler intermittently refuses a brand-new connection; try a few times
+  for (attempt in 1:4) {
+    p <- tryCatch(pool::dbPool(
       RPostgres::Postgres(),
       host = host, port = port, dbname = "postgres",
       user = user, password = pass, sslmode = "require",
-      minSize = 1, maxSize = 4
-    )
-    p
+      minSize = 1, maxSize = 4,
+      idleTimeout = 120, validationInterval = 10
+    ), error = function(e) e)
+    if (!inherits(p, "error")) { .palace_pool_env$p <- p; return(p) }
+    cat("[supabase] connect failed (attempt", attempt, ") -", substr(conditionMessage(p), 1, 80), "\n")
+    Sys.sleep(3 * attempt)
   }
-})
+  stop("Supabase: could not connect after 4 attempts: ", conditionMessage(p))
+}
+
+# A plain (non-pooled) connection with the same settings as the pool.
+.pp_connect <- function() {
+  port <- suppressWarnings(as.integer(Sys.getenv("SB_DB_PORT", "5432")))
+  if (is.na(port)) port <- 5432L
+  DBI::dbConnect(RPostgres::Postgres(),
+                 host = Sys.getenv("SB_DB_HOST"), port = port, dbname = "postgres",
+                 user = Sys.getenv("SB_DB_USER"), password = Sys.getenv("SB_DB_PASS"),
+                 sslmode = "require", connect_timeout = 10)
+}
+
+# The Supabase pooler silently kills sessions it considers idle; a pooled
+# connection can look valid and then die on its next fetch. Readers call this
+# before retrying so the retry runs on a brand-new connection.
+palace_pool_reset <- function() {
+  p <- .palace_pool_env$p
+  if (!is.null(p)) try(pool::poolClose(p), silent = TRUE)
+  .palace_pool_env$p <- NULL
+  invisible()
+}
 
 # All practice pitches, in Palace's column vocabulary.
 sb_load_practice_pitches <- function() {
@@ -108,19 +135,34 @@ sb_practice_version <- function() {
 # =============================================================================
 .pp_sb <- new.env(parent = emptyenv())
 
+# TRUE is remembered for the session; a failure is only remembered for 30s so
+# a transient pooler hiccup never disables Supabase for the app's lifetime.
 pp_sb_available <- function() {
-  if (!is.null(.pp_sb$ok)) return(.pp_sb$ok)
-  .pp_sb$ok <- tryCatch({
-    n <- DBI::dbGetQuery(palace_pool(),
-      "select count(*) as n from information_schema.tables
-        where table_schema = 'pitchprofiler' and table_name = 'pitches'")$n
-    as.numeric(n) > 0
-  }, error = function(e) {
-    cat("[pitchprofiler] Supabase tables unavailable -", conditionMessage(e), "\n")
-    FALSE
-  })
-  if (isTRUE(.pp_sb$ok)) cat("[pitchprofiler] Supabase pitchprofiler.pitches available\n")
-  .pp_sb$ok
+  if (isTRUE(.pp_sb$ok)) return(TRUE)
+  if (!is.null(.pp_sb$failed_at) && as.numeric(difftime(Sys.time(), .pp_sb$failed_at, units = "secs")) < 30)
+    return(FALSE)
+  ok <- FALSE
+  for (attempt in 1:3) {
+    ok <- tryCatch({
+      n <- DBI::dbGetQuery(palace_pool(),
+        "select count(*) as n from information_schema.tables
+          where table_schema = 'pitchprofiler' and table_name = 'pitches'")$n
+      as.numeric(n) > 0
+    }, error = function(e) {
+      cat("[pitchprofiler] Supabase check failed (attempt", attempt, ") -", substr(conditionMessage(e), 1, 80), "\n")
+      palace_pool_reset()
+      NA
+    })
+    if (!is.na(ok)) break
+    Sys.sleep(2 * attempt)
+  }
+  if (isTRUE(ok)) {
+    .pp_sb$ok <- TRUE
+    cat("[pitchprofiler] Supabase pitchprofiler.pitches available\n")
+    return(TRUE)
+  }
+  .pp_sb$failed_at <- Sys.time()
+  FALSE
 }
 
 # pitchprofiler.pitches column -> TrackMan CSV name the app reads
@@ -181,24 +223,58 @@ pp_cols_for <- function(trackman_names) {
 }
 
 # Run one query against pitchprofiler.pitches and return an app-shaped frame
-# (or NULL). The frame is marked as already reclassified + scored so
-# reclassify_noncoastal_pitches() and score_promodel() leave it alone.
-pp_query_pitches <- function(where, cols = names(.PP_COLMAP), context = "pitchprofiler") {
+# (or NULL). Rows are fetched in keyset pages on pitch_uid (the primary key):
+# the Supabase pooler cuts off any single result set beyond a few tens of MB,
+# so a 600k-row reference pool arrives as ~25 pages of 25k rows, each retried
+# on a fresh checkout if the pooler drops it. The frame is marked as already
+# reclassified + scored so reclassify_noncoastal_pitches() and score_promodel()
+# leave it alone.
+PP_PAGE_ROWS <- 10000L
+
+pp_query_pitches <- function(where, cols = names(.PP_COLMAP), context = "pitchprofiler",
+                             page = PP_PAGE_ROWS, strict = FALSE, attempts = 3L) {
   if (!pp_sb_available()) return(NULL)
-  sql <- sprintf("select\n    %s\n  from pitchprofiler.pitches\n  where %s", .pp_select_sql(cols), where)
+  cols <- union(cols, "pitch_uid")
+  sel <- .pp_select_sql(cols)
   t0 <- Sys.time()
-  # the Supabase pooler occasionally drops an idle session: one retry on a
-  # fresh checkout before giving up (callers then fall back to TruMedia/parquet)
-  run <- function() DBI::dbGetQuery(palace_pool(), sql)
-  d <- tryCatch(run(), error = function(e) {
-    cat("[pitchprofiler]", context, "query failed once -", conditionMessage(e), "- retrying\n")
-    Sys.sleep(1)
-    tryCatch(run(), error = function(e2) {
-      cat("[pitchprofiler]", context, "query failed -", conditionMessage(e2), "\n")
-      NULL
-    })
-  })
-  if (is.null(d) || nrow(d) == 0) return(NULL)
+  # One dedicated connection PER PAGE. The Supabase pooler kills a session
+  # right after it has served one large result set (the next fetch on the
+  # same connection fails instantly), so pooled connections cannot be reused
+  # for these pulls. A fresh connect costs ~0.3s; a page takes ~1.5s.
+  fetch <- function(sql) {
+    for (attempt in seq_len(attempts)) {
+      d <- tryCatch({
+        con <- .pp_connect()
+        on.exit(try(DBI::dbDisconnect(con), silent = TRUE), add = TRUE)
+        DBI::dbGetQuery(con, sql)
+      }, error = function(e) e)
+      if (!inherits(d, "error")) return(d)
+      cat("[pitchprofiler]", context, "page failed (attempt", attempt, ") -",
+          substr(conditionMessage(d), 1, 80), "\n")
+      Sys.sleep(2 * attempt)
+    }
+    NULL
+  }
+  pages <- list(); last <- ""; n_pages <- 0L
+  repeat {
+    sql <- sprintf("select\n    %s\n  from pitchprofiler.pitches\n  where (%s) and pitch_uid > %s\n  order by pitch_uid\n  limit %d",
+                   sel, where, DBI::dbQuoteString(DBI::ANSI(), last), as.integer(page))
+    d <- fetch(sql)
+    if (is.null(d)) {
+      # strict callers (reference pools) must never see a partial frame
+      if (strict) { cat("[pitchprofiler]", context, "incomplete after", n_pages, "page(s) - giving up\n"); return(NULL) }
+      if (n_pages == 0L) return(NULL)
+      cat("[pitchprofiler]", context, "returning", n_pages, "page(s), the rest could not be fetched\n")
+      break
+    }
+    if (nrow(d) == 0) break
+    n_pages <- n_pages + 1L
+    pages[[n_pages]] <- d
+    if (nrow(d) < page) break
+    last <- max(d$PitchUID)
+  }
+  if (n_pages == 0L) return(NULL)
+  d <- if (n_pages == 1L) pages[[1]] else dplyr::bind_rows(pages)
   for (nm in names(d)) {
     x <- d[[nm]]
     if (inherits(x, "integer64")) d[[nm]] <- as.numeric(x)
@@ -207,7 +283,7 @@ pp_query_pitches <- function(where, cols = names(.PP_COLMAP), context = "pitchpr
   if ("Date" %in% names(d)) d$Date <- as.Date(d$Date)
   d$Notes <- NA_character_
   d$src <- "2026"
-  cat(sprintf("  [pitchprofiler] %s: %d pitches in %.1fs\n", context, nrow(d),
+  cat(sprintf("  [pitchprofiler] %s: %d pitches in %d page(s), %.1fs\n", context, nrow(d), n_pages,
               as.numeric(difftime(Sys.time(), t0, units = "secs"))))
   d
 }
@@ -270,4 +346,116 @@ bp_fix_names <- function(x) {
   x <- gsub("\\s+", " ", x)
   x <- sub("^([^,]+),\\s*(.+)$", "\\1, \\2", x)
   x[!is.na(x) & nzchar(x)]
+}
+
+# ---- pools for R/07_pools.R -------------------------------------------------
+# Columns a processed pool needs (everything process_pitcher_data, the ecdf
+# maps, the matchup matrix and the hitter models read); leaves out the wide
+# catcher-throw / contact-position / 9P columns nobody uses.
+PP_POOL_COLS <- c(
+  "Pitcher", "PitcherId", "PitcherThrows", "PitcherTeam", "Batter", "BatterId",
+  "BatterSide", "BatterTeam", "HomeTeam", "AwayTeam", "Date", "GameID", "PitchUID",
+  "PitchNo", "Inning", "PAofInning", "PitchofPA", "Outs", "Balls", "Strikes",
+  "OutsOnPlay", "RunsScored", "Tilt", "ZoneSpeed", "EffectiveVelo", "vx0", "ax0", "az0",
+  "TaggedPitchType", "OriginalPitchType", "PitchTypeSource",
+  "PitchCall", "KorBB", "PlayResult", "TaggedHitType",
+  "RelSpeed", "VertRelAngle", "HorzRelAngle", "SpinRate", "SpinAxis", "RelHeight",
+  "RelSide", "Extension", "InducedVertBreak", "HorzBreak", "PlateLocHeight",
+  "PlateLocSide", "VertApprAngle", "HorzApprAngle", "ExitSpeed", "Angle", "Direction",
+  "Distance", "Bearing", "HangTime", "vy0", "ay0", "y0", "Stadium", "Level", "League",
+  "stuff_xrv", "pitching_xrv", "location_xrv", "stuff_plus", "pitching_plus",
+  "location_plus", "is_bbe", "bbe_tracked", "xba_bbe", "xtb_bbe", "xwobacon_bbe"
+)
+
+# Coastal's 2026 games (Standard sessions; bullpens live in public.pitches).
+pp_coastal_games <- function() {
+  pp_query_pitches("pitcher_team = 'COA_CHA' and session_type = 'Standard'",
+                   context = "Coastal 2026 games")
+}
+
+# Every pitch in the named leagues (the 2026 reference pools). One league at
+# a time, strict (complete or NULL), small pages, many retries: a reference
+# pool that is silently missing half its rows would skew every percentile.
+pp_league_pool <- function(leagues) {
+  parts <- list()
+  for (lg in leagues) {
+    d <- pp_query_pitches(sprintf("league = %s and session_type = 'Standard'", DBI::dbQuoteString(DBI::ANSI(), lg)),
+                          cols = pp_cols_for(PP_POOL_COLS), context = paste("league pool", lg),
+                          page = 5000L, strict = TRUE, attempts = 8L)
+    if (is.null(d)) return(NULL)
+    parts[[lg]] <- d
+  }
+  if (length(parts) == 0) return(NULL)
+  if (length(parts) == 1) parts[[1]] else dplyr::bind_rows(parts)
+}
+
+# Batter/team directory for the hitter search (one row per batter-team).
+pp_batter_directory <- function() {
+  if (!pp_sb_available()) return(NULL)
+  d <- tryCatch(DBI::dbGetQuery(palace_pool(),
+    "select distinct batter_name as \"Batter\", batter_team as \"BatterTeam\"
+       from pitchprofiler.pitches
+      where batter_name is not null and batter_name <> ''"),
+    error = function(e) { cat("[pitchprofiler] batter directory failed -", conditionMessage(e), "\n"); NULL })
+  if (is.null(d) || nrow(d) == 0) return(NULL)
+  d$src <- "2026"
+  d
+}
+
+# Build stamp of the scored tables (changes when process_master.py reloads
+# them); used to key on-disk caches of the processed reference pools.
+pp_built_at <- function() {
+  if (!pp_sb_available()) return(NA_character_)
+  tryCatch(as.character(DBI::dbGetQuery(palace_pool(),
+    "select max(built_at) as b from pitchprofiler.pitcher_season")$b[1]),
+    error = function(e) NA_character_)
+}
+
+# ---- Supabase Storage (bucket `palace-serving`) -----------------------------
+# Large precomputed objects (the processed P5 / Sun Belt reference pools) are
+# shipped as parquet files through Storage over HTTPS: the Postgres pooler
+# throttles and drops multi-hundred-thousand-row result sets, a file download
+# does not. Built by scripts/build_reference_pools.R after each reload.
+#   SUPABASE_URL          https://<projectref>.supabase.co
+#   SUPABASE_SECRET_KEY   a secret (service) API key; the bucket is private
+SB_STORAGE_BUCKET <- "palace-serving"
+
+sb_storage_enabled <- function() {
+  nzchar(Sys.getenv("SUPABASE_URL")) && nzchar(Sys.getenv("SUPABASE_SECRET_KEY"))
+}
+
+.sb_storage_req <- function(path) {
+  key <- Sys.getenv("SUPABASE_SECRET_KEY")
+  httr2::request(sprintf("%s/storage/v1/object/%s/%s",
+                         sub("/+$", "", Sys.getenv("SUPABASE_URL")), SB_STORAGE_BUCKET, path)) |>
+    httr2::req_headers(apikey = key, Authorization = paste("Bearer", key)) |>
+    httr2::req_timeout(600)
+}
+
+# Download one object to `dest`; TRUE on success. Missing objects are not an
+# error (callers fall back), other failures are logged.
+sb_storage_download <- function(path, dest) {
+  if (!sb_storage_enabled()) return(FALSE)
+  resp <- tryCatch(.sb_storage_req(path) |> httr2::req_error(is_error = function(r) FALSE) |>
+                     httr2::req_perform(path = dest), error = function(e) e)
+  if (inherits(resp, "error")) {
+    cat("[storage] download failed", path, "-", conditionMessage(resp), "\n"); return(FALSE)
+  }
+  ok <- httr2::resp_status(resp) == 200
+  if (!ok) {
+    cat("[storage]", path, "not available (HTTP", httr2::resp_status(resp), ")\n")
+    if (file.exists(dest)) unlink(dest)
+  }
+  ok
+}
+
+# Upload a local file (upsert). Used by the build scripts, never by the app.
+sb_storage_upload <- function(local, path, content_type = "application/octet-stream") {
+  if (!sb_storage_enabled()) stop("set SUPABASE_URL and SUPABASE_SECRET_KEY")
+  resp <- .sb_storage_req(path) |>
+    httr2::req_method("POST") |>
+    httr2::req_headers(`x-upsert` = "true", `Content-Type` = content_type) |>
+    httr2::req_body_file(local) |>
+    httr2::req_perform()
+  invisible(httr2::resp_status(resp) < 300)
 }

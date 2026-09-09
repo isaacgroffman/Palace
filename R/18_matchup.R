@@ -1893,26 +1893,8 @@ load_matchup_team_pool <- function(team_key) {
   codes <- unique(c(ncaa_team_codes[[disp]], disp))
   codes <- codes[!is.na(codes) & nzchar(codes)]
 
-  pull_team <- function(ds) {
-    if (is.null(ds)) return(NULL)
-    both <- tryCatch(
-      ds %>% dplyr::select(dplyr::any_of(MM_POOL_COLS)) %>%
-        dplyr::filter(PitcherTeam %in% codes | BatterTeam %in% codes) %>%
-        dplyr::collect() %>% as.data.frame(),
-      error = function(e) NULL)
-    if (!is.null(both)) return(both)
-    tryCatch(
-      ds %>% dplyr::select(dplyr::any_of(MM_POOL_COLS)) %>%
-        dplyr::filter(PitcherTeam %in% codes) %>%
-        dplyr::collect() %>% as.data.frame(),
-      error = function(e) {
-        cat("WARNING: MM parquet pull failed -", conditionMessage(e), "\n")
-        NULL
-      })
-  }
-
-  # 2026: TruMedia API is the primary source, exactly like the pitcher
-  # pages; parquet is the fallback. 2025 complements from parquet.
+  # 2026: Supabase first, exactly like the pitcher pages; TruMedia is the
+  # fallback.
   sb26 <- tryCatch(pp_team_rows(codes, cols = pp_cols_for(c(MM_POOL_COLS, "PitchTypeSource", "OriginalPitchType"))),
                    error = function(e) NULL)
   tm26 <- if (!is.null(sb26) && nrow(sb26) > 0) sb26 else
@@ -1923,13 +1905,10 @@ load_matchup_team_pool <- function(team_key) {
   if (!is.null(tm26) && nrow(tm26) > 0) {
     cat("  [MM 2026 source]", if (!is.null(sb26) && nrow(sb26) > 0) "Supabase pitchprofiler:" else "TruMedia API:",
         nrow(tm26), "pitches\n")
-    pq26 <- NULL
   } else {
-    cat("  [MM 2026 source] TruMedia unavailable (",
-        .tm_env$last_error %||% "no detail", ") - parquet fallback\n")
-    pq26 <- pull_team(NCAA26_DS)
+    cat("  [MM 2026 source] no Supabase rows and TruMedia unavailable (",
+        .tm_env$last_error %||% "no detail", ")\n")
   }
-  pq25 <- pull_team(NCAA25_DS)
 
   fix_pq <- function(d) {
     if (is.null(d) || nrow(d) == 0) return(NULL)
@@ -1947,8 +1926,7 @@ load_matchup_team_pool <- function(team_key) {
 
   # Supabase rows carry TrackMan team codes like the parquet rows do
   if (!is.null(sb26) && nrow(sb26) > 0) tm26 <- fix_pq(tm26)
-  frames <- Filter(function(d) !is.null(d) && nrow(d) > 0,
-                   list(fix_pq(pq25), fix_pq(pq26), tm26))
+  frames <- Filter(function(d) !is.null(d) && nrow(d) > 0, list(tm26))
   if (length(frames) == 0) {
     .mm_pool_cache[[ck]] <- data.frame()
     return(data.frame())

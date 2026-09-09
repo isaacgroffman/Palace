@@ -524,12 +524,12 @@
   grade_pool_df <- reactive({
     pool <- input$global_pool %||% "D1"
     out <- switch(pool,
-                  "Power 5"  = P5_2025,
-                  "Sun Belt" = SBC_2025,
+                  "Power 5"  = P5_2026,
+                  "Sun Belt" = SBC_2026,
                   "D1"       = dplyr::bind_rows(
-                                 harmonize_types(list(P5_2025, SBC_2025))),
-                  P5_2025)
-    if (is.null(out) || !is.data.frame(out) || nrow(out) == 0) return(P5_2025)
+                                 harmonize_types(list(P5_2026, SBC_2026))),
+                  P5_2026)
+    if (is.null(out) || !is.data.frame(out) || nrow(out) == 0) return(P5_2026)
     out
   })
 

@@ -5,9 +5,7 @@
 #   R/00_config.R ... R/20_pitch_arsenal.R   global code, sourced IN ORDER
 #   R/ui.R is inside 19_ui.R (app_ui); R/server.R sources R/server/*.R
 #
-# Data mode (see R/03_data_access.R):
-#   PALACE_DATA_MODE=build  -> rebuild every pool from raw sources at boot (slow, original behaviour)
-#   PALACE_DATA_MODE=serve  -> read precomputed pools/artifacts produced by scripts/build_serving_data.R
+# Data: every pitch comes from Supabase (R/palace_supabase.R, R/07_pools.R).
 # =============================================================================
 if (!nzchar(Sys.getenv("RETICULATE_PYTHON")))
   Sys.setenv(RETICULATE_PYTHON = "/usr/bin/python3")

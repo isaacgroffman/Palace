@@ -3,7 +3,7 @@
 # Coastal pitcher/hitter bios, the 2027 roster, bullpen-pitcher list from Supabase.
 # ============================================================================
 
-bio <- download_private_csv("CoastalBaseball/PitcherAppFiles", "CCU_Pitcher_Bio.csv")
+bio <- readr::read_csv(palace_file_candidates("CCU_Pitcher_Bio.csv")[1], show_col_types = FALSE)
 
 bio <- bio %>%
   mutate(
@@ -17,16 +17,10 @@ bio <- bio %>%
 # dataset as backstop; NULL-safe everywhere it's consumed.
 # ============================================================
 hitter_bio <- tryCatch({
-  cand <- Filter(file.exists, unique(c(
-    "CCU_Hitter_Bio.csv", "./CCU_Hitter_Bio.csv", "/code/CCU_Hitter_Bio.csv",
-    file.path(getwd(), "CCU_Hitter_Bio.csv"),
-    "data/CCU_Hitter_Bio.csv", "www/CCU_Hitter_Bio.csv")))
-  if (length(cand) > 0) {
-    cat("Hitter bio source (local):", normalizePath(cand[1]), "\n")
-    readr::read_csv(cand[1], show_col_types = FALSE)
-  } else {
-    download_private_csv("CoastalBaseball/PitcherAppFiles", "CCU_Hitter_Bio.csv")
-  }
+  cand <- palace_file_candidates("CCU_Hitter_Bio.csv")
+  if (length(cand) == 0) stop("CCU_Hitter_Bio.csv not found")
+  cat("Hitter bio source (local):", normalizePath(cand[1]), "\n")
+  readr::read_csv(cand[1], show_col_types = FALSE)
 }, error = function(e) {
   cat("WARNING: CCU_Hitter_Bio.csv not found -", conditionMessage(e), "\n")
   NULL

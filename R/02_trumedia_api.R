@@ -1198,7 +1198,7 @@ tm_load_batter_pitches <- function(display_name, team_disp) {
 .bio_env <- new.env(parent = emptyenv())
 load_bioinfo <- function() {
   if (!is.null(.bio_env$df)) return(.bio_env$df)
-  cand <- c("bioinfo.csv", "./bioinfo.csv", "/code/bioinfo.csv",
+  cand <- c("bioinfo.csv", "reference/bioinfo.csv", "./bioinfo.csv", "/code/bioinfo.csv",
             file.path(getwd(), "bioinfo.csv"),
             "data/bioinfo.csv", "/data/bioinfo.csv", "www/bioinfo.csv",
             list.files(".", pattern = "(?i)^bio.?info.*\\.csv$",

@@ -4555,13 +4555,13 @@
   },
   "files": {
     ".env.example": {
-      "checksum": "ac8cef6e54e76b844e8c4be521b6046e"
+      "checksum": "07bd53ba6a2809506e2b36c6fe060850"
     },
     "app.R": {
-      "checksum": "cfe0d0b9dcc0a9fa0eda3042fe26b9e2"
+      "checksum": "7b1392bda9d264caef64d91a9448a4b1"
     },
     "CONTRIBUTING.md": {
-      "checksum": "15f168630cda337688d0bdadee1afb17"
+      "checksum": "4c0d9bffa643b69149966548b2ee257a"
     },
     "DRS26.csv": {
       "checksum": "2ee282c15ce18bb0c6f1b1903e7ff883"
@@ -4638,20 +4638,23 @@
     "models/xstats/model_xbh.txt": {
       "checksum": "e28daeac39a7e81a1c159cde28f3051f"
     },
+    "R/_disable_autoload.R": {
+      "checksum": "974f6675d67db24cbdba7483db172f5d"
+    },
     "R/00_config.R": {
-      "checksum": "e2fe9421f5c9e343219e91c0b0712c42"
+      "checksum": "aaa825d3b617f62afeb0c970406eda77"
     },
     "R/01_reference.R": {
       "checksum": "89e2aaa053ade28ff6383dbfb9481a79"
     },
     "R/02_trumedia_api.R": {
-      "checksum": "42a3d06c2a60fef54817f8622e476802"
+      "checksum": "76a672a557521ed0e10ba4eebdc8b792"
     },
     "R/03_data_access.R": {
-      "checksum": "51fc0b10a8ab04130aea91a9465a567a"
+      "checksum": "66c895f6231b176b34c9b136085c7f16"
     },
     "R/04_players_roster.R": {
-      "checksum": "10f10c34eee59cd1b687a0154c5b085f"
+      "checksum": "e8a48f68314803ccd99f6e9b7527bdbc"
     },
     "R/05_promodel.R": {
       "checksum": "21450a247bead56ad888bce0589e8c6f"
@@ -4660,10 +4663,10 @@
       "checksum": "141525d254e618527e0992ff69c6996d"
     },
     "R/07_pools.R": {
-      "checksum": "d34d12aa0d10827034e09310d1c3ec1c"
+      "checksum": "8dd855ef94ac50be6adcfdc4fa0a07ad"
     },
     "R/08_ncaa_data.R": {
-      "checksum": "115c7fd1c1156194ab1fadc725a2bf97"
+      "checksum": "1fcad2ebeca808489ab8de8e5aaca8d8"
     },
     "R/09_leaderboard.R": {
       "checksum": "372e084f4707f38ad832dae141ec213e"
@@ -4684,7 +4687,7 @@
       "checksum": "d55aa26316e992dcd503b5427f3fe881"
     },
     "R/15_ncaa_hitters.R": {
-      "checksum": "e791c316e1ea3fee1212e9adf7396162"
+      "checksum": "5954d15b40636702361837816562c0e9"
     },
     "R/16_player_headers.R": {
       "checksum": "850b0ee415fc2b087561e8fb1c1931c7"
@@ -4693,10 +4696,10 @@
       "checksum": "932efb0fde51d50e6b14d667ce3a4d3a"
     },
     "R/18_matchup.R": {
-      "checksum": "e2a9546e34028abc6875b3b379235e96"
+      "checksum": "7ca1bc93485e0afdfbf123ce1c44b608"
     },
     "R/19_ui.R": {
-      "checksum": "8b7fc31c218cf5172678822522aa4fdf"
+      "checksum": "a5f3fee4b4d2b1a3dc9adf512a44fbdc"
     },
     "R/20_pitch_arsenal.R": {
       "checksum": "70a978a61bb4c9b8c5d9ac7f3c23037c"
@@ -4705,7 +4708,7 @@
       "checksum": "50aedcb8f746f2eb869a704f0b2ec620"
     },
     "R/palace_supabase.R": {
-      "checksum": "b5bb3643ad1a48a2e33445246f749765"
+      "checksum": "49e7e10fd9a96fd5495f9ea84eb4dffe"
     },
     "R/palace_video.R": {
       "checksum": "fb4ef274c03692d97a9087918d2a0966"
@@ -4723,7 +4726,7 @@
       "checksum": "bd06e24511703afff8153592071d2334"
     },
     "R/server/04_pitcher_grades_viz.R": {
-      "checksum": "10eba2c54fa9482bd560a600d5183d3f"
+      "checksum": "8ca02cda09abbcefb6c0e9fd163879ab"
     },
     "R/server/05_pitcher_page.R": {
       "checksum": "591191eac03c514514bf485f783569e7"
@@ -4765,13 +4768,22 @@
       "checksum": "a06272a7a8f3869789c7f67a27a2c3ef"
     },
     "README.md": {
-      "checksum": "e5d863662ccd93a9bff45b0b0dd6304a"
+      "checksum": "2ad7b08a5036d4d0bc161ed668790207"
     },
     "reference/batter_heights.csv": {
       "checksum": "96597461d934d8fd7d064cf4e6916edc"
     },
+    "reference/bioinfo.csv": {
+      "checksum": "32f7af6dce3d40bc83d3651b7156ee27"
+    },
     "reference/ccu_2027_roster.csv": {
       "checksum": "29787010d1604f57ede3e1f9d0ec9677"
+    },
+    "reference/CCU_Hitter_Bio.csv": {
+      "checksum": "a2d0231156cd3a9b6c39a5a330f50d78"
+    },
+    "reference/CCU_Pitcher_Bio.csv": {
+      "checksum": "04d00d22f488c6d5c987bf1abd121756"
     },
     "reference/merged_teams.csv": {
       "checksum": "1393f58381a0f6dc5ef07068c2af3684"
@@ -4791,8 +4803,8 @@
     "sample/sample_trackman_ccu.parquet": {
       "checksum": "c741fb4656ab00c5174e80101eceaa4a"
     },
-    "scripts/build_serving_data.R": {
-      "checksum": "cb9e2e5fed6d726a610daa4f58347d94"
+    "scripts/build_reference_pools.R": {
+      "checksum": "5ca63cf97b0c9f33e97c6c940ebfaea3"
     },
     "scripts/check_sources.R": {
       "checksum": "4ae456f55c8b04714359d7ffffe681fa"

@@ -15,7 +15,7 @@ R/
   palace_bullpen.R        Bullpen tab module
   01_reference.R          team/league/conference lookups
   02_trumedia_api.R       TruMedia API client + pitch/bio helpers
-  03_data_access.R        Hugging Face cache layer + the SERVING LAYER (only file that knows where data lives)
+  03_data_access.R        pool_all() + local lookup-file resolver (Supabase readers live in palace_supabase.R)
   04_players_roster.R     Coastal bios, 2027 roster, Supabase bullpen pitcher list
   05_promodel.R           Pitch Profiler (proStuff+/proPitching+/proLocation+) wrapper
   06_pitch_processing.R   process_pitcher_data(), indicators, P5 percentile maps, movement helpers
@@ -36,9 +36,9 @@ R/
   server.R                server <- function(...) { source R/server/*.R with local = TRUE }
   server/01..14_*.R       server body, one chunk per feature area (same environment, order matters)
 reference/                tiny static CSVs that ARE committed (roster, team map, leagues)
-scripts/build_serving_data.R   produces the precomputed pools/artifacts (see "Data")
+scripts/process_master.py      scores the master TrackMan file -> Supabase tables (see "Data")
+scripts/upload_supabase.R      loads them
 models/, pitchprofiler_models/, sample/, verify_install.py   Python Pitch Profiler bundle (unchanged)
-raw/                      gitignored inputs for the build script
 ```
 
 Global files are sourced in numeric order; a file may only use things defined
@@ -48,63 +48,54 @@ visible in `09_`.
 
 ## Data
 
-Nothing large is committed. `R/03_data_access.R` is the only place that knows
-where data comes from:
+Everything comes from Supabase, read through `R/palace_supabase.R`. Nothing
+is downloaded from anywhere else, and no 2025 data is used.
 
-| Source | What | Mode |
+| Supabase table | What | Read when |
 |---|---|---|
-| `PALACE_SERVING_REPO` (HF dataset, default `CoastalBaseball/PalaceServing`) | `pools/*.parquet`, `artifacts/*.rds`, `files/*.csv` written by `scripts/build_serving_data.R` | serve |
-| `CoastalBaseball/PitcherAppFiles`, `CoastalBaseball/2026MasterDataset`, `CoastalBaseball/AdvancePitcher` | raw TrackMan pools, NCAA pbp, bios | build (and NCAA per-pitcher loads in both modes) |
-| Supabase | bullpen/practice pitches, players; `pitchprofiler.*` = every 2026 NCAA pitch reclassified + scored (see below) | both |
-| TruMedia / TrackMan APIs | leaderboards, stats, video tokens | both |
+| `pitchprofiler.pitches` | every 2026 NCAA pitch (2.58M), reclassified + scored by the Pitch Profiler bundle | Coastal games at boot; NCAA pitcher / hitter / matchup pulls on demand; P5 + Sun Belt reference pools on first use |
+| `pitchprofiler.pitcher_season`, `..._pitch_type`, `pitcher_game`, `..._pitch_type` | aggregates with plus grades and expected stats | NCAA directory at boot (`pp_directory`); available to leaderboards via `pp_table()` |
+| `public.pitches` | Coastal bullpens with Edgertronic clips | Fall 2026 pill, Bullpens tab |
 
-### `PALACE_DATA_MODE`
+`R/07_pools.R` builds the app's frames: `spring26` (Coastal 2026 games,
+processed at boot in ~20s) and the lazy `P5_2026` / `SBC_2026` reference
+pools, `full_data_p5_compare`, `p5_maps`, `exp_movement_grid`,
+`p5_slot_grid`. `PALACE_PREWARM=TRUE` forces the lazy pools at boot. The
+retired seasons (`data`, `fall25`, `prespring`) exist as zero-row frames so
+nothing downstream had to change.
 
-- **`serve`** (target): boot reads eight small Coastal parquets. The P5/SBC
-  reference pools (~520k rows), `full_data_p5_compare`, the P5 percentile maps,
-  movement/slot grids and the NCAA directory are precomputed artifacts, and the
-  heavy ones are `delayedAssign` promises — downloaded on first use, not at boot.
-  `PALACE_PREWARM=TRUE` forces them at boot instead.
-- **`build`** (default until you flip it): the original startup path — downloads
-  every raw pool, runs `process_pitcher_data()` and Python scoring on all of
-  them, binds, filters back. Slow, but it is also what the build script runs,
-  so serve mode can never diverge from it.
-
-### Scoring the full master TrackMan file
-
-`scripts/process_master.py` runs `~/master_trackman_2026.parquet` (2.6M NCAA
-pitches, TrackMan v3 API export) through the Pitch Profiler bundle: pitch-type
-reclassification, per-pitch proStuff+/proPitching+/proLocation+, per-pitch
-expected-stat terms, and four aggregate tables ready for Supabase
-(`scripts/upload_supabase.R`). See `scripts/README_process_master.md`.
-
-Once uploaded, the app reads those tables through `R/palace_supabase.R`
-(`pp_pitcher_rows`, `pp_batter_rows`, `pp_team_rows`, `pp_directory`,
-`pp_table`): NCAA pitcher pages, hitter pages and matchup pools take their
-2026 rows from Supabase already reclassified and scored, so no Python scoring
-runs per request; TruMedia and the parquet datasets stay as fallbacks.
-`score_promodel()` only sends rows without a score to the bundle, and the
-reclassifier skips pitcher-seasons that arrived typed. Needs `SB_DB_HOST`,
-`SB_DB_USER`, `SB_DB_PASS` (read-only role is enough).
-
-### Rebuilding the serving data
-
-Whenever a raw pool changes (new season file, corrected bios, model update):
+The reference pools (~700k pitches) are too big to stream through the
+Supabase Postgres pooler, which throttles and drops large result sets, so
+they come from Supabase **Storage** (bucket `palace-serving`,
+`ref/<build stamp>/<part>.parquet`), already processed. Lookup order on
+first use: disk cache (`/data/ref_cache`) → Storage → live database pull.
+After every reload of the scored tables, rebuild them once:
 
 ```
-Rscript scripts/build_serving_data.R --upload
+Rscript scripts/build_reference_pools.R     # ~20 min, needs SUPABASE_URL + SUPABASE_SECRET_KEY
 ```
 
-Local dry run: omit `--upload`, then run the app with
-`PALACE_DATA_MODE=serve PALACE_SERVING_DIR=serving_build`.
+Small lookups live in the repo: `reference/*.csv` (rosters, bios, team map,
+leagues, heights), `DRS26.csv`, `trumedia_player_bio_master.csv`.
 
-Roadmap: Supabase replaces the HF serving repo. Only `palace_serving_file()`,
-`pool_read()`, `artifact_read()` and `palace_file_candidates()` change.
+### Refreshing the scored tables
+
+When the master TrackMan file changes, rerun the pipeline and reload:
+
+```
+PYTHONPATH=models:scripts python scripts/process_master.py --master ~/master_trackman_2026.parquet
+Rscript scripts/upload_supabase.R serving_build/master_2026
+```
+
+See `scripts/README_process_master.md`. The pipeline reclassifies pitch types
+(same engine as `R/12`, verified identical), scores every pitch, and never
+trims outliers or velocity.
 
 ## Running locally
 
 ```
 cp .env.example .env      # fill in secrets; readRenviron(".env") or use dotenv
+# needs SB_DB_HOST / SB_DB_USER / SB_DB_PASS; nothing else is required to boot
 Rscript -e 'shiny::runApp(".")'
 ```
 
@@ -113,17 +104,16 @@ production numbers) before anything else is debugged.
 
 ## Deploying
 
-Connect Cloud / HF Space needs: the env vars in `.env.example`, Python 3 with
-`lightgbm==4.7.0 polars pandas numpy pyarrow` + `huggingface_hub`, and the
-Python bundle directories present at the repo root. Set `PALACE_DATA_MODE=serve`
-once a serving build has been uploaded.
+Connect Cloud needs the env vars in `.env.example` (Supabase is required; TruMedia
+and TrackMan are optional) and installs Python from `requirements.txt` via
+`manifest.json` (regenerate with `rsconnect::writeManifest()` after adding an R
+package). Primary file: `app.R`.
 
-## Changes from the HF Space monolith (`app.R` v87)
+## Changes from the original monolith (`app.R` v87)
 
 - Split into `R/` + `R/server/` files; **no logic changes** except those listed here.
 - Removed ~650 lines of dead code: pre-Supabase bullpen helpers, the whole
-  AWRE Exchange/HLS module (product removed 2026-08-31; still in git history of
-  the Space), `college_re24/re288` loads, `TEAM_REPORT_COLS`, `LB_TM_SHAPE_TOKENS`,
+  AWRE Exchange/HLS module (product removed 2026-08-31; still in git history), `college_re24/re288` loads, `TEAM_REPORT_COLS`, `LB_TM_SHAPE_TOKENS`,
   `PA_SHRINK_K`, `pitcher_bio_lookup`, the unused `selected_spray` reactive,
   `spraySBC_2025`/`sprayP5_2025`.
 - Dropped `tidymodels`, `parsnip`, `recipes`, `xgboost` (unreferenced).
@@ -133,5 +123,4 @@ once a serving build has been uploaded.
   pitch-arsenal code: the app env is not the global env under `runApp`, so the
   league pool was silently never found.
 - Small CSVs moved to `reference/` (`merged_teams (2).csv` → `reference/merged_teams.csv`).
-- `DRS26.csv` / `trumedia_player_bio_master.csv` resolve local-first, then
-  `files/` in the serving repo, so they no longer need to be committed.
+- `DRS26.csv` / `trumedia_player_bio_master.csv` are committed with the app and resolved locally.

@@ -9,18 +9,8 @@
 
 ncaa_batter_directory <- function() {
   if (!is.null(.hb_env$dir)) return(.hb_env$dir)
-  pull <- function(ds, src) {
-    if (is.null(ds)) return(NULL)
-    out <- tryCatch(
-      ds %>% dplyr::distinct(Batter, BatterTeam) %>% dplyr::collect() %>%
-        as.data.frame(),
-      error = function(e) NULL)
-    if (is.null(out) || nrow(out) == 0) return(NULL)
-    out$src <- src
-    out
-  }
-  raw <- dplyr::bind_rows(Filter(Negate(is.null), list(
-    pull(NCAA25_DS, "2025"), pull(NCAA26_DS, "2026"))))
+  raw <- tryCatch(pp_batter_directory(), error = function(e) NULL)
+  if (is.null(raw)) raw <- data.frame(Batter = character(0), BatterTeam = character(0), src = character(0))
   if (nrow(raw) == 0) {
     .hb_env$dir <- data.frame(display = character(0), teams = character(0))
     return(.hb_env$dir)
@@ -84,22 +74,8 @@ load_ncaa_batter_data <- function(display_name, team_disp = NULL) {
   raws <- raws[!is.na(raws) & nzchar(raws)]
   if (length(raws) == 0) return(data.frame())
 
-  # Same collector the pitcher loader uses. The old hand-rolled version
-  # dropped a hardcoded list of five time-ish column names, which missed
-  # whichever column actually carried the time32 type -- hence the
-  # repeated "Unsupported cast from string to time32" failures.
-  # .arrow_collect scans the schema and drops every time32/time64/duration
-  # column, whatever it happens to be called.
-  frames_pull <- function(ds) {
-    .arrow_collect(ds, function(q) dplyr::filter(q, Batter %in% raws),
-                   context = "NCAA batter pull")
-  }
-
-  # 2026 pitch data comes from TruMedia (API is the primary source; the
-  # parquet dataset is only a fallback if the API is unreachable) —
-  # exactly like load_ncaa_pitcher_data. 2025 stays on the parquet
-  # dataset unchanged. Transfer-aware: search on the batter's CURRENT
-  # (2026) team.
+  # 2026 pitch data: Supabase first, TruMedia as the fallback. Transfer-
+  # aware: the TruMedia search runs on the batter's CURRENT (2026) team.
   # Prefer a team the CALLER already knows (the matchup matrix and the
   # hitter workbook both pick a batter team explicitly). Reverse-resolving
   # it from the directory only works for hitters already in .hb_env$pairs,
@@ -121,16 +97,15 @@ load_ncaa_batter_data <- function(display_name, team_disp = NULL) {
                    })
   }
   src26 <- if (!is.null(tm26) && nrow(tm26) > 0) {
-    cat("  [Hitter 2026 source] TruMedia API:", nrow(tm26), "pitches\n")
+    if (is.null(sb26)) cat("  [Hitter 2026 source] TruMedia API:", nrow(tm26), "pitches\n")
     tm26
   } else {
-    cat("  [Hitter 2026 source] TruMedia unavailable (",
-        .tm_env$last_error %||% "no detail", ") - parquet fallback\n")
-    frames_pull(NCAA26_DS)
+    cat("  [Hitter 2026 source] no Supabase rows and TruMedia unavailable (",
+        .tm_env$last_error %||% "no detail", ")\n")
+    NULL
   }
 
-  frames <- Filter(function(d) !is.null(d) && nrow(d) > 0,
-                   list(frames_pull(NCAA25_DS), src26))
+  frames <- Filter(function(d) !is.null(d) && nrow(d) > 0, list(src26))
   if (length(frames) == 0) return(data.frame())
   df <- dplyr::bind_rows(harmonize_types(frames))
   df <- .mm_dedupe_uid(df)   # NA-safe: rows without a PitchUID all survive
@@ -194,15 +169,10 @@ ncaa_pitcher_fast_cache <- new.env(parent = emptyenv())  # parquet-only frames
 .scout_elapsed <- function(t0)
   sprintf("%.1fs", as.numeric(difftime(Sys.time(), t0, units = "secs")))
 
-.ncaa_pull_rows <- function(ds, raws) {
-  .arrow_collect(ds, function(q) dplyr::filter(q, Pitcher %in% raws),
-                 context = "NCAA pull")
-}
-
-# ---- FAST loader: parquet sources only, no TruMedia, no proModel ----------
+# ---- FAST loader: Supabase only, no TruMedia --------------------------
 # Enough for every chart (movement, arm slot, locations, indicators) in a
-# few seconds. Plus scores are NA until the full loader upgrades the frame;
-# the server bumps a reactive nonce when that lands so outputs re-render.
+# second or two. Supabase rows already carry plus scores; the full loader
+# only adds the TruMedia fallback and the disk cache.
 load_ncaa_pitcher_fast <- function(display_name) {
   key <- gsub("[^A-Za-z0-9]", "_", display_name)
   full <- ncaa_pitcher_cache[[key]]
@@ -221,12 +191,8 @@ load_ncaa_pitcher_fast <- function(display_name) {
   raws <- raws[!is.na(raws) & nzchar(raws)]
   if (length(raws) == 0) return(data.frame())
 
-  # 2026 from Supabase when available (already scored, so the "fast" frame
-  # is the full frame for 2026 rows); parquet fallback otherwise.
   sb26 <- tryCatch(pp_pitcher_rows(raws), error = function(e) NULL)
-  src26 <- if (!is.null(sb26) && nrow(sb26) > 0) sb26 else .ncaa_pull_rows(NCAA26_DS, raws)
-  frames <- Filter(function(d) !is.null(d) && nrow(d) > 0,
-                   list(.ncaa_pull_rows(NCAA25_DS, raws), src26))
+  frames <- Filter(function(d) !is.null(d) && nrow(d) > 0, list(sb26))
   if (length(frames) == 0) return(data.frame())
 
   df <- bind_rows(harmonize_types(frames))
@@ -259,19 +225,12 @@ load_ncaa_pitcher_data <- function(display_name) {
   raws <- raws[!is.na(raws) & nzchar(raws)]
   if (length(raws) == 0) return(data.frame())
 
-  pull_one <- function(ds) .ncaa_pull_rows(ds, raws)
-
-  # 2026 pitch data comes from TruMedia (API is the primary source;
-  # the parquet dataset is only a fallback if the API is unreachable).
-  # 2025 stays on the parquet dataset unchanged. Coastal pitchers
-  # never enter this function — their custom-tagged TrackMan data
-  # flows through the coastal pipeline untouched.
-  # transfer-aware: search the API on the pitcher's CURRENT (2026)
-  # team, not the alphabetical-first of every team he's ever been on
+  # Coastal pitchers never enter this function — their custom-tagged
+  # TrackMan data flows through the coastal pipeline untouched.
   t_tm <- Sys.time()
   # Supabase pitchprofiler.pitches first: the whole 2026 season, already
-  # reclassified and scored by the production bundle. TruMedia, then the
-  # parquet dataset, remain as fallbacks.
+  # reclassified and scored by the production bundle. TruMedia (searched
+  # on the pitcher's CURRENT team) remains as the fallback.
   sb26 <- tryCatch(pp_pitcher_rows(raws), error = function(e) NULL)
   tm26 <- if (!is.null(sb26) && nrow(sb26) > 0) sb26 else {
     team_disp <- tm_current_team(display_name)
@@ -287,15 +246,12 @@ load_ncaa_pitcher_data <- function(display_name) {
         nrow(tm26), "pitches\n")
     tm26
   } else {
-    cat("  [2026 source] TruMedia unavailable (",
-        .tm_env$last_error %||% "no detail", ") - parquet fallback\n")
-    pull_one(NCAA26_DS)
+    cat("  [2026 source] no Supabase rows and TruMedia unavailable (",
+        .tm_env$last_error %||% "no detail", ")\n")
+    NULL
   }
 
-  t_pq <- Sys.time()
-  frames <- Filter(function(d) !is.null(d) && nrow(d) > 0,
-                   list(pull_one(NCAA25_DS), src26))
-  cat("  [scout timing] parquet pulls:", .scout_elapsed(t_pq), "\n")
+  frames <- Filter(function(d) !is.null(d) && nrow(d) > 0, list(src26))
   if (length(frames) == 0) return(data.frame())
 
   df <- bind_rows(harmonize_types(frames))
