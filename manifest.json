@@ -4663,7 +4663,7 @@
       "checksum": "141525d254e618527e0992ff69c6996d"
     },
     "R/07_pools.R": {
-      "checksum": "8dd855ef94ac50be6adcfdc4fa0a07ad"
+      "checksum": "a6a9f4858964928f5fc07327610ea4d7"
     },
     "R/08_ncaa_data.R": {
       "checksum": "1fcad2ebeca808489ab8de8e5aaca8d8"
@@ -4708,7 +4708,7 @@
       "checksum": "50aedcb8f746f2eb869a704f0b2ec620"
     },
     "R/palace_supabase.R": {
-      "checksum": "49e7e10fd9a96fd5495f9ea84eb4dffe"
+      "checksum": "b556da685e0d03278a8a268ddb32cfab"
     },
     "R/palace_video.R": {
       "checksum": "fb4ef274c03692d97a9087918d2a0966"
@@ -4768,7 +4768,7 @@
       "checksum": "a06272a7a8f3869789c7f67a27a2c3ef"
     },
     "README.md": {
-      "checksum": "2ad7b08a5036d4d0bc161ed668790207"
+      "checksum": "8e1b5539055ab65b2083d5243fd955a3"
     },
     "reference/batter_heights.csv": {
       "checksum": "96597461d934d8fd7d064cf4e6916edc"
@@ -4804,7 +4804,7 @@
       "checksum": "c741fb4656ab00c5174e80101eceaa4a"
     },
     "scripts/build_reference_pools.R": {
-      "checksum": "5ca63cf97b0c9f33e97c6c940ebfaea3"
+      "checksum": "f2307a525241727c24076ddc72ad040e"
     },
     "scripts/check_sources.R": {
       "checksum": "4ae456f55c8b04714359d7ffffe681fa"

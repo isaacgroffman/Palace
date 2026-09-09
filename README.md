@@ -64,15 +64,15 @@ pools, `full_data_p5_compare`, `p5_maps`, `exp_movement_grid`,
 retired seasons (`data`, `fall25`, `prespring`) exist as zero-row frames so
 nothing downstream had to change.
 
-The reference pools (~700k pitches) are too big to stream through the
-Supabase Postgres pooler, which throttles and drops large result sets, so
-they come from Supabase **Storage** (bucket `palace-serving`,
-`ref/<build stamp>/<part>.parquet`), already processed. Lookup order on
-first use: disk cache (`/data/ref_cache`) → Storage → live database pull.
+The Supabase Postgres pooler throttles and drops large result sets, so the
+Coastal games (boot) and the reference pools (~600k pitches, first use) come
+from Supabase **Storage** (bucket `palace-serving`,
+`ref/<build stamp>/<part>.parquet`; the reference pools already processed).
+Lookup order: disk cache (`/data/ref_cache`) → Storage → live database pull.
 After every reload of the scored tables, rebuild them once:
 
 ```
-Rscript scripts/build_reference_pools.R     # ~20 min, needs SUPABASE_URL + SUPABASE_SECRET_KEY
+Rscript scripts/build_reference_pools.R     # ~25 min, needs SUPABASE_URL + SUPABASE_SECRET_KEY (parts: COASTAL SBC P5)
 ```
 
 Small lookups live in the repo: `reference/*.csv` (rosters, bios, team map,

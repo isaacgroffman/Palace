@@ -34,7 +34,7 @@ palace_pool <- function() {
     p <- tryCatch(pool::dbPool(
       RPostgres::Postgres(),
       host = host, port = port, dbname = "postgres",
-      user = user, password = pass, sslmode = "require",
+      user = user, password = pass, sslmode = "require", connect_timeout = 10,
       minSize = 1, maxSize = 4,
       idleTimeout = 120, validationInterval = 10
     ), error = function(e) e)
@@ -163,6 +163,19 @@ pp_sb_available <- function() {
   }
   .pp_sb$failed_at <- Sys.time()
   FALSE
+}
+
+# Run a small query with retries; the pool is rebuilt between attempts because
+# the pooler kills sessions silently and a dead one can still look valid.
+.pp_with_retry <- function(what, fn, attempts = 4L) {
+  for (attempt in seq_len(attempts)) {
+    out <- tryCatch(fn(), error = function(e) e)
+    if (!inherits(out, "error")) return(out)
+    cat("[pitchprofiler]", what, "failed (attempt", attempt, ") -", substr(conditionMessage(out), 1, 80), "\n")
+    palace_pool_reset()
+    Sys.sleep(2 * attempt)
+  }
+  NULL
 }
 
 # pitchprofiler.pitches column -> TrackMan CSV name the app reads
@@ -313,11 +326,10 @@ pp_team_rows <- function(team_codes, cols = names(.PP_COLMAP)) {
 # Pitcher/team directory for the global search (one row per pitcher-team).
 pp_directory <- function() {
   if (!pp_sb_available()) return(NULL)
-  d <- tryCatch(DBI::dbGetQuery(palace_pool(),
+  d <- .pp_with_retry("directory", function() DBI::dbGetQuery(palace_pool(),
     "select distinct pitcher_name as \"Pitcher\", pitcher_team as \"PitcherTeam\"
        from pitchprofiler.pitcher_season
-      where pitcher_name is not null and pitcher_name <> ''"),
-    error = function(e) { cat("[pitchprofiler] directory failed -", conditionMessage(e), "\n"); NULL })
+      where pitcher_name is not null and pitcher_name <> ''"))
   if (is.null(d) || nrow(d) == 0) return(NULL)
   d$src <- "2026"
   d
@@ -331,8 +343,7 @@ pp_table <- function(name, where = NULL) {
                             "pitcher_game", "pitcher_game_pitch_type"))
   sql <- sprintf("select * from pitchprofiler.%s%s", name,
                  if (is.null(where)) "" else paste0(" where ", where))
-  d <- tryCatch(DBI::dbGetQuery(palace_pool(), sql), error = function(e) {
-    cat("[pitchprofiler]", name, "failed -", conditionMessage(e), "\n"); NULL })
+  d <- .pp_with_retry(name, function() DBI::dbGetQuery(palace_pool(), sql))
   if (is.null(d)) return(NULL)
   for (nm in names(d)) if (inherits(d[[nm]], "integer64")) d[[nm]] <- as.numeric(d[[nm]])
   d
@@ -370,7 +381,7 @@ PP_POOL_COLS <- c(
 # Coastal's 2026 games (Standard sessions; bullpens live in public.pitches).
 pp_coastal_games <- function() {
   pp_query_pitches("pitcher_team = 'COA_CHA' and session_type = 'Standard'",
-                   context = "Coastal 2026 games")
+                   context = "Coastal 2026 games", page = 2000L, strict = TRUE, attempts = 8L)
 }
 
 # Every pitch in the named leagues (the 2026 reference pools). One league at
@@ -392,11 +403,10 @@ pp_league_pool <- function(leagues) {
 # Batter/team directory for the hitter search (one row per batter-team).
 pp_batter_directory <- function() {
   if (!pp_sb_available()) return(NULL)
-  d <- tryCatch(DBI::dbGetQuery(palace_pool(),
+  d <- .pp_with_retry("batter directory", function() DBI::dbGetQuery(palace_pool(),
     "select distinct batter_name as \"Batter\", batter_team as \"BatterTeam\"
        from pitchprofiler.pitches
-      where batter_name is not null and batter_name <> ''"),
-    error = function(e) { cat("[pitchprofiler] batter directory failed -", conditionMessage(e), "\n"); NULL })
+      where batter_name is not null and batter_name <> ''"))
   if (is.null(d) || nrow(d) == 0) return(NULL)
   d$src <- "2026"
   d
@@ -406,9 +416,9 @@ pp_batter_directory <- function() {
 # them); used to key on-disk caches of the processed reference pools.
 pp_built_at <- function() {
   if (!pp_sb_available()) return(NA_character_)
-  tryCatch(as.character(DBI::dbGetQuery(palace_pool(),
-    "select max(built_at) as b from pitchprofiler.pitcher_season")$b[1]),
-    error = function(e) NA_character_)
+  b <- .pp_with_retry("build stamp", function() DBI::dbGetQuery(palace_pool(),
+    "select max(built_at) as b from pitchprofiler.pitcher_season")$b[1])
+  if (is.null(b)) NA_character_ else as.character(b)
 }
 
 # ---- Supabase Storage (bucket `palace-serving`) -----------------------------
@@ -434,19 +444,31 @@ sb_storage_enabled <- function() {
 
 # Download one object to `dest`; TRUE on success. Missing objects are not an
 # error (callers fall back), other failures are logged.
-sb_storage_download <- function(path, dest) {
+sb_storage_download <- function(path, dest, attempts = 4L) {
   if (!sb_storage_enabled()) return(FALSE)
-  resp <- tryCatch(.sb_storage_req(path) |> httr2::req_error(is_error = function(r) FALSE) |>
-                     httr2::req_perform(path = dest), error = function(e) e)
-  if (inherits(resp, "error")) {
-    cat("[storage] download failed", path, "-", conditionMessage(resp), "\n"); return(FALSE)
-  }
-  ok <- httr2::resp_status(resp) == 200
-  if (!ok) {
-    cat("[storage]", path, "not available (HTTP", httr2::resp_status(resp), ")\n")
+  for (attempt in seq_len(attempts)) {
+    resp <- tryCatch(.sb_storage_req(path) |> httr2::req_error(is_error = function(r) FALSE) |>
+                       httr2::req_retry(max_tries = 3, retry_on_failure = TRUE) |>
+                       httr2::req_perform(path = dest), error = function(e) e)
+    if (inherits(resp, "error")) {
+      # transient network error (a 40 MB download over a flaky link): retry
+      why <- conditionMessage(resp)
+      if (!is.null(resp$parent)) why <- paste(why, "/", conditionMessage(resp$parent))
+      cat("[storage] download of", path, "failed (attempt", attempt, ") -", substr(why, 1, 120), "\n")
+      if (file.exists(dest)) unlink(dest)
+      Sys.sleep(3 * attempt)
+      next
+    }
+    status <- httr2::resp_status(resp)
+    if (status == 200 && file.exists(dest) && file.info(dest)$size > 0) return(TRUE)
     if (file.exists(dest)) unlink(dest)
+    if (status == 404 || status == 400) {           # object is not there: no point retrying
+      cat("[storage]", path, "not available (HTTP", status, ")\n"); return(FALSE)
+    }
+    cat("[storage]", path, "HTTP", status, "(attempt", attempt, ")\n")
+    Sys.sleep(3 * attempt)
   }
-  ok
+  FALSE
 }
 
 # Upload a local file (upsert). Used by the build scripts, never by the app.

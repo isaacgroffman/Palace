@@ -45,7 +45,20 @@ build_p5_slot_grid <- function(p5, bin = 0.10) {
 }
 
 # ---- Coastal 2026 games -------------------------------------------------
-spring26_raw <- tryCatch(pp_coastal_games(), error = function(e) {
+# Storage first (ref/<stamp>/coastal_games.parquet, written by
+# scripts/build_reference_pools.R): a 3 MB download is reliable, the database
+# pooler is not. Live pull as the fallback.
+.coastal_from_storage <- function() {
+  stamp <- gsub("[^0-9]", "", pp_built_at() %||% "")
+  if (!nzchar(stamp) || !sb_storage_enabled()) return(NULL)
+  dest <- tempfile(fileext = ".parquet")
+  if (!sb_storage_download(sprintf("ref/%s/coastal_games.parquet", stamp), dest)) return(NULL)
+  d <- tryCatch(as.data.frame(arrow::read_parquet(dest)), error = function(e) NULL)
+  unlink(dest)
+  if (is.data.frame(d) && nrow(d) > 0) { if ("Date" %in% names(d)) d$Date <- as.Date(d$Date); cat("[pools] Coastal 2026 games from Storage\n"); d } else NULL
+}
+spring26_raw <- tryCatch(.coastal_from_storage(), error = function(e) NULL)
+if (is.null(spring26_raw)) spring26_raw <- tryCatch(pp_coastal_games(), error = function(e) {
   cat("WARNING: Coastal 2026 games unavailable -", conditionMessage(e), "\n"); NULL
 })
 if (is.null(spring26_raw) || nrow(spring26_raw) == 0) {
@@ -110,12 +123,14 @@ odu_data_loaded    <- FALSE
   if (!nzchar(stamp)) return(NULL)
   file.path(.ref_cache_dir(), paste0(label, "_", stamp, ".rds"))
 }
-.ref_processed <- function(label, leagues, ind) {
+# force = TRUE (the build script) skips the memory, disk and Storage tiers
+# and pulls from the database, so a rebuild never reuses a stale file.
+.ref_processed <- function(label, leagues, ind, force = FALSE) {
   key <- paste0(label, "_proc")
-  if (!is.null(.ref_env[[key]])) return(.ref_env[[key]])
+  if (!force && !is.null(.ref_env[[key]])) return(.ref_env[[key]])
   # 1) disk cache
   cp <- tryCatch(.ref_cache_path(label), error = function(e) NULL)
-  if (!is.null(cp) && file.exists(cp)) {
+  if (!force && !is.null(cp) && file.exists(cp)) {
     proc <- tryCatch(readRDS(cp), error = function(e) NULL)
     if (is.data.frame(proc) && nrow(proc) > 0) {
       cat("[pools]", label, "reference pool: disk cache hit,", nrow(proc), "pitches\n")
@@ -125,19 +140,25 @@ odu_data_loaded    <- FALSE
   }
   # 2) Supabase Storage: the processed pool built by scripts/build_reference_pools.R
   stamp <- gsub("[^0-9]", "", pp_built_at() %||% "")
-  if (nzchar(stamp) && sb_storage_enabled()) {
+  if (!force && nzchar(stamp) && sb_storage_enabled()) {
     t0 <- Sys.time()
     parts <- list()
     for (part in .REF_PARTS[[label]]) {
       dest <- tempfile(fileext = ".parquet")
+      t1 <- Sys.time()
       if (sb_storage_download(sprintf("ref/%s/%s.parquet", stamp, part), dest)) {
+        dl <- as.numeric(difftime(Sys.time(), t1, units = "secs")); t1 <- Sys.time()
         parts[[part]] <- tryCatch(as.data.frame(arrow::read_parquet(dest)), error = function(e) NULL)
+        cat(sprintf("[pools]   %s: %.1f MB downloaded in %.0fs, read in %.0fs\n", part,
+                    file.size(dest) / 1e6, dl, as.numeric(difftime(Sys.time(), t1, units = "secs"))))
         unlink(dest)
       }
     }
     parts <- Filter(function(d) is.data.frame(d) && nrow(d) > 0, parts)
     if (length(parts) == length(.REF_PARTS[[label]])) {
+      t1 <- Sys.time()
       proc <- dplyr::bind_rows(harmonize_types(parts))
+      cat(sprintf("[pools]   bind + harmonize in %.0fs\n", as.numeric(difftime(Sys.time(), t1, units = "secs"))))
       cat(sprintf("[pools] %s reference pool: %d pitches from Storage in %.0fs\n", label, nrow(proc),
                   as.numeric(difftime(Sys.time(), t0, units = "secs"))))
       if (!is.null(cp)) tryCatch(saveRDS(proc, cp), error = function(e) NULL)
