@@ -378,6 +378,12 @@ reclassify_noncoastal_pitches <- function(df, context = "") {
     }
     for (season in unique(yr[df$Pitcher == p])) {
       idx <- which(df$Pitcher == p & yr == season)
+      # rows from Supabase pitchprofiler.pitches arrive already classified by
+      # the same engine (scripts/palace_pipeline/reclassify.py); keep them
+      if ("PitchTypeSource" %in% names(df)) {
+        src <- as.character(df$PitchTypeSource[idx])
+        if (length(src) > 0 && all(!is.na(src) & nzchar(src))) next
+      }
       velo <- suppressWarnings(as.numeric(df$RelSpeed[idx]))
       ivb  <- suppressWarnings(as.numeric(df$InducedVertBreak[idx]))
       hb   <- suppressWarnings(as.numeric(df$HorzBreak[idx]))

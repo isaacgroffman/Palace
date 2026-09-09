@@ -1913,12 +1913,15 @@ load_matchup_team_pool <- function(team_key) {
 
   # 2026: TruMedia API is the primary source, exactly like the pitcher
   # pages; parquet is the fallback. 2025 complements from parquet.
-  tm26 <- tryCatch(tm_load_team_pool(disp), error = function(e) {
-    cat("TruMedia team pool failed:", conditionMessage(e), "\n")
-    NULL
-  })
+  sb26 <- tryCatch(pp_team_rows(codes), error = function(e) NULL)
+  tm26 <- if (!is.null(sb26) && nrow(sb26) > 0) sb26 else
+    tryCatch(tm_load_team_pool(disp), error = function(e) {
+      cat("TruMedia team pool failed:", conditionMessage(e), "\n")
+      NULL
+    })
   if (!is.null(tm26) && nrow(tm26) > 0) {
-    cat("  [MM 2026 source] TruMedia API:", nrow(tm26), "pitches\n")
+    cat("  [MM 2026 source]", if (!is.null(sb26) && nrow(sb26) > 0) "Supabase pitchprofiler:" else "TruMedia API:",
+        nrow(tm26), "pitches\n")
     pq26 <- NULL
   } else {
     cat("  [MM 2026 source] TruMedia unavailable (",
@@ -1941,6 +1944,8 @@ load_matchup_team_pool <- function(team_key) {
     d
   }
 
+  # Supabase rows carry TrackMan team codes like the parquet rows do
+  if (!is.null(sb26) && nrow(sb26) > 0) tm26 <- fix_pq(tm26)
   frames <- Filter(function(d) !is.null(d) && nrow(d) > 0,
                    list(fix_pq(pq25), fix_pq(pq26), tm26))
   if (length(frames) == 0) {
