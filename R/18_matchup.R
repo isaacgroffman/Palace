@@ -1913,7 +1913,8 @@ load_matchup_team_pool <- function(team_key) {
 
   # 2026: TruMedia API is the primary source, exactly like the pitcher
   # pages; parquet is the fallback. 2025 complements from parquet.
-  sb26 <- tryCatch(pp_team_rows(codes), error = function(e) NULL)
+  sb26 <- tryCatch(pp_team_rows(codes, cols = pp_cols_for(c(MM_POOL_COLS, "PitchTypeSource", "OriginalPitchType"))),
+                   error = function(e) NULL)
   tm26 <- if (!is.null(sb26) && nrow(sb26) > 0) sb26 else
     tryCatch(tm_load_team_pool(disp), error = function(e) {
       cat("TruMedia team pool failed:", conditionMessage(e), "\n")

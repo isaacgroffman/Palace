@@ -9,6 +9,7 @@
 #   SB_DB_HOST   e.g. aws-0-us-east-1.pooler.supabase.com
 #   SB_DB_USER   e.g. bullpen_reader.ryqzkosdbksawrcrdqrc   (role.projectref)
 #   SB_DB_PASS   the bullpen_reader password
+#   SB_DB_PORT   optional, default 5432 (session pooler)
 # =============================================================================
 
 library(pool)
@@ -23,9 +24,13 @@ palace_pool <- local({
     pass <- Sys.getenv("SB_DB_PASS")
     if (!nzchar(host) || !nzchar(user) || !nzchar(pass))
       stop("Supabase credentials missing: set SB_DB_HOST, SB_DB_USER, SB_DB_PASS")
+    # Session pooler (5432) by default: the transaction pooler (6543) cuts off
+    # wide multi-thousand-row result sets from pitchprofiler.pitches.
+    port <- suppressWarnings(as.integer(Sys.getenv("SB_DB_PORT", "5432")))
+    if (is.na(port)) port <- 5432L
     p <<- pool::dbPool(
       RPostgres::Postgres(),
-      host = host, port = 6543, dbname = "postgres",
+      host = host, port = port, dbname = "postgres",
       user = user, password = pass, sslmode = "require",
       minSize = 1, maxSize = 4
     )
@@ -157,6 +162,12 @@ pp_sb_available <- function() {
   is_bbe = "is_bbe", bbe_tracked = "bbe_tracked",
   xba_bbe = "xba_bbe", xtb_bbe = "xtb_bbe", xwobacon_bbe = "xwobacon_bbe"
 )
+
+# TrackMan column names -> the pitchprofiler.pitches columns to select, so a
+# caller can ask for just what it needs (wide pulls are what the pooler drops).
+pp_cols_for <- function(trackman_names) {
+  names(.PP_COLMAP)[.PP_COLMAP %in% trackman_names]
+}
 
 .pp_quote_in <- function(x) {
   x <- unique(as.character(x)); x <- x[!is.na(x) & nzchar(x)]
