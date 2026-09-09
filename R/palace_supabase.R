@@ -176,9 +176,16 @@ pp_query_pitches <- function(where, cols = names(.PP_COLMAP), context = "pitchpr
   if (!pp_sb_available()) return(NULL)
   sql <- sprintf("select\n    %s\n  from pitchprofiler.pitches\n  where %s", .pp_select_sql(cols), where)
   t0 <- Sys.time()
-  d <- tryCatch(DBI::dbGetQuery(palace_pool(), sql), error = function(e) {
-    cat("[pitchprofiler]", context, "query failed -", conditionMessage(e), "\n")
-    NULL
+  # the Supabase pooler occasionally drops an idle session: one retry on a
+  # fresh checkout before giving up (callers then fall back to TruMedia/parquet)
+  run <- function() DBI::dbGetQuery(palace_pool(), sql)
+  d <- tryCatch(run(), error = function(e) {
+    cat("[pitchprofiler]", context, "query failed once -", conditionMessage(e), "- retrying\n")
+    Sys.sleep(1)
+    tryCatch(run(), error = function(e2) {
+      cat("[pitchprofiler]", context, "query failed -", conditionMessage(e2), "\n")
+      NULL
+    })
   })
   if (is.null(d) || nrow(d) == 0) return(NULL)
   for (nm in names(d)) {
