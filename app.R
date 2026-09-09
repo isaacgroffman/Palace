@@ -15,6 +15,7 @@ if (!nzchar(Sys.getenv("RETICULATE_PYTHON")))
 library(shiny)
 library(DT)
 library(dplyr)
+library(magrittr)   # `%>%` explicitly: newer dplyr builds on Connect no longer re-export it
 library(scales)
 library(readr)
 library(tidyverse)
