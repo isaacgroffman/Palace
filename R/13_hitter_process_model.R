@@ -177,8 +177,37 @@ HP_EVENT_RV <- c(bb = 0.30, hbp = 0.32, single = 0.45, double = 0.75,
   out
 }
 
+# ---- precomputed model state ---------------------------------------------------
+# Building the tables needs the full league pool (~600k pitches) and the
+# league distribution scores every one of them. scripts/build_reference_pools.R
+# does that once per scored-table build and ships the resulting state
+# (hp_model.rds in Storage); the app restores it instead of loading the pool.
+.HP_STATE_FIELDS <- c("q_breaks", "T_bipgrid", "T_e0_m", "T_e0_q", "T_e1_m", "T_e1_q",
+                      "T_e2_m", "T_e2_q", "ready", "league")
+hp_export_state <- function() {
+  st <- lapply(.HP_STATE_FIELDS, function(f) .hp_env[[f]])
+  names(st) <- .HP_STATE_FIELDS
+  st
+}
+hp_restore_state <- function(st) {
+  if (!is.list(st) || !isTRUE(st$ready)) return(FALSE)
+  for (f in .HP_STATE_FIELDS) .hp_env[[f]] <- st[[f]]
+  TRUE
+}
+hp_restore_artifact <- function() {
+  if (isTRUE(.hp_env$restore_tried)) return(isTRUE(.hp_env$ready))
+  .hp_env$restore_tried <- TRUE
+  if (!exists(".artifact", mode = "function")) return(FALSE)
+  st <- tryCatch(.artifact("hp_model", "rds", function() NULL), error = function(e) NULL)
+  ok <- hp_restore_state(st)
+  if (ok) cat("[HitterModel] restored precomputed tables + league basis (",
+              .hp_env$league$n_hitters %||% NA, "qualified hitters )\n")
+  ok
+}
+
 hp_build_tables <- function(pool = NULL) {
   if (isTRUE(.hp_env$ready)) return(invisible(TRUE))
+  if (is.null(pool) && hp_restore_artifact()) return(invisible(TRUE))
   if (is.null(pool)) {
     if (!exists("full_data_p5_compare")) return(invisible(FALSE))
     pool <- full_data_p5_compare
@@ -369,6 +398,7 @@ hp_rates <- function(df) {
 HP_QUALIFY_PITCHES <- 200
 hp_build_league <- function(pool = NULL) {
   if (!is.null(.hp_env$league)) return(invisible(TRUE))
+  if (is.null(pool) && hp_restore_artifact() && !is.null(.hp_env$league)) return(invisible(TRUE))
   if (is.null(pool)) {
     if (!exists("full_data_p5_compare")) return(invisible(FALSE))
     pool <- full_data_p5_compare

@@ -31,7 +31,7 @@ if (!is.null(stamp_arg)) {
   })
   `%||%` <- function(a, b) if (is.null(a) || length(a) == 0) b else a
   source("R/palace_supabase.R"); source("R/palace_artifacts.R")
-  source("R/01_reference.R"); source("R/06_pitch_processing.R")
+  source("R/01_reference.R"); source("R/06_pitch_processing.R"); source("R/13_hitter_process_model.R")
   l02 <- readLines("R/02_trumedia_api.R"); i <- grep("^harmonize_types <- function", l02)
   eval(parse(text = l02[i:(i + which(l02[(i + 1):length(l02)] == "}")[1])]))
   build_p5_slot_grid <- function(p5, bin = 0.10) {
@@ -113,6 +113,18 @@ if ("artifacts" %in% want) {
               nrow(gp5), ncol(gp5), as.numeric(object.size(gp5)) / 1e6, nrow(gsbc), ncol(gsbc), as.numeric(object.size(gsbc)) / 1e6))
   artifact_upload(gp5, "grade_P5", stamp, "parquet")
   artifact_upload(gsbc, "grade_SBC", stamp, "parquet")
+  rm(gp5, gsbc)
+
+  # hitter Process model: expectation tables + league distribution from the
+  # whole D1 pool, exported as one small state object
+  t1 <- Sys.time()
+  pool <- dplyr::bind_rows(harmonize_types(list(p5, sbc)))
+  .hp_env$ready <- NULL; .hp_env$league <- NULL
+  if (!hp_build_tables(pool) || !hp_build_league(pool)) stop("hitter model build failed")
+  st <- hp_export_state()
+  cat(sprintf("[ref build] hitter model state built from %d pitches in %.0fs (%d qualified hitters)\n",
+              nrow(pool), as.numeric(difftime(Sys.time(), t1, units = "secs")), st$league$n_hitters))
+  artifact_upload(st, "hp_model", stamp, "rds")
 }
 
 cat("[ref build] done in", round(as.numeric(difftime(Sys.time(), t_start, units = "mins")), 1), "min\n")
