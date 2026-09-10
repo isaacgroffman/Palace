@@ -73,7 +73,10 @@ build by `scripts/build_reference_pools.R`:
 The full pools only load for the matchup matrix, hitter process model and
 pitch arsenal. Per-pitcher expected stats for a grading pool come from
 `pitchprofiler.pitcher_season(_pitch_type)`, so no Python runs at request
-time. `PALACE_PREWARM=TRUE` forces everything at boot. The retired seasons
+time. The percentile maps, grids, slim grading pools and the hitter
+Process-model state are precomputed artifacts in Supabase Storage
+(`scripts/build_reference_pools.R`), so a pitcher or hitter page never loads
+the full pools. `PALACE_PREWARM=TRUE` forces everything at boot. The retired seasons
 (`data`, `fall25`, `prespring`) exist as zero-row frames so nothing
 downstream had to change.
 
