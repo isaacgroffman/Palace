@@ -29,40 +29,25 @@
     as.character(v)
   }
 
-  # ---- Overview: traditional stats strip under the header ----
-  output$tm_trad_stats <- renderUI({
-    if (!tm_enabled()) return(NULL)
-    sp <- tm_splits_r()
-    if (is.null(sp) || is.null(sp$overall)) {
-      return(div(style = "text-align:center; color:#9CA3AF; font-size:12px; margin:2px 0 8px;",
-                 "TruMedia season stats unavailable for this pitcher."))
-    }
-    row <- sp$overall
-    w <- .tm_val(row, "W"); l <- .tm_val(row, "L")
-    items <- list()
-    if (!is.na(w) || !is.na(l)) {
-      items[["W-L"]] <- paste0(ifelse(is.na(w), "0", w), "-",
-                               ifelse(is.na(l), "0", l))
-    }
-    for (ab in c("ERA","G","GS","SV","IP","H","R","ER","BB","K","HBP","HR","WHIP","BA")) {
-      v <- .tm_val(row, ab)
-      if (!is.na(v)) items[[ab]] <- .tp_fmt_stat(ab, v)
-    }
-    if (!is.null(items[["IP"]]))
-      items[["IP"]] <- sprintf("%.1f", tm_ip_display(items[["IP"]]))
-    if (length(items) == 0) return(NULL)
-    cols <- vapply(names(items), function(ab)
-      .tp_stat_color(ab, items[[ab]], "pit"), character(1))
-    box <- function(lab, val, col) {
-      div(style = paste0("background:#F3F7F7; border:1px solid #CFE3E3;",
-                         "border-radius:8px; padding:6px 14px; text-align:center;",
-                         "min-width:64px;"),
-          div(style = "font-size:11px; color:#6B7280; letter-spacing:.4px;", lab),
-          div(style = paste0("font-size:18px; font-weight:700; color:", col, ";"),
-              val))
-    }
-    div(style = "display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:4px 0 10px;",
-        mapply(box, names(items), unlist(items), cols, SIMPLIFY = FALSE))
+  # ---- Overview: season table (one row per year x team x league) ----
+  ps_rows <- reactive({
+    gp <- input$global_pitcher
+    req(gp, nzchar(gp), !is_hitter_pick(gp))
+    tryCatch(season_rows_pitcher(gp), error = function(e) {
+      cat("[season table]", conditionMessage(e), "\n"); NULL })
+  })
+  output$ps_table <- renderUI({
+    season_table_html(ps_rows(), "pit", input$ps_mode %||% "Advanced",
+                      "Show Expected" %in% (input$ps_exp %||% character(0)))
+  })
+  output$ps_note <- renderUI({
+    r <- ps_rows()
+    if (is.null(r) || !nrow(r)) return(NULL)
+    src <- unique(r$Source)
+    txt <- if ("team" %in% src) "TruMedia team lines" else if ("live" %in% src) "TruMedia (per team)"
+           else if ("calendar" %in% src) "TruMedia calendar-year totals (spring + summer combined until the team-scoped tables are rebuilt)"
+           else "TrackMan / bullpens only"
+    span(class = "ps-note", txt)
   })
 
   # ---- Scouting tab: season line + splits tables ----

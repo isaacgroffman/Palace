@@ -194,6 +194,14 @@ tm_all_teams <- function() {
     gsub("^\\[|\\]$", "", strsplit(columns, ",")[[1]])
   want <- sub("\\|.*$", "", trimws(want))
   canon <- function(x) gsub("[^a-z0-9]", "", tolower(x))
+  # team-scoped frames first (that team's games only); the league-wide
+  # calendar-year frames only when the build had no TruMedia access
+  for (fr in list(pre$tm_pitching_team, pre$tm_batting_team)) {
+    if (!is.data.frame(fr) || !nrow(fr) || !"teamId" %in% names(fr)) next
+    if (!all(canon(want) %in% canon(names(fr)))) next
+    out <- fr[as.character(fr$teamId) == as.character(team_id), , drop = FALSE]
+    if (nrow(out)) return(out)
+  }
   for (fr in list(pre$tm_pitching_totals, pre$tm_batting_totals)) {
     if (!is.data.frame(fr) || !nrow(fr) || !"mostRecentTeamId" %in% names(fr)) next
     have <- canon(names(fr))

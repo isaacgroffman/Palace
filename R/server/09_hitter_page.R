@@ -212,6 +212,12 @@
       ch <- session$userData$global_choices
       if (is.null(ch)) updateSelectizeInput(session, "global_pitcher", selected = target)
       else updateSelectizeInput(session, "global_pitcher", choices = ch, selected = target, server = TRUE)
+      if (identical(side, "bullpen")) {
+        # a bullpen name lives in the Fall 2026 context; the season switch
+        # rebuilds the picker, so pin the pick through that rebuild
+        session$userData$restore_player <- target
+        shinyWidgets::updatePickerInput(session, "season_type", selected = "Fall26")
+      }
       player_mode("pitcher")
       updateTabsetPanel(session, "main_tabs", selected = "Players")
       updateTabsetPanel(session, "player_subtabs", selected = "Overview")
@@ -330,40 +336,24 @@
     tryCatch(tm_batter_splits(nm, td), error = function(e) NULL)
   })
 
-  output$hp_tm_trad_stats <- renderUI({
+  hs_rows <- reactive({
     nm <- input$hp_batter
     req(nm, nzchar(nm))
-    if (!tm_enabled()) return(NULL)
-    sp <- hp_tm_splits_r()
-    if (is.null(sp) || is.null(sp$overall)) {
-      return(div(style = "text-align:center; color:#9CA3AF; font-size:12px; margin:2px 0 8px;",
-                 "TruMedia season stats unavailable for this hitter."))
-    }
-    row <- sp$overall
-    items <- list()
-    for (ab in c("G","PA","AB","H","2B","3B","HR","BB","HBP","K","SB",
-                 "BA","OBP","SLG")) {
-      v <- .tm_val(row, ab)
-      if (!is.na(v)) items[[if (ab == "BA") "AVG" else ab]] <- .tp_fmt_stat(ab, v)
-    }
-    # OPS from the pieces when both made it back
-    obp <- suppressWarnings(as.numeric(items[["OBP"]]))
-    slg <- suppressWarnings(as.numeric(items[["SLG"]]))
-    if (is.finite(obp) && is.finite(slg))
-      items[["OPS"]] <- .tp_fmt_stat("OPS", obp + slg)
-    if (length(items) == 0) return(NULL)
-    cols <- vapply(names(items), function(ab)
-      .tp_stat_color(ab, items[[ab]], "bat"), character(1))
-    box <- function(lab, val, col) {
-      div(style = paste0("background:#F3F7F7; border:1px solid #CFE3E3;",
-                         "border-radius:8px; padding:6px 14px; text-align:center;",
-                         "min-width:64px;"),
-          div(style = "font-size:11px; color:#6B7280; letter-spacing:.4px;", lab),
-          div(style = paste0("font-size:18px; font-weight:700; color:", col, ";"),
-              val))
-    }
-    div(style = "display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:4px 0 10px;",
-        mapply(box, names(items), unlist(items), cols, SIMPLIFY = FALSE))
+    tryCatch(season_rows_batter(nm), error = function(e) {
+      cat("[season table]", conditionMessage(e), "\n"); NULL })
+  })
+  output$hs_table <- renderUI({
+    season_table_html(hs_rows(), "bat", input$hs_mode %||% "Advanced",
+                      "Show Expected" %in% (input$hs_exp %||% character(0)))
+  })
+  output$hs_note <- renderUI({
+    r <- hs_rows()
+    if (is.null(r) || !nrow(r)) return(NULL)
+    src <- unique(r$Source)
+    txt <- if ("team" %in% src) "TruMedia team lines" else if ("live" %in% src) "TruMedia (per team)"
+           else if ("calendar" %in% src) "TruMedia calendar-year totals (spring + summer combined until the team-scoped tables are rebuilt)"
+           else "TrackMan only"
+    span(class = "ps-note", txt)
   })
 
   .hp_pct_color <- function(p) {

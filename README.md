@@ -102,12 +102,34 @@ columns, so `tm_team_player_totals()` and `tm_all_teams()` are served
 without a request), the two leaderboard boards (TruMedia traditional stats +
 TrackMan velo / spin / release / arm angle / Stuff+ / Pitching+ / Location+
 / RV / xstats, joined on the TrackMan player id), and a hitters table
-(TruMedia line + TrackMan contact and discipline). Rerun it after a
-TruMedia refresh or a pipeline reload:
+(TruMedia line + TrackMan contact and discipline), plus `pitcher_day`
+(pitcher x game date x pitch type counts and sums) that the boards
+aggregate for any date window, and `teams` with level / conference.
+
+With the `TM_*` secrets set the build also pulls one PlayerTotals per
+NCAA team (`tm_pitching_team`, `tm_batting_team`): one row per player x
+team, that team's games only. That is what keeps a spring NCAA line apart
+from a summer-league line (the league-wide frame is one calendar-year row
+per player, tagged with whichever club he played for last). Without the
+secrets the script reuses the frames already in Storage
+(`--tm-from-storage` forces that) and the player page falls back to live
+per-team pulls, then to the calendar-year row, marked as such.
 
 ```
 Rscript scripts/build_leaderboards.R --pipeline-dir serving_build/master_2026
+Rscript scripts/build_leaderboards.R --pipeline-dir serving_build/master_2026 --tm-from-storage   # no TruMedia access
 ```
+
+The player pages show a season table (`R/18_season_table.R`): one row per
+year x team x league, Spring -> Summer -> Fall bullpens, with Standard /
+Advanced column sets and a Show Expected toggle; cells are coloured green /
+white / red by percentile against every qualified D1 arm or bat.
+
+Leaderboards filter by season, level (D1 / D2 / D3 / NAIA / JUCO / summer),
+conference, team, throws, class and a date window (a window narrower than
+the season is aggregated from `pitcher_day`, so W/L/ERA are blank there).
+The Bullpens tab holds the selected pitcher's sessions plus the staff
+leaderboard and calendar (both read `bullpen_pitches()`).
 
 ### Refreshing the scored tables
 

@@ -120,15 +120,16 @@ palace_bullpen_ui <- function(prefix = "bp") {
 }
 
 # ---- Standalone: staff bullpen HISTORY calendar (Schedule tab) --------------
+# The controls of both staff views are RENDERED from the data (uiOutput)
+# rather than filled by update*Input(): the app's UI is inserted only after
+# login, so an update sent at session start (when the data first loads)
+# lands on inputs that don't exist yet and is dropped -- which is exactly
+# why the calendar and leaderboard used to sit empty.
 palace_bullpen_history_ui <- function(prefix = "sched") {
   p <- function(id) paste0(prefix, "_", id)
   tagList(
     div(style = "margin-top:12px;"),
-    fluidRow(
-      column(3, selectInput(p("hist_month"), "Month", choices = NULL)),
-      column(9, div(style = "padding-top:32px; font-size:12px; color:#666;",
-                    "All pitchers \u2014 who threw, how many pitches, and when."))
-    ),
+    uiOutput(p("controls")),
     uiOutput(p("history_ui"))
   )
 }
@@ -138,27 +139,19 @@ palace_bullpen_leaderboard_ui <- function(prefix = "bplb") {
   p <- function(id) paste0(prefix, "_", id)
   tagList(
     div(style = "margin-top:12px;"),
-    fluidRow(
-      column(3, shinyWidgets::pickerInput(p("lb_players"), "Pitchers",
-                  choices = NULL, multiple = TRUE,
-                  options = list(`actions-box` = TRUE,
-                                 `selected-text-format` = "count > 2"))),
-      column(3, dateRangeInput(p("lb_dates"), "Dates",
-                               start = NULL, end = NULL)),
-      column(2, selectInput(p("lb_ptype"), "Pitch type", choices = "All")),
-      column(2, selectInput(p("lb_metric"), "Sort by",
-                  choices = c("Avg Velo" = "Velo", "Max Velo" = "Max",
-                              "Spin" = "Spin", "IVB" = "IVB", "HB" = "HB",
-                              "Extension" = "Ext", "Rel Height" = "RelH",
-                              "Zone%" = "Zone", "Pitches" = "Pitches",
-                              "Sessions" = "Sessions"),
-                  selected = "Velo")),
-      column(2, div(style = "padding-top:26px; display:flex; gap:6px;",
-               downloadButton(p("lb_png"), "PNG", class = "btn-sm"),
-               downloadButton(p("lb_pdf"), "PDF", class = "btn-sm")))
-    ),
+    uiOutput(p("controls")),
+    div(style = "font-size:12px; color:#666; margin:2px 0 8px;",
+        "Every practice pitch in the database, one row per arm. Click a name to open the profile (Fall 2026)."),
     gt::gt_output(p("leader_table"))
   )
+}
+
+# clickable bullpen pitcher name -> Players page (same handler the league
+# boards use; the season switch to Fall 2026 happens in the handler)
+bp_player_link <- function(name_lf) {
+  fl <- sub("^\\s*([^,]+),\\s*(.+)\\s*$", "\\2 \\1", as.character(name_lf))
+  sprintf("<span class='tp-player-link' data-side='bullpen' data-name='%s' style='cursor:pointer;font-weight:700;'>%s</span>",
+          htmltools::htmlEscape(fl, attribute = TRUE), htmltools::htmlEscape(fl))
 }
 
 # Shared staff-wide data feed for the standalone components: each instance
@@ -583,14 +576,20 @@ palace_bullpen_history_server <- function(input, output, session, prefix = "sche
   staff_data <- bp_staff_data(session)
 
   # -- History: staff calendar ----------------------------------------------------
-  observe({
-    bpd <- staff_data(); req(bpd)
+  output[[p("controls")]] <- renderUI({
+    bpd <- staff_data()
+    if (is.null(bpd) || !nrow(bpd))
+      return(div(class = "lb-empty", "No bullpen sessions in the database yet."))
     mons <- sort(unique(format(bpd$Date, "%Y-%m")), decreasing = TRUE)
     labs <- format(as.Date(paste0(mons, "-01")), "%B %Y")
     sel  <- isolate(input[[p("hist_month")]])
     if (is.null(sel) || !sel %in% mons) sel <- mons[1]
-    updateSelectInput(session, p("hist_month"),
-                      choices = setNames(mons, labs), selected = sel)
+    fluidRow(
+      column(3, selectInput(p("hist_month"), "Month", choices = setNames(mons, labs), selected = sel)),
+      column(9, div(style = "padding-top:32px; font-size:12px; color:#666;",
+                    sprintf("All pitchers \u2014 who threw, how many pitches, and when. %d sessions, %s pitches, %d arms.",
+                            length(unique(bpd$session_id)), format(nrow(bpd), big.mark = ","), length(unique(bpd$Pitcher)))))
+    )
   })
 
   output[[p("history_ui")]] <- renderUI({
@@ -649,27 +648,33 @@ palace_bullpen_history_server <- function(input, output, session, prefix = "sche
 palace_bullpen_leaderboard_server <- function(input, output, session, prefix = "bplb") {
   p <- function(id) paste0(prefix, "_", id)
   staff_data <- bp_staff_data(session)
-  lb_known_players <- reactiveVal(character(0))
 
   # -- Leaderboard ------------------------------------------------------------------
-  observe({
-    bpd <- staff_data(); req(bpd)
+  output[[p("controls")]] <- renderUI({
+    bpd <- staff_data()
+    if (is.null(bpd) || !nrow(bpd))
+      return(div(class = "lb-empty", "No bullpen sessions in the database yet."))
     pl <- sort(unique(bpd$Pitcher))
-    known <- isolate(lb_known_players())
-    if (!identical(pl, known)) {
-      lb_known_players(pl)
-      sel <- isolate(input[[p("lb_players")]])
-      shinyWidgets::updatePickerInput(session, p("lb_players"), choices = pl,
-        selected = if (length(sel) && all(sel %in% pl)) sel else pl)
-    }
     tp <- sort(unique(bpd$TaggedPitchType[!is.na(bpd$TaggedPitchType)]))
-    updateSelectInput(session, p("lb_ptype"), choices = c("All", tp),
-      selected = isolate(input[[p("lb_ptype")]]) %||% "All")
     rng <- range(bpd$Date, na.rm = TRUE)
+    sel_p <- isolate(input[[p("lb_players")]]); sel_p <- if (length(sel_p) && all(sel_p %in% pl)) sel_p else pl
+    sel_t <- isolate(input[[p("lb_ptype")]]) %||% "All"; if (!sel_t %in% c("All", tp)) sel_t <- "All"
     cur <- isolate(input[[p("lb_dates")]])
-    if (is.null(cur) || any(is.na(cur)))
-      updateDateRangeInput(session, p("lb_dates"), start = rng[1], end = rng[2],
-                           min = rng[1], max = rng[2])
+    if (is.null(cur) || any(is.na(cur)) || cur[1] < rng[1] || cur[2] > rng[2]) cur <- rng
+    fluidRow(
+      column(3, shinyWidgets::pickerInput(p("lb_players"), "Pitchers", choices = pl, selected = sel_p, multiple = TRUE,
+                  options = list(`actions-box` = TRUE, `live-search` = TRUE, `selected-text-format` = "count > 2"))),
+      column(3, dateRangeInput(p("lb_dates"), "Dates", start = cur[1], end = cur[2], min = rng[1], max = rng[2])),
+      column(2, selectInput(p("lb_ptype"), "Pitch type", choices = c("All", tp), selected = sel_t)),
+      column(2, selectInput(p("lb_metric"), "Sort by",
+                  choices = c("Avg Velo" = "Velo", "Max Velo" = "Max", "Spin" = "Spin", "IVB" = "IVB", "HB" = "HB",
+                              "Extension" = "Ext", "Rel Height" = "RelH", "Zone%" = "Zone", "Pitches" = "Pitches",
+                              "Sessions" = "Sessions"),
+                  selected = isolate(input[[p("lb_metric")]]) %||% "Velo")),
+      column(2, div(style = "padding-top:26px; display:flex; gap:6px;",
+               downloadButton(p("lb_png"), "PNG", class = "btn-sm"),
+               downloadButton(p("lb_pdf"), "PDF", class = "btn-sm")))
+    )
   })
 
   lb_data <- reactive({
@@ -704,7 +709,7 @@ palace_bullpen_leaderboard_server <- function(input, output, session, prefix = "
                                   ~ ifelse(is.nan(.x) | is.infinite(.x), NA, .x)))
   })
 
-  lb_gt <- reactive({
+  lb_gt <- function(plain = FALSE) {
     ld <- lb_data()
     validate(need(!is.null(ld) && nrow(ld) > 0, "No pitches match the filters."))
     met <- input[[p("lb_metric")]] %||% "Velo"
@@ -712,27 +717,30 @@ palace_bullpen_leaderboard_server <- function(input, output, session, prefix = "
     gwr <- function(x) {
       rng <- range(x, na.rm = TRUE)
       if (!all(is.finite(rng)) || rng[1] == rng[2]) return(rep("#ffffff", length(x)))
-      scales::col_numeric(c("#d64541", "#ffffff", "#2ecc71"), domain = rng)(x)
+      scales::col_numeric(c("#E1463E", "#ffffff", "#1E9E52"), domain = rng)(x)
     }
+    if (!plain) ld$Pitcher <- vapply(ld$Pitcher, function(x) as.character(bp_player_link(x)), character(1))
     tbl <- ld |>
-      gt::gt(rowname_col = "Pitcher") |>
+      gt::gt() |>
       gt::tab_header(title = "Bullpen Leaderboard",
                      subtitle = sprintf("Sorted by %s \u2022 %s", met,
                                         format(Sys.Date(), "%b %d, %Y"))) |>
       gt::sub_missing(missing_text = "\u2014") |>
       gt::cols_align("center", columns = gt::everything()) |>
+      gt::cols_align("left", columns = "Pitcher") |>
       gt::tab_options(table.font.size = gt::px(13), data_row.padding = gt::px(5)) |>
       gt::tab_style(gt::cell_text(weight = "bold"),
                     locations = gt::cells_body(columns = met))
+    if (!plain) tbl <- gt::fmt_markdown(tbl, columns = "Pitcher")
     for (cn in c("Velo","Max","Spin","IVB","HB","Ext","RelH","Zone","Pitches","Sessions"))
       tbl <- gt::data_color(tbl, columns = dplyr::all_of(cn), fn = gwr)
     tbl
-  })
+  }
 
   output[[p("leader_table")]] <- gt::render_gt(lb_gt())
 
   lb_save <- function(file, kind) {
-    tbl <- lb_gt()
+    tbl <- lb_gt(plain = TRUE)
     n <- nrow(lb_data() %||% data.frame())
     w <- 11; h <- max(2.5, 1.4 + 0.32 * n)
     if (kind == "png") grDevices::png(file, width = w, height = h, units = "in", res = 200)

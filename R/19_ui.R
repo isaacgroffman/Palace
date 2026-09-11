@@ -1937,8 +1937,8 @@ tabPanel("Overview", value = "Overview",
                       uiOutput("pp_percentile_chart")))
       ),
 
-      # ---- Traditional stats (TruMedia API) ----
-      fluidRow(column(12, uiOutput("tm_trad_stats"))),
+      # ---- Season table: traditional (TruMedia) + TrackMan, one row per year x team ----
+      fluidRow(column(12, season_table_ui("ps", "Pitching Stats"))),
 
       # ================= ROW 2: grade bars + grade stats =================
       fluidRow(column(12, div(class = "pp-card",
@@ -2101,9 +2101,17 @@ tabPanel("Overview", value = "Overview",
     ),
 
     # ============================ BULLPENS ============================
+    # The selected pitcher's sessions, plus the two STAFF views (leaderboard
+    # and calendar) that used to sit under Leaderboards / Schedule -- they
+    # read the same bullpen frame, so they live next to it.
     tabPanel("Bullpens", value = "Bullpens",
       tags$script(src = "https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"),
-      palace_bullpen_ui("bp")
+      tags$style(LB_CSS),
+      tabsetPanel(id = "bullpen_subtabs", type = "pills",
+        tabPanel("Pitcher", value = "bp_pitcher", palace_bullpen_ui("bp")),
+        tabPanel("Staff Leaderboard", value = "bp_staff", palace_bullpen_leaderboard_ui("bplb")),
+        tabPanel("Calendar", value = "bp_calendar", palace_bullpen_history_ui("sched"))
+      )
     ),
 
     # ============================ SCOUTING ============================
@@ -2181,8 +2189,8 @@ tabPanel("Overview", value = "Overview",
                      uiOutput("hp_percentile_chart")))
           ),
 
-          # ---- Traditional stats (TruMedia API) ----
-          fluidRow(column(12, uiOutput("hp_tm_trad_stats"))),
+          # ---- Season table: traditional (TruMedia) + TrackMan, one row per year x team ----
+          fluidRow(column(12, season_table_ui("hs", "Batting Stats"))),
 
           # ---- Row 2: run value by pitch type ----
           fluidRow(column(12, div(class = "pp-card",
@@ -2368,9 +2376,6 @@ tabPanel("Overview", value = "Overview",
     tabPanel("Leaderboards", value = "Leaderboards",
       tags$style(LB_CSS),
       tabsetPanel(id = "lb_subtabs", type = "pills",
-tabPanel('Bullpen Leaderboard',
-             palace_bullpen_leaderboard_ui("bplb")
-),
 tabPanel('Pitching Leaderboard',
 
              fluidRow(
@@ -2467,20 +2472,8 @@ tabPanel('Pitching Leaderboard',
       )
     ),
     # ===================== ADVANCE (gameday dugout material) =====================
-    # ============================ SCHEDULE ============================
-    # Bullpen calendar (who threw, how much, when) now; the season game
-    # schedule joins it here once games start.
-    tabPanel("Schedule", value = "Schedule",
-      tabsetPanel(id = "sched_subtabs", type = "pills",
-        tabPanel("Bullpens", value = "sched_bullpens",
-          palace_bullpen_history_ui("sched")),
-        tabPanel("Season", value = "sched_season",
-          div(style = "padding:48px; text-align:center; color:#999;",
-              icon("calendar-days"),
-              tags$p(style = "margin-top:8px;",
-                     "Season schedule coming soon.")))
-      )
-    ),
+    # (The bullpen calendar moved into the Bullpens tab; a season game
+    # schedule can take a "Schedule" tab here once games start.)
 
     tabPanel("Advance", value = "Advance",
       div(style = "text-align:center; margin:16px 0 4px;",

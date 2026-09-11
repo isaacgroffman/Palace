@@ -662,9 +662,10 @@ lb_tm_team_pitches <- function(team_disp, season) {
   hr <- d$.hr; bb <- d$.bb; k <- d$.k; hbp <- d$.hbp
   tip <- sum(ip[is.finite(ip)], na.rm = TRUE)
   fip_c <- 3.10
-  if (is.finite(tip) && tip > 0) {
-    era <- suppressWarnings(as.numeric(d$ERA))
-    lg <- sum(era * ip, na.rm = TRUE) / tip
+  era <- suppressWarnings(as.numeric(d$ERA))
+  if (is.finite(tip) && tip > 0 && any(is.finite(era) & is.finite(ip))) {
+    ok <- is.finite(era) & is.finite(ip)
+    lg <- sum(era[ok] * ip[ok]) / sum(ip[ok])
     raw <- (13 * sum(hr, na.rm = TRUE) + 3 * sum(bb + hbp, na.rm = TRUE) -
             2 * sum(k, na.rm = TRUE)) / tip
     if (is.finite(lg) && is.finite(raw)) fip_c <- lg - raw
@@ -691,13 +692,120 @@ lb_precomputed <- function(season = TM_SEASON) {
   if (is.null(man)) { .lb_env$pre[[key]] <- list(); return(.lb_env$pre[[key]]) }
   t0 <- Sys.time()
   out <- list(manifest = man)
-  for (nm in c("teams", "tm_pitching_totals", "tm_batting_totals", "pitchers", "pitches", "hitters"))
+  for (nm in c("teams", "tm_pitching_totals", "tm_batting_totals", "pitchers", "pitches", "hitters",
+               "tm_pitching_team", "tm_batting_team"))
     out[[nm]] <- tryCatch(storage_read_parquet(sprintf("lb/%s/%s.parquet", key, nm)), error = function(e) NULL)
   cat(sprintf("[LB] precomputed %s tables from Storage (built %s) in %.0fs: %s\n", key, man$built_at %||% "?",
               as.numeric(difftime(Sys.time(), t0, units = "secs")),
               paste(names(out)[-1][!vapply(out[-1], is.null, logical(1))], collapse = ", ")))
   .lb_env$pre[[key]] <- out
   out
+}
+
+# pitcher x game-date x pitch-type sums (20 MB): only pulled the first time a
+# board asks for a date range, never at boot
+.lb_env$day <- list()
+lb_pitcher_day <- function(season = TM_SEASON) {
+  key <- as.character(season)
+  if (!is.null(.lb_env$day[[key]])) return(.lb_env$day[[key]])
+  d <- tryCatch(storage_read_parquet(sprintf("lb/%s/pitcher_day.parquet", key)), error = function(e) NULL)
+  if (is.null(d)) d <- data.frame()
+  if (nrow(d)) d$game_date <- as.Date(d$game_date)
+  cat("[LB] pitcher_day", key, ":", nrow(d), "rows\n")
+  .lb_env$day[[key]] <- d
+  d
+}
+# first / last tracked game of a season (the date picker's bounds)
+lb_season_dates <- function(season = TM_SEASON) {
+  yr <- suppressWarnings(as.integer(season)); if (!is.finite(yr)) yr <- TM_SEASON
+  d <- if (!is.null(.lb_env$day[[as.character(season)]])) .lb_env$day[[as.character(season)]] else NULL
+  if (is.data.frame(d) && nrow(d)) return(range(d$game_date, na.rm = TRUE))
+  as.Date(c(sprintf("%d-02-01", yr), sprintf("%d-06-30", yr)))
+}
+
+# wOBA weights the scoring pipeline used (models/xstats/constants.json), so a
+# date-range wOBA / xwOBA lands on the same scale as the season tables
+LB_WOBA_W <- c(bb = 0.8327444518009379, hbp = 0.8851939818372976)
+
+# ---- Date-range boards from the pitcher_day sums ------------------------------
+# Every column is derived here from COUNTS and SUMS restricted to [from, to],
+# so the numbers are exact for the window. TruMedia has no date-scoped
+# season line, so W/L/S/ERA are blank and IP is the tracked outs / 3.
+lb_day_boards <- function(season, from, to) {
+  pd <- lb_pitcher_day(season)
+  if (!is.data.frame(pd) || !nrow(pd)) return(NULL)
+  pd <- pd[!is.na(pd$game_date) & pd$game_date >= from & pd$game_date <= to, , drop = FALSE]
+  empty <- list(pitchers = data.frame(), pitches = data.frame())
+  if (!nrow(pd)) return(empty)
+  sums <- c("n","n_scored","swing","whiff","zone","ooz","chase","pa","ab","k","bb","hbp","sf","bbe","hits","tb","d2","d3","hr",
+            "outs","xba_num","xtb_num","xcon","acon","stuff_sum","pitching_sum","location_sum","rv_sum","rv_n",
+            "velo_sum","velo_n","spin_sum","spin_n","relh_sum","relh_n","rels_sum","rels_n")
+  sums <- intersect(sums, names(pd))
+  agg <- function(keys) {
+    pd %>% dplyr::group_by(dplyr::across(dplyr::all_of(keys))) %>%
+      dplyr::summarise(dplyr::across(dplyr::all_of(sums), ~ sum(.x, na.rm = TRUE)),
+                       TkName = dplyr::first(pitcher_name), TkCode = dplyr::first(pitcher_team),
+                       T = dplyr::first(pitcher_throws), Level = dplyr::first(level), Conf = dplyr::first(conference),
+                       G = dplyr::n_distinct(game_date), .groups = "drop") %>% as.data.frame()
+  }
+  div0 <- function(n, d) ifelse(is.finite(d) & d > 0, n / d, NA_real_)
+  rates <- function(a, min_scored) {
+    a$P <- a$n; a$PA <- a$pa; a$IP <- round(a$outs / 3, 1)
+    a$`K%` <- round(100 * div0(a$k, a$pa), 1); a$`BB%` <- round(100 * div0(a$bb, a$pa), 1)
+    a$`Whiff%` <- round(100 * div0(a$whiff, a$swing), 1); a$`Chase%` <- round(100 * div0(a$chase, a$ooz), 1)
+    a$`Zone%` <- round(100 * div0(a$zone, a$n), 1)
+    den <- a$ab + a$bb + a$sf + a$hbp
+    a$wOBA  <- round(div0(a$acon + LB_WOBA_W[["bb"]] * a$bb + LB_WOBA_W[["hbp"]] * a$hbp, den), 3)
+    a$xBA   <- round(div0(a$xba_num, a$ab), 3); a$xSLG <- round(div0(a$xtb_num, a$ab), 3)
+    a$xwOBA <- round(div0(a$xcon + LB_WOBA_W[["bb"]] * a$bb + LB_WOBA_W[["hbp"]] * a$hbp, den), 3)
+    a$`Stuff+` <- round(div0(a$stuff_sum, a$n_scored)); a$`Pitching+` <- round(div0(a$pitching_sum, a$n_scored))
+    a$`Location+` <- round(div0(a$location_sum, a$n_scored))
+    a$RV <- round(100 * div0(a$rv_sum, a$rv_n), 2)
+    a$Velo <- round(div0(a$velo_sum, a$velo_n), 1); a$Spin <- round(div0(a$spin_sum, a$spin_n))
+    a$relh <- div0(a$relh_sum, a$relh_n); a$rels <- div0(a$rels_sum, a$rels_n)
+    a$`Rel Ht` <- round(a$relh, 2); a$`Rel Sd` <- round(a$rels, 2)
+    a$W <- NA_real_; a$L <- NA_real_; a$S <- NA_real_; a$ERA <- NA_real_
+    a$.hr <- a$hr; a$.bb <- a$bb; a$.k <- a$k; a$.hbp <- a$hbp
+    small <- !is.finite(a$n_scored) | a$n_scored < min_scored
+    for (cc in c("Stuff+", "Pitching+", "Location+", "RV", "xBA", "xSLG", "xwOBA")) a[[cc]][small] <- NA
+    a$T <- toupper(substr(ifelse(is.na(a$T), "", a$T), 1, 1)); a$T[!a$T %in% c("L", "R")] <- NA_character_
+    a
+  }
+  pt <- rates(agg(c("pitcher_id", "pitch_type")), 25)
+  names(pt)[names(pt) == "pitch_type"] <- "Pitch"
+  pt <- pt[!pt$Pitch %in% c("Other", "Undefined", ""), , drop = FALSE]
+  ar <- rates(agg("pitcher_id"), 100)
+  # fastball velo/spin + arsenal for the arm board, usage-weighted
+  fb <- pt %>% dplyr::group_by(pitcher_id) %>% dplyr::summarise(
+    `FB Velo` = { w <- n * (Pitch %in% LB_FB_TYPES) * is.finite(Velo); if (sum(w) > 0) round(sum(Velo * w, na.rm = TRUE) / sum(w), 1) else NA_real_ },
+    `FB Spin` = { w <- n * (Pitch %in% LB_FB_TYPES) * is.finite(Spin); if (sum(w) > 0) round(sum(Spin * w, na.rm = TRUE) / sum(w), 0) else NA_real_ },
+    Arsenal = paste(Pitch[order(-n)], collapse = ", "), .groups = "drop")
+  ar <- dplyr::left_join(ar, fb, by = "pitcher_id")
+
+  # identity: the season board's name / school / bio by TrackMan id, else the
+  # TrackMan tags on the rows themselves
+  pre <- tryCatch(lb_precomputed(season), error = function(e) list())
+  ref <- pre$pitchers
+  ident <- function(a) {
+    j <- if (is.data.frame(ref) && "tm_id" %in% names(ref)) match(a$pitcher_id, as.character(ref$tm_id)) else rep(NA_integer_, nrow(a))
+    tk_nm <- ifelse(grepl(",", a$TkName), sub("^\\s*([^,]+),\\s*(.+)\\s*$", "\\2 \\1", a$TkName), a$TkName)
+    a$Pitcher <- ifelse(is.na(j), tk_nm, as.character(ref$Pitcher)[j])
+    a$School  <- prettify_team(a$TkCode)   # the team he pitched for in the window
+    a$tm_id <- a$pitcher_id; a$tm_team_id <- if (!is.na(j[1]) || any(!is.na(j))) as.character(ref$tm_team_id)[j] else NA_character_
+    pick <- function(cc, alt) if (!is.null(ref) && cc %in% names(ref)) ifelse(is.na(j), alt, ref[[cc]][j]) else alt
+    a$Logo <- pick("Logo", NA_character_); a$Class <- pick("Class", NA_character_); a$Age <- pick("Age", NA_real_)
+    a$.ht <- pick(".ht", NA_real_)
+    a$T <- ifelse(is.na(a$T), pick("T", NA_character_), a$T)
+    a$Level <- ifelse(a$Level %in% c("D1", "D2", "D3", "NAIA", "JUCO"), a$Level, pick("Level", "Other"))
+    a$Conf  <- ifelse(is.na(a$Conf), pick("Conf", NA_character_), a$Conf)
+    a$`Arm Ang` <- .lb_arm_angle(a$relh, a$rels, a$.ht)
+    a
+  }
+  ar <- .lb_add_fip_rv(ident(ar)); pt <- ident(pt)
+  for (cc in lb_cols_for("pitchers")) if (!cc %in% names(ar)) ar[[cc]] <- NA
+  for (cc in lb_cols_for("pitches"))  if (!cc %in% names(pt)) pt[[cc]] <- NA
+  ar <- ar[order(-ar$P), , drop = FALSE]; pt <- pt[order(-pt$P), , drop = FALSE]
+  list(pitchers = ar, pitches = pt)
 }
 
 # teamIds matching a set of picker names (location / fullName / teamName / abbrev)
@@ -714,8 +822,26 @@ lb_precomputed <- function(season = TM_SEASON) {
 # Precomputed tables when the season has them (every team, every column,
 # instantly); otherwise the live TruMedia path below. `teams` filters.
 lb_league_tables <- function(season = TM_SEASON, teams = NULL, deep = character(0),
-                             progress = NULL, shape = TRUE) {
+                             progress = NULL, shape = TRUE, dates = NULL) {
   pre <- tryCatch(lb_precomputed(season), error = function(e) list())
+  # a date window narrower than the season: exact sums for that window
+  if (!is.null(dates) && length(dates) == 2 && !any(is.na(dates))) {
+    if (is.function(progress)) progress(0.4, "Aggregating the date range")
+    db <- lb_day_boards(season, as.Date(dates[1]), as.Date(dates[2]))
+    if (!is.null(db)) {
+      pitchers <- db$pitchers; pitches <- db$pitches
+      if (length(teams)) {
+        ids <- .lb_team_ids(pre, teams); pk <- .tm_norm(teams)
+        keep <- function(d) (as.character(d$tm_team_id) %in% ids) | (.tm_norm(d$School) %in% pk)
+        if (nrow(pitchers)) pitchers <- pitchers[keep(pitchers), , drop = FALSE]
+        if (nrow(pitches))  pitches  <- pitches[keep(pitches), , drop = FALSE]
+      }
+      return(list(pitchers = pitchers, pitches = pitches,
+                  note = paste0("TrackMan games ", format(as.Date(dates[1]), "%b %d"), " \u2013 ",
+                                format(as.Date(dates[2]), "%b %d, %Y"), ": every column is computed from the pitches in ",
+                                "that window. W/L/S and ERA need a full-season line and are blank; IP is tracked outs / 3.")))
+    }
+  }
   if (is.data.frame(pre$pitchers) && nrow(pre$pitchers) > 0) {
     pitchers <- pre$pitchers; pitches <- pre$pitches %||% data.frame()
     if (length(teams)) {
@@ -858,6 +984,8 @@ lb_league_tables <- function(season = TM_SEASON, teams = NULL, deep = character(
 LB_SPEC <- list(
   list(col = "Pitcher",   lab = "Pitcher",   dir =  0, dig = NA, grp = "id",    w = 200),
   list(col = "School",    lab = "School",    dir =  0, dig = NA, grp = "id",    w = 150),
+  list(col = "Level",     lab = "Lvl",       dir =  0, dig = NA, grp = "id",    w = 46),
+  list(col = "Conf",      lab = "Conf",      dir =  0, dig = NA, grp = "id",    w = 60),
   list(col = "T",         lab = "T",         dir =  0, dig = NA, grp = "id",    w = 34),
   list(col = "Class",     lab = "Yr",        dir =  0, dig = NA, grp = "id",    w = 46),
   list(col = "Age",       lab = "Age",       dir =  0, dig = 1,  grp = "id",    w = 50),
@@ -977,7 +1105,7 @@ lb_gradient_style <- function(values, dir, n = 40) {
 }
 
 # ---- Build the DT --------------------------------------------------------
-lb_render_table <- function(d, level, show_cols, rank_offset = 0) {
+lb_render_table <- function(d, level, show_cols, rank_offset = 0, ref = NULL) {
   spec  <- lb_spec_for(level)
   cols  <- intersect(show_cols, names(d))
   if (length(cols) == 0) cols <- intersect(lb_cols_for(level), names(d))
@@ -1022,31 +1150,30 @@ lb_render_table <- function(d, level, show_cols, rank_offset = 0) {
       autoWidth = FALSE,
       columnDefs = list(
         list(className = "dt-right lb-num",
-             targets = which(cols %in% setdiff(cols, c("#", "Pitcher", "School", "T", "Class", "Pitch"))) - 1),
+             targets = which(cols %in% setdiff(cols, c("#", "Pitcher", "School", "T", "Class", "Pitch", "Level", "Conf", "Arsenal"))) - 1),
         list(className = "dt-center lb-rank", targets = which(cols == "#") - 1)
       )
     )
   )
   if ("T" %in% cols) keep$T <- ifelse(is.na(keep$T), "", paste0("<span class='lb-pill'>", keep$T, "</span>"))
   if ("Pitch" %in% cols) keep$Pitch <- ifelse(is.na(keep$Pitch), "", paste0("<span class='lb-pill'>", keep$Pitch, "</span>"))
+
+  if ("Level" %in% cols) keep$Level <- ifelse(is.na(keep$Level), "", paste0("<span class='lb-pill'>", keep$Level, "</span>"))
+  if ("Conf" %in% cols) keep$Conf <- ifelse(is.na(keep$Conf), "", paste0("<span class='lb-pill'>", keep$Conf, "</span>"))
   dt$x$data <- keep
 
-  # colour the VALUE, not the cell: top quartile in the good direction and
-  # bottom quartile in the bad one, everything else plain
+  # colour the CELL: green = good, white = league-typical, red = bad, scaled
+  # to the 5th-95th percentile of the column on the FULL sorted board (`ref`)
+  # so page 3 is coloured on the same scale as page 1
   for (cc in cols) {
     e <- lb_spec_entry(level, cc)
     if (is.null(e)) next
     if (!is.na(e$dig) && is.numeric(keep[[cc]]))
       dt <- DT::formatRound(dt, cc, digits = e$dig)
     if (e$dir == 0 || !is.numeric(keep[[cc]])) next
-    v <- keep[[cc]][is.finite(keep[[cc]])]
-    if (length(v) < 8) next
-    q <- unname(stats::quantile(v, c(.25, .75)))
-    if (q[1] == q[2]) next
-    good <- "#C0392B"; bad <- "#2563EB"; mid <- "#111827"
-    cols3 <- if (e$dir > 0) c(bad, mid, good) else c(good, mid, bad)
-    dt <- DT::formatStyle(dt, cc, color = DT::styleInterval(q, cols3),
-                          fontWeight = DT::styleInterval(q, c("600", "400", "700")))
+    g <- lb_gradient_style(if (!is.null(ref) && cc %in% names(ref)) ref[[cc]] else keep[[cc]], e$dir)
+    if (is.null(g)) next
+    dt <- DT::formatStyle(dt, cc, backgroundColor = DT::styleInterval(g$brks, g$cols))
   }
   dt
 }
@@ -1136,6 +1263,10 @@ lb_filter_ui <- function(level) {
                 selected = TM_SEASON, size = "sm")),
       .lb_field("Throws", shinyWidgets::radioGroupButtons(id("hand"), NULL,
                 choices = c("All" = "all", "L" = "L", "R" = "R"), selected = "all", size = "sm")),
+      .lb_field("Level", shinyWidgets::radioGroupButtons(id("level"), NULL,
+                choices = c("All" = "all", "D1" = "D1", "D2" = "D2", "D3" = "D3", "NAIA" = "NAIA", "JUCO" = "JUCO", "Summer/Other" = "Other"),
+                selected = "all", size = "sm")),
+      .lb_field("Dates", dateRangeInput(id("dates"), NULL, start = NA, end = NA, format = "M d", separator = " \u2013 "), "w-lg"),
       .lb_field("Conference", pickerInput(id("conf"), NULL, choices = LB_CONFERENCES, multiple = TRUE,
                 options = list(`actions-box` = TRUE, `live-search` = TRUE, `selected-text-format` = "count > 2",
                                `none-selected-text` = "All conferences", `count-selected-text` = "{0} conferences")), "w-lg"),
@@ -1179,7 +1310,6 @@ lb_board_ui <- function(level, title, subtitle) {
   id <- function(x) paste0("lb_", level, "_", x)
   div(class = "lb-wrap",
     lb_filter_ui(level),
-    uiOutput(id("kpis")),
     div(class = "lb-card",
       div(class = "lb-explore-head", h4(title), span(class = "lb-hint", "click a name for the profile")),
       uiOutput(id("status")),
@@ -1219,35 +1349,28 @@ lb_register_board <- function(input, output, session, level) {
     })
   })
 
+  # Team picker: the season's teams, narrowed to the picked conferences.
+  # (Conference is a ROW filter below -- it no longer pushes schools into
+  # this picker, which used to double-filter and drop mis-spelt schools.)
   observe({
     tl <- teams_for_season()
-    updatePickerInput(session, id("school"), choices = tl,
-                      selected = isolate(input[[id("school")]]))
+    confs <- input[[id("conf")]] %||% character(0)
+    if (length(confs) && length(tl)) {
+      want <- .conf_norm(conf_team_names(confs))
+      hit <- tl[.conf_norm(tl) %in% want]
+      if (length(hit)) tl <- hit
+    }
+    cur <- isolate(input[[id("school")]]) %||% character(0)
+    updatePickerInput(session, id("school"), choices = tl, selected = intersect(cur, tl))
   })
 
-  # ---- Conference -> teams ------------------------------------------
-  # Selecting conferences pushes their schools into the team picker.
-  # Matching is on letters only because TruMedia and the NCAA logo file
-  # disagree on punctuation and St./State.
-  .conf_applied <- reactiveVal(character(0))
-  observeEvent(input[[id("conf")]], {
-    confs <- input[[id("conf")]] %||% character(0)
-    tl    <- teams_for_season()
-    if (!length(tl)) return()
-
-    want <- conf_team_names(confs)
-    hit  <- tl[.conf_norm(tl) %in% .conf_norm(want)]
-
-    # Drop the schools the PREVIOUS conference pick added, keep anything
-    # the user chose by hand, then add the new conference's teams.
-    prev <- .conf_applied()
-    cur  <- isolate(input[[id("school")]]) %||% character(0)
-    keep <- setdiff(cur, prev)
-    sel  <- unique(c(keep, hit))
-    .conf_applied(hit)
-
-    updatePickerInput(session, id("school"), choices = tl, selected = sel)
-  }, ignoreNULL = FALSE, ignoreInit = TRUE)
+  # date picker bounds follow the season (and the tracked-game range once
+  # the day table has been read); blank dates = whole season
+  observe({
+    sn <- suppressWarnings(as.integer(input[[id("season")]] %||% TM_SEASON))
+    rng <- lb_season_dates(sn)
+    updateDateRangeInput(session, id("dates"), start = NA, end = NA, min = rng[1], max = rng[2])
+  })
 
   output[[id("confnote")]] <- renderUI({
     confs <- input[[id("conf")]] %||% character(0)
@@ -1301,10 +1424,17 @@ lb_register_board <- function(input, output, session, level) {
   # reshapes the frame already in memory, so it must never re-hit the API.
   # When one of them drifts from the last build we flag the board stale
   # rather than silently re-pulling.
+  # a date window is only "set" when both ends are chosen
+  lb_dates <- reactive({
+    dr <- input[[id("dates")]]
+    if (is.null(dr) || length(dr) != 2 || any(is.na(dr))) return(NULL)
+    dr <- as.Date(dr); if (dr[2] < dr[1]) dr <- rev(dr)
+    dr
+  })
   lb_fetch_key <- reactive({
     paste(input[[id("season")]] %||% "",
           paste(sort(input[[id("school")]] %||% character(0)), collapse = ","),
-          paste(sort(input[[id("conf")]]   %||% character(0)), collapse = ","),
+          paste(format(lb_dates() %||% as.Date(character(0))), collapse = ","),
           as.character(isTRUE(input[[id("shape")]])),
           sep = "||")
   })
@@ -1320,9 +1450,10 @@ lb_register_board <- function(input, output, session, level) {
     teams <- input[[id("school")]] %||% character(0)
     shape <- isTRUE(input[[id("shape")]])
     .lb_built_key(isolate(lb_fetch_key()))
+    dates <- isolate(lb_dates())
     withProgress(message = paste0("Loading ", sn, " leaderboard"), value = 0, {
       lb_league_tables(season = sn, teams = teams, deep = character(0),
-                       shape = shape,
+                       shape = shape, dates = dates,
                        progress = function(f, m) setProgress(value = f, detail = m))
     })
   }, ignoreNULL = FALSE)
@@ -1386,6 +1517,20 @@ lb_register_board <- function(input, output, session, level) {
 
     sel <- input[[id("class")]]
     if (!is.null(sel) && length(sel)) d <- d[d$Class %in% sel, , drop = FALSE]
+
+    # league split: level pill + conference picker are both ROW filters
+    lv <- input[[id("level")]] %||% "all"
+    if (!identical(lv, "all") && "Level" %in% names(d)) {
+      L <- ifelse(is.na(d$Level) | !nzchar(d$Level), "Other", d$Level)
+      d <- d[L == lv, , drop = FALSE]
+    }
+    confs <- input[[id("conf")]] %||% character(0)
+    if (length(confs)) {
+      want <- .conf_norm(conf_team_names(confs))
+      hit <- (if ("Conf" %in% names(d)) !is.na(d$Conf) & d$Conf %in% confs else FALSE) |
+             (if ("School" %in% names(d)) .conf_norm(d$School) %in% want else FALSE)
+      d <- d[hit, , drop = FALSE]
+    }
 
     # Both hands ticked means "no hand filter" — unknown-hand arms stay.
     sel <- input[[id("hand")]]
@@ -1457,7 +1602,7 @@ lb_register_board <- function(input, output, session, level) {
 
   # Any reshape sends you back to page 1 — otherwise you can sit on page 6
   # of a board that now has two pages.
-  observeEvent(list(input[[id("class")]], input[[id("hand")]],
+  observeEvent(list(input[[id("class")]], input[[id("hand")]], input[[id("level")]], input[[id("conf")]],
                     input[[id("ptype")]], input[[id("age")]],
                     input[[id("minip")]], input[[id("minp")]],
                     input[[id("search")]],
@@ -1504,21 +1649,15 @@ lb_register_board <- function(input, output, session, level) {
     msg <- function(txt, tone = "#6B7280")
       div(class = "lb-empty", style = paste0("color:", tone), txt)
 
-    if (lb_trigger() == 0)
-      return(msg(paste0("Pick a season \u2014 and, to keep it quick, a few ",
-                        "teams \u2014 then press Build Board.")))
+    if (lb_trigger() == 0) return(msg("Loading the board\u2026"))
 
     b <- built()
     if (is.null(b) || (NROW(b$pitchers) == 0 && NROW(b$pitches) == 0))
       return(msg(b$note %||% "Loading the league\u2026"))
     if (NROW(base()) == 0 && identical(level, "pitches"))
-      return(msg(paste0("No pitch-level data loaded. Add teams to ",
-                        "\u201cLoad Pitch-Level For\u201d and rebuild.")))
+      return(msg("No pitch-level rows for this selection."))
 
-    stale <- if (isTRUE(lb_stale()))
-      div(class = "lb-note", style = "background:#FFF6E5;color:#8A5A00;",
-          "Season / team / pitch-level selection changed \u2014 press ",
-          tags$b("Build Board"), " to refetch.") else NULL
+    stale <- NULL
 
     d <- filtered()
     if (nrow(d) == 0)
@@ -1532,30 +1671,8 @@ lb_register_board <- function(input, output, session, level) {
     validate(need(!is.null(d) && nrow(d) > 0, ""))
     defs <- lb_default_cols(base(), level)
     lb_render_table(d, level, input[[id("cols")]] %||% defs,
-                    rank_offset = ps$from - 1L)
+                    rank_offset = ps$from - 1L, ref = sorted())
   }, server = TRUE)
-
-  # ---- KPI strip -----------------------------------------------------
-  output[[id("kpis")]] <- renderUI({
-    d <- filtered(); b <- base()
-    if (is.null(d) || !is.data.frame(d)) return(NULL)
-    sb <- input[[id("sortby")]] %||% "IP"
-    e  <- lb_spec_entry(level, sb); lab <- if (is.null(e)) sb else e$lab
-    v  <- suppressWarnings(as.numeric(d[[sb]])); v <- v[is.finite(v)]
-    fmt <- function(x, dig) if (!length(x)) "—" else formatC(x, format = "f", digits = dig, big.mark = ",")
-    dig <- if (is.null(e) || is.na(e$dig)) 1 else e$dig
-    unit <- if (identical(level, "pitches")) "pitcher × pitch type" else "pitchers"
-    vol <- if ("P" %in% names(d)) sum(suppressWarnings(as.numeric(d$P)), na.rm = TRUE) else NA
-    hidden <- max(0, nrow(b) - nrow(d))
-    kpi <- function(lab, val, sub, cls = "") div(class = "lb-kpi", div(class = "k-lab", lab),
-                                                 div(class = paste("k-val", cls), val), div(class = "k-sub", sub))
-    div(class = "lb-kpis",
-      kpi("Rows", format(nrow(d), big.mark = ","), unit),
-      kpi("Pitches", if (is.finite(vol)) format(vol, big.mark = ",") else "—", "in scope"),
-      kpi(paste("Best", lab), fmt(if (length(v)) if (is.null(e) || e$dir >= 0) max(v) else min(v), dig), "on this board", "pos"),
-      kpi(paste("Worst", lab), fmt(if (length(v)) if (is.null(e) || e$dir >= 0) min(v) else max(v), dig), "on this board", "neg"),
-      kpi("Below the bar", format(hidden, big.mark = ","), "hidden by filters"))
-  })
 
   # ---- CSV of the whole filtered + sorted board (every page) ------------
   output[[id("csv")]] <- downloadHandler(
@@ -1570,6 +1687,8 @@ lb_register_board <- function(input, output, session, level) {
   observeEvent(input[[id("reset")]], {
     shinyWidgets::updateRadioGroupButtons(session, id("season"), selected = TM_SEASON)
     shinyWidgets::updateRadioGroupButtons(session, id("hand"), selected = "all")
+    shinyWidgets::updateRadioGroupButtons(session, id("level"), selected = "all")
+    updateDateRangeInput(session, id("dates"), start = NA, end = NA)
     shinyWidgets::updateRadioGroupButtons(session, id("minip"), selected = 0)
     updatePickerInput(session, id("conf"), selected = character(0))
     updatePickerInput(session, id("school"), selected = character(0))

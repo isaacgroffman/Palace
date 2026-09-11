@@ -591,12 +591,22 @@ sb_storage_download <- function(path, dest, attempts = 4L) {
 # Upload a local file (upsert). Used by the build scripts, never by the app.
 sb_storage_upload <- function(local, path, content_type = "application/octet-stream") {
   if (!sb_storage_enabled()) stop("set SUPABASE_URL and SUPABASE_SECRET_KEY")
-  resp <- .sb_storage_req(path) |>
-    httr2::req_method("POST") |>
-    httr2::req_headers(`x-upsert` = "true", `Content-Type` = content_type) |>
-    httr2::req_body_file(local) |>
-    httr2::req_error(is_error = function(r) FALSE) |>
-    httr2::req_perform()
+  # a multi-MB upload occasionally has its connection reset mid-body; retry
+  # the whole request a few times before giving up
+  resp <- NULL
+  for (attempt in 1:4) {
+    resp <- tryCatch(.sb_storage_req(path) |>
+      httr2::req_method("POST") |>
+      httr2::req_headers(`x-upsert` = "true", `Content-Type` = content_type) |>
+      httr2::req_body_file(local) |>
+      httr2::req_timeout(300) |>
+      httr2::req_error(is_error = function(r) FALSE) |>
+      httr2::req_perform(), error = function(e) e)
+    if (!inherits(resp, "error")) break
+    cat(sprintf("[storage] upload of %s attempt %d failed: %s\n", path, attempt, conditionMessage(resp)))
+    Sys.sleep(3 * attempt)
+  }
+  if (inherits(resp, "error")) stop(sprintf("[storage] upload of %s failed: %s", path, conditionMessage(resp)))
   if (httr2::resp_status(resp) >= 300) {
     body <- tryCatch(httr2::resp_body_string(resp), error = function(e) "")
     stop(sprintf("[storage] upload of %s (%.1f MB) failed: HTTP %d %s", path,
