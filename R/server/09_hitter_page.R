@@ -535,6 +535,10 @@
     hs <- tryCatch(headshot_lookup(bt, team), error = function(e) NULL)
     if ((is.null(logo) || is.na(logo) || !nzchar(as.character(logo))) &&
         !is.null(hs)) logo <- hs$logo
+    # headshot: Coastal bio file first, TruMedia headshot table otherwise
+    head_src <- if (!is.null(hb) && "Headshot" %in% names(hb) &&
+                    !is.na(hb$Headshot[1]) && nzchar(as.character(hb$Headshot[1])))
+      as.character(hb$Headshot[1]) else if (!is.null(hs)) hs$headshot else NULL
 
     div(class = "pp-card",
       div(class = "pp-bio-top",

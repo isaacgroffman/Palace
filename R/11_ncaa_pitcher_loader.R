@@ -35,7 +35,10 @@ ensure_ncaa_cols <- function(df) {
 
 # Light prep fallback: enough columns for every tab to render even when
 # the full model pipeline can't run on this pitcher's data.
-scout_prep_light <- function(df) {
+# Per-pitch is_* / *Indicator columns from PitchCall / PlayResult / KorBB /
+# plate location. Shared by the pitcher light prep and the hitter loaders
+# (hitter frames come straight from Supabase without process_pitcher_data).
+add_pitch_indicators <- function(df) {
   # is_* backfill (same rules as process_pitcher_data) so the indicator
   # block below always has its inputs
   if (!all(c("is_hit","slg","on_base","is_plate_appearance","is_at_bat","is_walk","is_k") %in% names(df))) {
@@ -102,6 +105,11 @@ scout_prep_light <- function(df) {
       OutIndicator  = ifelse((PlayResult %in% c("Out","FieldersChoice") | KorBB == "Strikeout") & HBPIndicator == 0, 1, 0),
       totalbases    = ifelse(!is.na(slg), slg, 0)
     )
+  df
+}
+
+scout_prep_light <- function(df) {
+  df <- add_pitch_indicators(df)
   # height + arm angle
   hkey <- norm_player_key(df$Pitcher[1])
   h_in <- 74

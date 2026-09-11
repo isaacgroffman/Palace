@@ -115,6 +115,9 @@ load_ncaa_batter_data <- function(display_name, team_disp = NULL) {
                          normalize_lastfirst(df$Pitcher), df$Pitcher)
   df <- normalize_plate_location(df)
   if ("Date" %in% names(df)) df$Date <- safe_as_date(df$Date)
+  # Swing / AB / hit / zone indicators the hitter page's rate tables read
+  df <- tryCatch(add_pitch_indicators(df), error = function(e) {
+    cat("  [HitterLoad] indicators failed:", conditionMessage(e), "\n"); df })
 
   # corrected pitch types for the (non-Coastal) arms this hitter faced
   df <- reclassify_noncoastal_pitches(df, context = paste0("hitter:", display_name))
