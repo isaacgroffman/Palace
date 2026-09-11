@@ -65,61 +65,7 @@ palace_pool_reset <- function() {
   invisible()
 }
 
-# All practice pitches, in Palace's column vocabulary.
-sb_load_practice_pitches <- function() {
-  sql <- '
-    select
-      play_id                                  as "PlayID",
-      session_id                               as "session_id",
-      pitcher                                  as "Pitcher",
-      pitcher_throws                           as "PitcherThrows",
-      session_date                             as "Date",
-      pitch_no                                 as "PitchNo",
-      time::text                               as "Time",
-      tagged_pitch_type                        as "TaggedPitchType",
-      rel_speed                                as "RelSpeed",
-      spin_rate                                as "SpinRate",
-      spin_axis                                as "SpinAxis",
-      tilt                                     as "Tilt",
-      induced_vert_break                       as "InducedVertBreak",
-      horz_break                               as "HorzBreak",
-      vert_appr_angle                          as "VertApprAngle",
-      rel_height                               as "RelHeight",
-      rel_side                                 as "RelSide",
-      extension                                as "Extension",
-      plate_loc_side                           as "PlateLocSide",
-      plate_loc_height                         as "PlateLocHeight",
-      spin_efficiency                          as "SpinAxis3dSpinEfficiency",
-      (plate_loc_side  between -0.8333 and 0.8333 and
-       plate_loc_height between  1.5    and 3.5)  as "in_zone",
-      pitch_uid,
-      coalesce(has_edger, false)               as "has_edger",
-      edger_blob,
-      array_to_string(edger_all_blobs, \'|\')  as "edger_all_blobs",
-      framerate,
-      coalesce(has_awre, false)                as "has_awre",
-      awre_ppdk
-    from pitches
-    order by session_date, pitch_no
-  '
-  d <- DBI::dbGetQuery(palace_pool(), sql)
-  if (nrow(d) == 0) return(NULL)
-  d$Date <- as.Date(d$Date)
-  # HH:MM:SS for display and for the constructed-clip fallback, which
-  # expects a local wall-clock time string exactly as TrackMan reports it.
-  d$Time <- ifelse(nchar(d$Time) >= 19, substr(d$Time, 12, 19), d$Time)
-  d
-}
 
-# Freshness probe for reactivePoll — changes whenever ingest writes.
-sb_practice_version <- function() {
-  tryCatch(
-    DBI::dbGetQuery(palace_pool(),
-      "select coalesce(max(updated_at)::text,'') || '-' || count(*)::text as v
-       from pitches")$v,
-    error = function(e) NA_character_
-  )
-}
 
 # =============================================================================
 # PITCH PROFILER TABLES — schema `pitchprofiler`, built by
@@ -359,6 +305,140 @@ bp_fix_names <- function(x) {
   x <- sub("^([^,]+),\\s*(.+)$", "\\1, \\2", x)
   x[!is.na(x) & nzchar(x)]
 }
+
+# ---- Bullpen pitches (public.pitches) ----------------------------------------
+# Read through Supabase's REST API (PostgREST) with the service key: it does
+# not depend on the Postgres pooler or SB_DB_*, and it is what every other
+# tab already uses for Storage. The direct SQL path is the fallback. One
+# copy per process, refreshed when the ingest job writes (version probe).
+.bp_env <- new.env(parent = emptyenv())
+
+.sb_rest_req <- function(path) {
+  key <- Sys.getenv("SUPABASE_SECRET_KEY"); url <- Sys.getenv("SUPABASE_URL")
+  if (!nzchar(key) || !nzchar(url)) return(NULL)
+  httr2::request(paste0(sub("/+$", "", url), "/rest/v1/", path)) |>
+    httr2::req_headers(apikey = key, Authorization = paste("Bearer", key)) |>
+    httr2::req_timeout(60) |>
+    httr2::req_retry(max_tries = 3, retry_on_failure = TRUE) |>
+    httr2::req_error(is_error = function(r) FALSE)
+}
+
+# every row of a table via REST, paged 1000 at a time
+.sb_rest_rows <- function(table, select = "*", order = NULL, page = 1000L) {
+  out <- list(); from <- 0L
+  repeat {
+    rq <- .sb_rest_req(table)
+    if (is.null(rq)) return(NULL)
+    rq <- rq |> httr2::req_url_query(select = select) |>
+      httr2::req_headers(Range = sprintf("%d-%d", from, from + page - 1L), `Range-Unit` = "items")
+    if (!is.null(order)) rq <- rq |> httr2::req_url_query(order = order)
+    resp <- tryCatch(httr2::req_perform(rq), error = function(e) NULL)
+    if (is.null(resp) || httr2::resp_status(resp) >= 300) {
+      cat("[supabase] REST", table, "failed:", if (is.null(resp)) "no response" else httr2::resp_status(resp), "\n")
+      return(NULL)
+    }
+    d <- tryCatch(jsonlite::fromJSON(httr2::resp_body_string(resp), simplifyVector = TRUE), error = function(e) NULL)
+    if (is.null(d) || length(d) == 0) break
+    d <- as.data.frame(d, stringsAsFactors = FALSE)
+    out[[length(out) + 1]] <- d
+    if (nrow(d) < page) break
+    from <- from + page
+  }
+  if (!length(out)) return(data.frame())
+  dplyr::bind_rows(out)
+}
+
+# "<max updated_at>-<row count>": changes whenever the ingest job writes
+sb_practice_version <- function() {
+  rq <- .sb_rest_req("pitches")
+  if (!is.null(rq)) {
+    resp <- tryCatch(rq |> httr2::req_url_query(select = "updated_at", order = "updated_at.desc.nullslast", limit = 1) |>
+                       httr2::req_headers(Prefer = "count=exact") |> httr2::req_perform(), error = function(e) NULL)
+    if (!is.null(resp) && httr2::resp_status(resp) < 300) {
+      cr <- httr2::resp_header(resp, "content-range") %||% ""
+      n  <- sub("^.*/", "", cr)
+      d  <- tryCatch(jsonlite::fromJSON(httr2::resp_body_string(resp)), error = function(e) NULL)
+      up <- if (is.data.frame(d) && nrow(d)) as.character(d$updated_at[1]) else ""
+      return(paste0(up, "-", n))
+    }
+  }
+  tryCatch(
+    DBI::dbGetQuery(palace_pool(),
+      "select coalesce(max(updated_at)::text,'') || '-' || count(*)::text as v
+       from pitches")$v,
+    error = function(e) NA_character_)
+}
+
+.BP_COLS <- c(play_id = "PlayID", session_id = "session_id", pitcher = "Pitcher", pitcher_throws = "PitcherThrows",
+              session_date = "Date", pitch_no = "PitchNo", time = "Time", tagged_pitch_type = "TaggedPitchType",
+              rel_speed = "RelSpeed", spin_rate = "SpinRate", spin_axis = "SpinAxis", tilt = "Tilt",
+              induced_vert_break = "InducedVertBreak", horz_break = "HorzBreak", vert_appr_angle = "VertApprAngle",
+              rel_height = "RelHeight", rel_side = "RelSide", extension = "Extension",
+              plate_loc_side = "PlateLocSide", plate_loc_height = "PlateLocHeight",
+              spin_efficiency = "SpinAxis3dSpinEfficiency", pitch_uid = "pitch_uid", has_edger = "has_edger",
+              edger_blob = "edger_blob", edger_all_blobs = "edger_all_blobs", framerate = "framerate",
+              has_awre = "has_awre", awre_ppdk = "awre_ppdk")
+
+.sb_practice_rest <- function() {
+  d <- .sb_rest_rows("pitches", select = paste(names(.BP_COLS), collapse = ","),
+                     order = "session_date.asc,pitch_no.asc")
+  if (is.null(d) || !nrow(d)) return(d)
+  for (nm in names(.BP_COLS)) if (!nm %in% names(d)) d[[nm]] <- NA
+  blobs <- d$edger_all_blobs
+  d$edger_all_blobs <- vapply(seq_len(nrow(d)), function(i) {
+    b <- if (is.list(blobs)) blobs[[i]] else blobs[i]
+    b <- b[!is.na(b) & nzchar(as.character(b))]
+    if (length(b)) paste(b, collapse = "|") else NA_character_
+  }, character(1))
+  d <- d[, names(.BP_COLS), drop = FALSE]; names(d) <- unname(.BP_COLS)
+  d$has_edger <- d$has_edger %in% TRUE; d$has_awre <- d$has_awre %in% TRUE
+  tt <- as.character(d$Time)
+  d$Time <- ifelse(is.na(tt), NA_character_, ifelse(grepl("^\\d{4}-\\d{2}-\\d{2}", tt), substr(tt, 12, 19), substr(tt, 1, 8)))
+  d
+}
+
+.sb_practice_sql <- function() {
+  sql <- '
+    select
+      play_id as "PlayID", session_id as "session_id", pitcher as "Pitcher",
+      pitcher_throws as "PitcherThrows", session_date as "Date", pitch_no as "PitchNo",
+      time::text as "Time", tagged_pitch_type as "TaggedPitchType", rel_speed as "RelSpeed",
+      spin_rate as "SpinRate", spin_axis as "SpinAxis", tilt as "Tilt",
+      induced_vert_break as "InducedVertBreak", horz_break as "HorzBreak",
+      vert_appr_angle as "VertApprAngle", rel_height as "RelHeight", rel_side as "RelSide",
+      extension as "Extension", plate_loc_side as "PlateLocSide", plate_loc_height as "PlateLocHeight",
+      spin_efficiency as "SpinAxis3dSpinEfficiency", pitch_uid,
+      coalesce(has_edger, false) as "has_edger", edger_blob,
+      array_to_string(edger_all_blobs, \'|\') as "edger_all_blobs", framerate,
+      coalesce(has_awre, false) as "has_awre", awre_ppdk
+    from pitches order by session_date, pitch_no'
+  d <- DBI::dbGetQuery(palace_pool(), sql)
+  d$Time <- ifelse(nchar(d$Time) >= 19, substr(d$Time, 12, 19), d$Time)
+  d
+}
+
+# All practice pitches, in Palace's column vocabulary. Cached per process
+# and keyed by the version probe, so every session and tab shares one copy.
+sb_load_practice_pitches <- function(force = FALSE) {
+  ver <- sb_practice_version()
+  if (!force && !is.null(.bp_env$data) && identical(.bp_env$version, ver)) return(.bp_env$data)
+  t0 <- Sys.time()
+  d <- tryCatch(.sb_practice_rest(), error = function(e) { cat("[bullpen] REST load failed:", conditionMessage(e), "\n"); NULL })
+  src <- "REST"
+  if (is.null(d)) { d <- .sb_practice_sql(); src <- "Postgres" }
+  if (is.null(d) || nrow(d) == 0) return(NULL)
+  d$Date <- as.Date(d$Date)
+  d$in_zone <- !is.na(d$PlateLocSide) & !is.na(d$PlateLocHeight) &
+    d$PlateLocSide >= -0.8333 & d$PlateLocSide <= 0.8333 & d$PlateLocHeight >= 1.5 & d$PlateLocHeight <= 3.5
+  cat(sprintf("[bullpen] %d practice pitches via %s in %.1fs (version %s)\n", nrow(d), src,
+              as.numeric(difftime(Sys.time(), t0, units = "secs")), ver %||% "?"))
+  .bp_env$data <- d; .bp_env$version <- ver
+  d
+}
+
+# The bullpen frame for any part of the app (same object the Bullpens tab
+# renders): Pitcher is "Last, First"; Date is a Date; plate locations in feet.
+bullpen_pitches <- function() tryCatch(sb_load_practice_pitches(), error = function(e) NULL)
 
 # ---- pools for R/07_pools.R -------------------------------------------------
 # Columns a processed pool needs (everything process_pitcher_data, the ecdf

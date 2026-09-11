@@ -55,7 +55,7 @@ is downloaded from anywhere else, and no 2025 data is used.
 |---|---|---|
 | `pitchprofiler.pitches` | every 2026 NCAA pitch (2.58M), reclassified + scored by the Pitch Profiler bundle | Coastal games at boot; NCAA pitcher / hitter / matchup pulls on demand; P5 + Sun Belt reference pools on first use |
 | `pitchprofiler.pitcher_season`, `..._pitch_type`, `pitcher_game`, `..._pitch_type` | aggregates with plus grades and expected stats | NCAA directory at boot (`pp_directory`); available to leaderboards via `pp_table()` |
-| `public.pitches` | Coastal bullpens with Edgertronic clips | Fall 2026 pill, Bullpens tab |
+| `public.pitches` | Coastal bullpens with Edgertronic clips | read through the REST API with the service key (no pooler), cached per process; `bullpen_pitches()` returns the frame for any tab |
 
 `R/07_pools.R` builds the app's frames. `spring26` (Coastal 2026 games) is
 read from Storage and processed at boot in a few seconds. Everything the

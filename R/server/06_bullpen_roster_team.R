@@ -162,6 +162,9 @@
               roster27_pitcher_fl, bullpen_pitchers_fl)
     resolved <- resolve_pitcher_name(pick, pool)
     if (is.null(resolved)) resolved <- pick
+    # the season switch below rebuilds the picker choices; make sure that
+    # rebuild keeps THIS pick instead of snapping to the first roster name
+    session$userData$restore_player <- resolved
     ch <- session$userData$global_choices
     if (is.null(ch)) updateSelectizeInput(session, "global_pitcher", selected = resolved)
     else updateSelectizeInput(session, "global_pitcher", choices = ch, selected = resolved, server = TRUE)

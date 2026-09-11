@@ -2459,12 +2459,10 @@ tabPanel('Pitching Leaderboard',
     # parquet datasets, as opposed to the Coastal board above.
     tabPanel("League Pitchers", value = "League Pitchers",
              tags$style(LB_CSS),
-             lb_board_ui("pitchers", "Pitchers \u2014 League Wide",
-                         "Live from TruMedia. Pick a season and teams, then Build Board.")
+             lb_board_ui("pitchers", "Pitchers", "")
     ),
     tabPanel("League Pitches", value = "League Pitches",
-             lb_board_ui("pitches", "Pitches \u2014 League Wide",
-                         "One row per arm per pitch type \u2014 requires pitch-level load.")
+             lb_board_ui("pitches", "Pitches", "")
     )
       )
     ),

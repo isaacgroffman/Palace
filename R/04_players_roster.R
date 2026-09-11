@@ -82,7 +82,8 @@ resolve_pitcher_name <- function(x, pool) {
 }
 
 bullpen_pitchers_fl <- tryCatch({
-  nm <- DBI::dbGetQuery(palace_pool(), "select distinct pitcher from pitches")$pitcher
+  bp <- bullpen_pitches()
+  nm <- if (is.null(bp)) character(0) else unique(as.character(bp$Pitcher))
   nm <- bp_fix_names(nm)
   sort(unique(sub("^\\s*([^,]+),\\s*(.+)\\s*$", "\\2 \\1", nm)))
 }, error = function(e) {

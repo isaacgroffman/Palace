@@ -1009,35 +1009,44 @@ lb_render_table <- function(d, level, show_cols, rank_offset = 0) {
 
   dt <- DT::datatable(
     keep, escape = FALSE, rownames = FALSE, colnames = unname(labs),
-    class = "lb-table stripe hover row-border",
-    extensions = c("Buttons", "FixedColumns"),
+    class = "lb-table hover",
+    extensions = "FixedColumns",
     options = list(
       # No DT paging: the server already handed us exactly one page, which
       # is the whole point -- a 3,000-row payload never reaches the browser.
-      dom = "Brt",
+      dom = "rt",
       paging = FALSE,
-      buttons = list(list(extend = "csv", text = "Export Page CSV",
-                          className = "lb-btn")),
       scrollX = TRUE, scrollY = "62vh", scrollCollapse = TRUE,
-      fixedColumns = list(leftColumns = 1),
+      fixedColumns = list(leftColumns = 2),
       order = list(),
       autoWidth = FALSE,
       columnDefs = list(
-        list(className = "dt-center",
-             targets = which(cols %in% setdiff(cols, c("Pitcher", "School"))) - 1)
+        list(className = "dt-right lb-num",
+             targets = which(cols %in% setdiff(cols, c("#", "Pitcher", "School", "T", "Class", "Pitch"))) - 1),
+        list(className = "dt-center lb-rank", targets = which(cols == "#") - 1)
       )
     )
   )
+  if ("T" %in% cols) keep$T <- ifelse(is.na(keep$T), "", paste0("<span class='lb-pill'>", keep$T, "</span>"))
+  if ("Pitch" %in% cols) keep$Pitch <- ifelse(is.na(keep$Pitch), "", paste0("<span class='lb-pill'>", keep$Pitch, "</span>"))
+  dt$x$data <- keep
 
+  # colour the VALUE, not the cell: top quartile in the good direction and
+  # bottom quartile in the bad one, everything else plain
   for (cc in cols) {
     e <- lb_spec_entry(level, cc)
     if (is.null(e)) next
     if (!is.na(e$dig) && is.numeric(keep[[cc]]))
       dt <- DT::formatRound(dt, cc, digits = e$dig)
-    g <- lb_gradient_style(keep[[cc]], e$dir)
-    if (!is.null(g))
-      dt <- DT::formatStyle(dt, cc,
-        backgroundColor = DT::styleInterval(g$brks, g$cols))
+    if (e$dir == 0 || !is.numeric(keep[[cc]])) next
+    v <- keep[[cc]][is.finite(keep[[cc]])]
+    if (length(v) < 8) next
+    q <- unname(stats::quantile(v, c(.25, .75)))
+    if (q[1] == q[2]) next
+    good <- "#C0392B"; bad <- "#2563EB"; mid <- "#111827"
+    cols3 <- if (e$dir > 0) c(bad, mid, good) else c(good, mid, bad)
+    dt <- DT::formatStyle(dt, cc, color = DT::styleInterval(q, cols3),
+                          fontWeight = DT::styleInterval(q, c("600", "400", "700")))
   }
   dt
 }
@@ -1047,65 +1056,71 @@ lb_render_table <- function(d, level, show_cols, rank_offset = 0) {
 # ============================================================
 
 LB_CSS <- HTML("
-  .lb-wrap { padding: 4px 10px 20px; }
-  .lb-head { display:flex; align-items:baseline; gap:12px; margin: 6px 0 12px; }
-  .lb-head h3 { margin:0; color:#006F71; font-weight:800; letter-spacing:-.01em; }
-  .lb-head .lb-sub { color:#6B7280; font-size:13px; }
-
-  .lb-filters {
-    background:#fff; border:1px solid #E8ECEE; border-radius:12px;
-    padding:12px 14px 4px; margin-bottom:14px;
-    box-shadow:0 1px 2px rgba(16,24,40,.04);
-  }
-  .lb-filters .form-group { margin-bottom:10px; }
-  .lb-filters label { font-size:11.5px; font-weight:700; color:#6B7280;
-                      text-transform:uppercase; letter-spacing:.05em; }
-
-  .lb-rangebox { border-top:1px dashed #E8ECEE; margin-top:4px; padding-top:10px; }
-  .lb-range-item { background:#F7F9FA; border:1px solid #EDF1F2; border-radius:9px;
-                   padding:6px 12px 0; margin-bottom:8px; }
-  .lb-range-item label { color:#33474B; }
-
-  /* player cell: logo + hand-coloured name */
+  .lb-wrap { padding: 4px 6px 24px; font-family: -apple-system, 'Inter', 'Segoe UI', sans-serif; }
+  .lb-card { background:#fff; border:1px solid #E5E7EB; border-radius:14px; padding:16px 18px;
+             margin-bottom:14px; box-shadow:0 1px 2px rgba(16,24,40,.03); }
+  .lb-filters .lb-lab { font-size:11px; font-weight:700; color:#6B7280; letter-spacing:.08em;
+                        text-transform:uppercase; margin:0 0 6px; }
+  .lb-filters .form-group { margin-bottom:0; }
+  .lb-filters .form-control, .lb-filters .btn.dropdown-toggle {
+    height:40px; border-radius:9px; border:1px solid #D1D5DB; font-size:14px; box-shadow:none; }
+  .lb-filters .lb-row { display:flex; flex-wrap:wrap; gap:14px 18px; align-items:flex-end; }
+  .lb-filters .lb-field { min-width:150px; }
+  .lb-filters .lb-field.w-sm { min-width:110px; } .lb-filters .lb-field.w-lg { min-width:260px; }
+  /* pill toggles (season, throws, min IP) */
+  .lb-filters .btn-group .btn { background:#fff; border:1px solid #D1D5DB; color:#111827;
+       font-weight:600; font-size:13px; padding:7px 13px; border-radius:9px !important; margin-right:5px; box-shadow:none; }
+  .lb-filters .btn-group .btn.active { background:#0B1F3A; color:#fff; border-color:#0B1F3A; }
+  .lb-actions { display:flex; gap:10px; align-items:center; margin-left:auto; }
+  .lb-btn { background:#fff; border:1px solid #D1D5DB; color:#111827 !important; font-weight:700;
+            font-size:13px; padding:8px 14px; border-radius:9px; }
+  .lb-btn:hover { background:#F3F4F6; }
+  .lb-btn-ghost { border-color:transparent; color:#374151 !important; }
+  /* KPI strip */
+  .lb-kpis { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:14px; margin-bottom:14px; }
+  .lb-kpi { background:#fff; border:1px solid #E5E7EB; border-radius:14px; padding:16px 18px; }
+  .lb-kpi .k-lab { font-size:11px; font-weight:700; color:#6B7280; letter-spacing:.08em; text-transform:uppercase; }
+  .lb-kpi .k-val { font-size:34px; font-weight:800; letter-spacing:-.02em; color:#111827; margin:4px 0 2px;
+                   font-variant-numeric:tabular-nums; }
+  .lb-kpi .k-val.pos { color:#C0392B; } .lb-kpi .k-val.neg { color:#2563EB; }
+  .lb-kpi .k-sub { font-size:12.5px; color:#6B7280; }
+  @media (max-width: 1100px) { .lb-kpis { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+  /* explore card */
+  .lb-explore-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px; }
+  .lb-explore-head h4 { margin:0; font-weight:800; font-size:20px; color:#111827; }
+  .lb-explore-head .lb-hint { color:#6B7280; font-size:13px; }
   .lb-player { display:flex; align-items:center; gap:8px; white-space:nowrap; }
   .lb-logo { width:20px; height:20px; object-fit:contain; flex:0 0 20px; }
   .lb-logo-blank { display:inline-block; border-radius:50%; background:#EDF1F2; }
-  .lb-name { font-weight:700; text-decoration:none !important; }
+  .lb-name { font-weight:700; text-decoration:none !important; color:#111827 !important; }
   .lb-name:hover { text-decoration:underline !important; }
-
-  /* table chrome */
-  table.lb-table { font-size:12.5px; border-collapse:separate !important; }
+  .lb-pill { display:inline-block; background:#F3F4F6; color:#374151; font-weight:700; font-size:11px;
+             padding:3px 8px; border-radius:6px; letter-spacing:.04em; }
+  table.lb-table { font-size:13px; border-collapse:separate !important; }
   table.lb-table thead th {
-    background:#0E6E70 !important; color:#fff !important;
-    font-size:11px; font-weight:700; text-transform:uppercase;
-    letter-spacing:.04em; border:none !important; white-space:nowrap;
-    padding:9px 8px !important; position:relative;
-  }
-  table.lb-table tbody td { padding:5px 8px !important; border-top:1px solid #F1F4F5 !important; }
-  table.lb-table tbody tr:hover td { box-shadow: inset 0 0 0 9999px rgba(0,111,113,.045); }
-  .dataTables_wrapper .lb-btn {
-    background:#006F71 !important; color:#fff !important; border:none !important;
-    border-radius:7px !important; padding:6px 14px !important;
-    font-size:12px !important; font-weight:700 !important;
-  }
-  .dataTables_scrollBody { border-bottom:1px solid #E8ECEE; }
-  /* Pager sits above the board; the table itself scrolls internally, so
-     keeping the controls up top means they never scroll out of reach. */
-  .lb-pager { display:flex; align-items:center; justify-content:center;
-              gap:14px; margin:6px 0 10px; }
-  .lb-pager .lb-pgbtn { background:#FFFFFF; border:1px solid #CDE5E5;
-              color:#006F71 !important; font-weight:700; font-size:13px;
-              padding:5px 14px; border-radius:8px; }
-  .lb-pager .lb-pgbtn:hover { background:#006F71; color:#fff !important;
-              border-color:#006F71; }
-  .lb-pageinfo { color:#4B5563; font-size:13px; font-weight:600;
-              min-width:210px; text-align:center; display:inline-block;
-              font-variant-numeric:tabular-nums; }
+    background:#FAFAFA !important; color:#6B7280 !important; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.06em; border:none !important; border-bottom:1px solid #E5E7EB !important;
+    white-space:nowrap; padding:10px 10px !important; }
+  table.lb-table tbody td { padding:9px 10px !important; border-top:1px solid #F3F4F6 !important;
+    font-variant-numeric:tabular-nums; }
+  table.lb-table tbody td.lb-num { font-family:'SFMono-Regular', Menlo, Consolas, monospace; font-size:12.5px; }
+  table.lb-table tbody td.lb-rank { color:#9CA3AF; font-size:12px; }
+  table.lb-table tbody tr:hover td { background:#F9FAFB !important; }
+  .dataTables_scrollBody { border-bottom:1px solid #E5E7EB; }
+  .lb-pager { display:flex; align-items:center; justify-content:flex-end; gap:12px; margin:10px 0 0; }
+  .lb-pager .lb-pgbtn { background:#fff; border:1px solid #D1D5DB; color:#111827 !important; font-weight:700;
+              font-size:13px; padding:5px 12px; border-radius:8px; }
+  .lb-pageinfo { color:#6B7280; font-size:13px; font-variant-numeric:tabular-nums; }
   .lb-empty { padding:40px; text-align:center; color:#6B7280; }
-  .lb-note { background:#F0F7F7; border:1px solid #CDE5E5; color:#2A5F60;
-             border-radius:9px; padding:9px 13px; margin-bottom:12px;
-             font-size:12.5px; }
+  .lb-note { color:#6B7280; font-size:12.5px; margin:0 0 10px; }
+  .lb-rangebox { border-top:1px dashed #E5E7EB; margin-top:12px; padding-top:10px; }
+  .lb-range-item { background:#F9FAFB; border:1px solid #EEF0F2; border-radius:9px; padding:6px 12px 0; margin-bottom:8px; }
 ")
+
+# One field: uppercase label above the control (no shiny label)
+.lb_field <- function(label, control, class = "") {
+  div(class = paste("lb-field", class), div(class = "lb-lab", label), control)
+}
 
 # Reusable filter bar. `level` is 'pitchers' or 'pitches' and is suffixed
 # onto every inputId so the two boards keep independent filter state.
@@ -1113,84 +1128,48 @@ lb_filter_ui <- function(level) {
   id <- function(x) paste0("lb_", level, "_", x)
   spec <- lb_spec_for(level)
   all_cols <- vapply(spec, `[[`, character(1), "col")
-  num_cols <- vapply(Filter(function(x) !is.na(x$dig), spec),
-                     `[[`, character(1), "col")
-
-  div(class = "lb-filters",
-    fluidRow(
-      column(2, selectInput(id("season"), "Season", choices = rev(TM_SEASONS_ALL),
-                            selected = TM_SEASON)),
-      # Picking a conference fills the team picker with that whole league.
-      # Teams stay individually editable afterwards -- it is a shortcut,
-      # not a lock.
-      column(3, pickerInput(id("conf"), "Conference", choices = LB_CONFERENCES,
-        multiple = TRUE, options = list(`actions-box` = TRUE, `live-search` = TRUE,
-          `selected-text-format` = "count > 2",
-          `none-selected-text` = "Any conference",
-          `count-selected-text` = "{0} conferences"))),
-      column(4, pickerInput(id("school"), "Team / School", choices = NULL,
-        multiple = TRUE, options = list(`actions-box` = TRUE, `live-search` = TRUE,
-          `selected-text-format` = "count > 2",
-          `none-selected-text` = "Whole league"))),
-      column(3, pickerInput(id("class"), "Class / Yr", choices = NULL,
-        multiple = TRUE, options = list(`actions-box` = TRUE,
-          `selected-text-format` = "count > 2", `none-selected-text` = "All classes")))
-    ),
-    fluidRow(
-      column(2, pickerInput(id("hand"), "Throws", choices = c("L", "R"),
-        selected = c("L", "R"), multiple = TRUE,
-        options = list(`actions-box` = TRUE))),
+  num_cols <- vapply(Filter(function(x) !is.na(x$dig), spec), `[[`, character(1), "col")
+  seasons <- rev(tail(TM_SEASONS_ALL, 3))
+  div(class = "lb-card lb-filters",
+    div(class = "lb-row",
+      .lb_field("Season", shinyWidgets::radioGroupButtons(id("season"), NULL, choices = seasons,
+                selected = TM_SEASON, size = "sm")),
+      .lb_field("Throws", shinyWidgets::radioGroupButtons(id("hand"), NULL,
+                choices = c("All" = "all", "L" = "L", "R" = "R"), selected = "all", size = "sm")),
+      .lb_field("Conference", pickerInput(id("conf"), NULL, choices = LB_CONFERENCES, multiple = TRUE,
+                options = list(`actions-box` = TRUE, `live-search` = TRUE, `selected-text-format` = "count > 2",
+                               `none-selected-text` = "All conferences", `count-selected-text` = "{0} conferences")), "w-lg"),
+      .lb_field("Team", pickerInput(id("school"), NULL, choices = NULL, multiple = TRUE,
+                options = list(`actions-box` = TRUE, `live-search` = TRUE, `selected-text-format` = "count > 2",
+                               `none-selected-text` = "All teams")), "w-lg"),
+      .lb_field("Class", pickerInput(id("class"), NULL, choices = NULL, multiple = TRUE,
+                options = list(`actions-box` = TRUE, `selected-text-format` = "count > 2",
+                               `none-selected-text` = "All classes")), "w-sm"),
       if (identical(level, "pitches"))
-        column(2, pickerInput(id("ptype"), "Pitch Type", choices = NULL,
-          multiple = TRUE, options = list(`actions-box` = TRUE, `live-search` = TRUE,
-            `selected-text-format` = "count > 2", `none-selected-text` = "All pitches")))
-      else
-        column(2, sliderInput(id("age"), "Age", min = 17, max = 26,
-                              value = c(17, 26), step = 0.5, sep = "")),
-      column(8, div(style = "padding-top:30px;",
-                    uiOutput(id("confnote"))))
+        .lb_field("Pitch type", pickerInput(id("ptype"), NULL, choices = NULL, multiple = TRUE,
+                  options = list(`actions-box` = TRUE, `live-search` = TRUE, `selected-text-format` = "count > 2",
+                                 `none-selected-text` = "All pitches")))
     ),
-    # Row 2 is all display-side: none of it re-hits the API, it just
-    # reshapes and re-pages the board already in memory.
-    fluidRow(
-      column(3, textInput(id("search"), "Search name / school",
-                          value = "", placeholder = "e.g. Smith, or Clemson")),
-      column(3, selectInput(id("sortby"), "Sort by", choices = num_cols,
-                            selected = if ("IP" %in% num_cols) "IP" else num_cols[1])),
-      column(2, selectInput(id("sortdir"), "Order",
-                            choices = c("High \u2192 Low" = "desc",
-                                        "Low \u2192 High" = "asc"),
-                            selected = "desc")),
-      column(2, sliderInput(id("minip"), "Min IP", min = 0, max = 120,
-                            value = 0, step = 1, sep = "")),
-      column(2, numericInput(id("minp"), "Min Pitches",
-                             value = 0, min = 0, step = 25)),
-      column(2, selectInput(id("perpage"), "Rows per page",
-                            choices = c("50" = 50, "100" = 100,
-                                        "500" = 500, "1000" = 1000),
-                            selected = 50))
-    ),
-    fluidRow(
-      column(9, div(style = "padding-top:22px;",
-        checkboxInput(id("shape"),
-          HTML(paste0("<b>Include velo, spin, release and ",
-                      "Stuff+ / Pitching+ / Location+</b> \u2014 scores every ",
-                      "pitch for the selected teams, so it takes noticeably ",
-                      "longer. Requires at least one team.")),
-          value = TRUE))),
-      column(3, div(style = "padding-top:26px;",
-        actionButton(id("build"), "Build Board", class = "btn btn-block",
-                     style = "background:#006F71;color:#fff;font-weight:700;border:none;")))
-    ),
-    fluidRow(
-      column(6, pickerInput(id("cols"), "Columns Shown", choices = all_cols,
-        selected = all_cols, multiple = TRUE,
-        options = list(`actions-box` = TRUE, `live-search` = TRUE,
-                       `selected-text-format` = "count > 3"))),
-      column(6, pickerInput(id("rangecols"), "Add a Range Filter", choices = num_cols,
-        selected = character(0), multiple = TRUE,
-        options = list(`live-search` = TRUE, `none-selected-text` = "None",
-                       `selected-text-format` = "count > 2")))
+    div(class = "lb-row", style = "margin-top:14px;",
+      .lb_field("Min IP", shinyWidgets::radioGroupButtons(id("minip"), NULL,
+                choices = c("0" = 0, "10" = 10, "25" = 25, "50" = 50, "75" = 75), selected = 0, size = "sm")),
+      .lb_field(if (identical(level, "pitches")) "Min pitches (type)" else "Min pitches",
+                numericInput(id("minp"), NULL, value = if (identical(level, "pitches")) 25 else 0, min = 0, step = 25, width = "110px"), "w-sm"),
+      .lb_field("Search", textInput(id("search"), NULL, value = "", placeholder = "name / team", width = "220px")),
+      .lb_field("Sort by", selectInput(id("sortby"), NULL, choices = num_cols,
+                selected = if ("IP" %in% num_cols) "IP" else num_cols[1], width = "150px")),
+      .lb_field("Order", selectInput(id("sortdir"), NULL,
+                choices = c("High → Low" = "desc", "Low → High" = "asc"), selected = "desc", width = "130px"), "w-sm"),
+      .lb_field("Columns", pickerInput(id("cols"), NULL, choices = all_cols, selected = all_cols, multiple = TRUE,
+                options = list(`actions-box` = TRUE, `live-search` = TRUE, `selected-text-format` = "count > 3",
+                               `count-selected-text` = "{0} columns"))),
+      .lb_field("Range filter", pickerInput(id("rangecols"), NULL, choices = num_cols, selected = character(0),
+                multiple = TRUE, options = list(`live-search` = TRUE, `none-selected-text` = "None",
+                                                `selected-text-format` = "count > 2"))),
+      .lb_field("Rows", selectInput(id("perpage"), NULL, choices = c(50, 100, 250, 500), selected = 50, width = "90px"), "w-sm"),
+      div(class = "lb-actions",
+          downloadButton(id("csv"), "Export CSV", class = "lb-btn"),
+          actionButton(id("reset"), "Reset", class = "lb-btn lb-btn-ghost"))
     ),
     uiOutput(id("ranges"))
   )
@@ -1199,14 +1178,17 @@ lb_filter_ui <- function(level) {
 lb_board_ui <- function(level, title, subtitle) {
   id <- function(x) paste0("lb_", level, "_", x)
   div(class = "lb-wrap",
-    div(class = "lb-head", h3(title), span(class = "lb-sub", subtitle)),
     lb_filter_ui(level),
-    uiOutput(id("status")),
-    div(class = "lb-pager",
-        actionButton(id("prev"), "\u2039 Prev", class = "lb-pgbtn"),
-        uiOutput(id("pageinfo"), inline = TRUE),
-        actionButton(id("nxt"), "Next \u203a", class = "lb-pgbtn")),
-    DT::dataTableOutput(id("table"))
+    uiOutput(id("kpis")),
+    div(class = "lb-card",
+      div(class = "lb-explore-head", h4(title), span(class = "lb-hint", "click a name for the profile")),
+      uiOutput(id("status")),
+      DT::dataTableOutput(id("table")),
+      div(class = "lb-pager",
+          actionButton(id("prev"), "‹ Prev", class = "lb-pgbtn"),
+          uiOutput(id("pageinfo"), inline = TRUE),
+          actionButton(id("nxt"), "Next ›", class = "lb-pgbtn"))
+    )
   )
 }
 
@@ -1309,8 +1291,11 @@ lb_register_board <- function(input, output, session, level) {
     lb_opened(TRUE)
   }, ignoreInit = FALSE)
 
-  observeEvent(input[[id("build")]], lb_trigger(isolate(lb_trigger()) + 1),
-               ignoreInit = TRUE)
+  # Precomputed tables make a build instant, so the board builds itself when
+  # its tab opens and again whenever season / conference / team change.
+  observeEvent(list(lb_opened(), lb_fetch_key()), {
+    if (isTRUE(lb_opened())) lb_trigger(isolate(lb_trigger()) + 1)
+  }, ignoreInit = FALSE)
 
   # Only these three change what gets FETCHED. Everything else on the bar
   # reshapes the frame already in memory, so it must never re-hit the API.
@@ -1359,9 +1344,6 @@ lb_register_board <- function(input, output, session, level) {
       pt <- sort(unique(d$Pitch[!is.na(d$Pitch)]))
       updatePickerInput(session, id("ptype"), choices = pt, selected = character(0))
     }
-    mx <- suppressWarnings(max(as.numeric(d$IP), na.rm = TRUE))
-    if (is.finite(mx))
-      updateSliderInput(session, id("minip"), max = ceiling(mx))
 
     all_cols <- lb_cols_for(level)
     def <- lb_default_cols(d, level)
@@ -1407,19 +1389,12 @@ lb_register_board <- function(input, output, session, level) {
 
     # Both hands ticked means "no hand filter" — unknown-hand arms stay.
     sel <- input[[id("hand")]]
-    if (!is.null(sel) && length(sel) && length(sel) < 2)
-      d <- d[!is.na(d$T) & d$T %in% sel, , drop = FALSE]
+    if (!is.null(sel) && length(sel) == 1 && sel %in% c("L", "R"))
+      d <- d[!is.na(d$T) & d$T == sel, , drop = FALSE]
 
     if (identical(level, "pitches")) {
       sel <- input[[id("ptype")]]
       if (!is.null(sel) && length(sel)) d <- d[d$Pitch %in% sel, , drop = FALSE]
-    } else {
-      ag <- input[[id("age")]]
-      if (!is.null(ag) && length(ag) == 2) {
-        full <- ag[1] <= 17 && ag[2] >= 26
-        d <- d[(is.na(d$Age) & full) |
-               (!is.na(d$Age) & d$Age >= ag[1] & d$Age <= ag[2]), , drop = FALSE]
-      }
     }
 
     q <- trimws(input[[id("search")]] %||% "")
@@ -1432,8 +1407,8 @@ lb_register_board <- function(input, output, session, level) {
       d <- d[hit, , drop = FALSE]
     }
 
-    mi <- input[[id("minip")]]
-    if (!is.null(mi) && is.finite(mi) && "IP" %in% names(d)) {
+    mi <- suppressWarnings(as.numeric(input[[id("minip")]]))
+    if (length(mi) == 1 && is.finite(mi) && mi > 0 && "IP" %in% names(d)) {
       ip <- suppressWarnings(as.numeric(d$IP))
       d <- d[is.finite(ip) & ip >= mi, , drop = FALSE]
     }
@@ -1559,6 +1534,55 @@ lb_register_board <- function(input, output, session, level) {
     lb_render_table(d, level, input[[id("cols")]] %||% defs,
                     rank_offset = ps$from - 1L)
   }, server = TRUE)
+
+  # ---- KPI strip -----------------------------------------------------
+  output[[id("kpis")]] <- renderUI({
+    d <- filtered(); b <- base()
+    if (is.null(d) || !is.data.frame(d)) return(NULL)
+    sb <- input[[id("sortby")]] %||% "IP"
+    e  <- lb_spec_entry(level, sb); lab <- if (is.null(e)) sb else e$lab
+    v  <- suppressWarnings(as.numeric(d[[sb]])); v <- v[is.finite(v)]
+    fmt <- function(x, dig) if (!length(x)) "—" else formatC(x, format = "f", digits = dig, big.mark = ",")
+    dig <- if (is.null(e) || is.na(e$dig)) 1 else e$dig
+    unit <- if (identical(level, "pitches")) "pitcher × pitch type" else "pitchers"
+    vol <- if ("P" %in% names(d)) sum(suppressWarnings(as.numeric(d$P)), na.rm = TRUE) else NA
+    hidden <- max(0, nrow(b) - nrow(d))
+    kpi <- function(lab, val, sub, cls = "") div(class = "lb-kpi", div(class = "k-lab", lab),
+                                                 div(class = paste("k-val", cls), val), div(class = "k-sub", sub))
+    div(class = "lb-kpis",
+      kpi("Rows", format(nrow(d), big.mark = ","), unit),
+      kpi("Pitches", if (is.finite(vol)) format(vol, big.mark = ",") else "—", "in scope"),
+      kpi(paste("Best", lab), fmt(if (length(v)) if (is.null(e) || e$dir >= 0) max(v) else min(v), dig), "on this board", "pos"),
+      kpi(paste("Worst", lab), fmt(if (length(v)) if (is.null(e) || e$dir >= 0) min(v) else max(v), dig), "on this board", "neg"),
+      kpi("Below the bar", format(hidden, big.mark = ","), "hidden by filters"))
+  })
+
+  # ---- CSV of the whole filtered + sorted board (every page) ------------
+  output[[id("csv")]] <- downloadHandler(
+    filename = function() sprintf("palace_%s_%s.csv", level, input[[id("season")]] %||% TM_SEASON),
+    content = function(file) {
+      d <- sorted()
+      keep <- intersect(c("Pitcher", "School", lb_cols_for(level)), names(d))
+      utils::write.csv(d[, keep, drop = FALSE], file, row.names = FALSE, na = "")
+    })
+
+  # ---- Reset every filter to its default --------------------------------
+  observeEvent(input[[id("reset")]], {
+    shinyWidgets::updateRadioGroupButtons(session, id("season"), selected = TM_SEASON)
+    shinyWidgets::updateRadioGroupButtons(session, id("hand"), selected = "all")
+    shinyWidgets::updateRadioGroupButtons(session, id("minip"), selected = 0)
+    updatePickerInput(session, id("conf"), selected = character(0))
+    updatePickerInput(session, id("school"), selected = character(0))
+    updatePickerInput(session, id("class"), selected = character(0))
+    if (identical(level, "pitches")) updatePickerInput(session, id("ptype"), selected = character(0))
+    updatePickerInput(session, id("rangecols"), selected = character(0))
+    updateNumericInput(session, id("minp"), value = if (identical(level, "pitches")) 25 else 0)
+    updateTextInput(session, id("search"), value = "")
+    updateSelectInput(session, id("sortdir"), selected = "desc")
+    updateSelectInput(session, id("perpage"), selected = 50)
+    lb_page(1)
+  })
+
 }
 
 ncaa_raw_lookup <- setNames(ncaa_directory$raw_names, ncaa_directory$display)

@@ -103,6 +103,10 @@
       Shiny.addCustomMessageHandler('clearAuthCookie', function(x){
         document.cookie = 'palace_auth=; max-age=0; path=/';
       });
+      Shiny.addCustomMessageHandler('palaceUrl', function(qs){
+        var u = location.pathname + (qs ? ('?' + qs) : '');
+        if (location.pathname + location.search !== u) history.replaceState(null, '', u);
+      });
       var m = document.cookie.match(/(?:^|; )palace_auth=([^;]*)/);
       Shiny.setInputValue('auth_cookie', m ? decodeURIComponent(m[1]) : '', {priority: 'event'});
     })();
@@ -413,10 +417,18 @@
     req(logged_in())
     gp  <- input$global_pitcher %||% ""; tab <- input$main_tabs %||% ""
     sub <- input$player_subtabs %||% ""; s <- paste(input$season_type %||% character(0), collapse = ",")
-    if (!nzchar(tab)) return()
-    updateQueryString(paste0("?p=", URLencode(gp, reserved = TRUE), "&tab=", URLencode(tab, reserved = TRUE),
-                             "&sub=", URLencode(sub, reserved = TRUE), "&s=", URLencode(s, reserved = TRUE)),
-                      mode = "replace", session = session)
+    enc <- function(x) URLencode(x, reserved = TRUE)
+    parts <- character(0)
+    if (identical(tab, "Players")) {
+      # only a player page carries a player; the Roster stays a clean URL
+      if (nzchar(gp)) parts <- c(parts, paste0("p=", enc(gp)))
+      parts <- c(parts, "tab=Players")
+      if (nzchar(sub)) parts <- c(parts, paste0("sub=", enc(sub)))
+      if (nzchar(s))   parts <- c(parts, paste0("s=", enc(s)))
+    } else if (nzchar(tab) && !identical(tab, "Roster")) {
+      parts <- c(parts, paste0("tab=", enc(tab)))
+    }
+    session$sendCustomMessage("palaceUrl", paste(parts, collapse = "&"))
   })
   observeEvent(logged_in(), {
     req(logged_in())
