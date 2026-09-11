@@ -162,7 +162,9 @@
               roster27_pitcher_fl, bullpen_pitchers_fl)
     resolved <- resolve_pitcher_name(pick, pool)
     if (is.null(resolved)) resolved <- pick
-    updateSelectizeInput(session, "global_pitcher", selected = resolved)
+    ch <- session$userData$global_choices
+    if (is.null(ch)) updateSelectizeInput(session, "global_pitcher", selected = resolved)
+    else updateSelectizeInput(session, "global_pitcher", choices = ch, selected = resolved, server = TRUE)
     # The roster IS the 2027 (Fall 2026) roster: entering a player from it
     # sets the season context to Fall 2026. Remove this one line to keep the
     # previously selected season instead.

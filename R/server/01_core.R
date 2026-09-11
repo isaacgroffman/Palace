@@ -388,6 +388,19 @@
   })
 
 
+  # ===== Loud configuration problems =====
+  # Storage keeps the app booting when Postgres is unreachable, so a wrong
+  # SB_DB_PASS used to show up only as empty pages. Say so once, on screen.
+  observeEvent(logged_in(), {
+    req(logged_in())
+    db_ok <- tryCatch(isTRUE(DBI::dbGetQuery(palace_pool(), "select 1 as ok")$ok == 1), error = function(e) FALSE)
+    if (!db_ok) showNotification(
+      "Database connection failed: NCAA player pages, bullpens and pool grades need SB_DB_HOST / SB_DB_USER / SB_DB_PASS (check the password after a reset).",
+      type = "error", duration = NULL)
+    if (!nzchar(Sys.getenv("TM_CLIENT_ID")) || !nzchar(Sys.getenv("TM_SECRET"))) cat(
+      "[Palace] TM_CLIENT_ID / TM_SECRET not set: Edgertronic bullpen video will not play\n")
+  }, once = TRUE)
+
   # ===== URL state: ?p=<player>&tab=<main>&sub=<subtab>&s=<seasons> =====
   # Written on every change and restored once at session start, so a
   # refresh, a reconnect or a bookmarked link lands on the same page.

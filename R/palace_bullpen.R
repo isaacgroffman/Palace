@@ -169,7 +169,10 @@ bp_staff_data <- function(session) {
                       valueFunc = function() Sys.time())
   reactive({
     ver()
-    tryCatch(sb_load_practice_pitches(), error = function(e) NULL)
+    tryCatch(sb_load_practice_pitches(), error = function(e) {
+      showNotification(paste("Bullpen database error:", conditionMessage(e)), type = "error", duration = 10)
+      NULL
+    })
   })
 }
 # Name matching must survive BOTH orders ("Kason Wagner" vs "Wagner, Kason"),
@@ -448,6 +451,11 @@ palace_bullpen_server <- function(input, output, session,
         "|", fixed = TRUE)[[1]]
       edger <- tryCatch(pv_edger_urls(row$session_id, blobs),
                         error = function(e) NULL)
+      if (is.null(edger)) showNotification(
+        if (!nzchar(Sys.getenv("TM_CLIENT_ID")) || !nzchar(Sys.getenv("TM_SECRET")))
+          "Edgertronic video needs TM_CLIENT_ID and TM_SECRET set on the server."
+        else "TrackMan media token failed: could not mint a video URL for this pitch.",
+        type = "warning", duration = 8)
     }
 
     # AWRE removed 2026-08-31 (was: exact sl_ angles + constructed fallback).

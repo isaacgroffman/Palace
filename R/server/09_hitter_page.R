@@ -207,7 +207,11 @@
                          type = "warning", duration = 6)
         return()
       }
-      updateSelectizeInput(session, "global_pitcher", selected = target)
+      # server-side selectize only honours `selected` for a loaded option:
+      # re-register the choices with it (cheap, ~11k names)
+      ch <- session$userData$global_choices
+      if (is.null(ch)) updateSelectizeInput(session, "global_pitcher", selected = target)
+      else updateSelectizeInput(session, "global_pitcher", choices = ch, selected = target, server = TRUE)
       player_mode("pitcher")
       updateTabsetPanel(session, "main_tabs", selected = "Players")
       updateTabsetPanel(session, "player_subtabs", selected = "Overview")

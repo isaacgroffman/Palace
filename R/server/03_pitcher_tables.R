@@ -75,6 +75,7 @@
       }
       # Expose the live choice pool so roster clicks can resolve against it.
       session$userData$global_choice_pool <- unname(global_choices)
+      session$userData$global_choices     <- global_choices   # named, for programmatic picks
 
       updateSelectizeInput(session, "global_pitcher",
                            choices = global_choices,
