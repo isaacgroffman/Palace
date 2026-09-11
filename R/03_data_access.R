@@ -11,14 +11,16 @@
 # Nothing is downloaded from anywhere else at boot.
 # ============================================================
 
-# Coastal + P5 + SBC pitch database. Built once on first use (Matchup
-# Matrix, pitch arsenal, hitter expectation tables) and memoised.
+# Coastal + P5 + SBC league reference. Built once on first use (matchup
+# feature scaler + team codes, pitch arsenal, hitter-model fallback) from the
+# SLIM pools (R/palace_artifacts.R), so the Advance tab never binds the
+# 146-column reference pools (~2 GB, which is what used to drop sessions).
 .pool_all_env <- new.env(parent = emptyenv())
 pool_all <- function() {
   if (!is.null(.pool_all_env$df)) return(.pool_all_env$df)
-  cat("[pools] binding full_data_p5_compare (first use)\n")
+  cat("[pools] binding full_data_p5_compare from the slim pools (first use)\n")
   .pool_all_env$df <- dplyr::bind_rows(
-    harmonize_types(list(spring26, P5_2026, SBC_2026)))
+    harmonize_types(list(build_grade_pool(spring26), P5_slim, SBC_slim)))
   .pool_all_env$df
 }
 

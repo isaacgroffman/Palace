@@ -194,7 +194,20 @@
     if (identical(side, "hitter")) {
       open_hitter_page(nm)
     } else {
-      updateSelectizeInput(session, "global_pitcher", selected = nm)
+      # Resolve to a name the picker actually holds: TrackMan id first (the
+      # leaderboard / matrix carry it), then a spelling-tolerant name match.
+      # Pushing an unknown spelling used to leave the picker on a name no
+      # frame contains, which made the pitcher filter fall through and the
+      # page show every Coastal arm at once.
+      pool <- c(session$userData$global_choice_pool, roster27_pitcher_fl, bullpen_pitchers_fl)
+      target <- tryCatch(ncaa_display_for_id(pl$id %||% ""), error = function(e) NULL)
+      if (is.null(target)) target <- resolve_pitcher_name(nm, pool)
+      if (is.null(target)) {
+        showNotification(paste0("No pitch data for ", nm, " in the selected season."),
+                         type = "warning", duration = 6)
+        return()
+      }
+      updateSelectizeInput(session, "global_pitcher", selected = target)
       player_mode("pitcher")
       updateTabsetPanel(session, "main_tabs", selected = "Players")
       updateTabsetPanel(session, "player_subtabs", selected = "Overview")

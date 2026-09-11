@@ -937,7 +937,9 @@ lb_spec_entry <- function(level, col) {
 # RHP black, LHP red -- matches how the staff reads a board at a glance.
 LB_HAND_COLOR <- c(L = "#C0392B", R = "#111827")
 
-lb_player_cell <- function(name, logo, hand) {
+lb_player_cell <- function(name, logo, hand, id = NULL) {
+  if (is.null(id)) id <- rep(NA_character_, length(name))
+  id <- ifelse(is.na(id), "", as.character(id))
   col <- unname(LB_HAND_COLOR[ifelse(is.na(hand), "", hand)])
   col[is.na(col)] <- "#33474B"
   img <- ifelse(!is.na(logo) & nzchar(logo),
@@ -947,6 +949,7 @@ lb_player_cell <- function(name, logo, hand) {
          # attribute MUST be data-name: that is what the global
          # .tp-player-link click handler reads to route to the profile
          "<a href='#' class='tp-player-link lb-name' data-side='pitcher' ",
+         "data-id=\"", htmltools::htmlEscape(id, attribute = TRUE), "\" ",
          "data-name=\"", htmltools::htmlEscape(name, attribute = TRUE),
          "\" style='color:", col, "'>",
          htmltools::htmlEscape(name), "</a></span>")
@@ -983,7 +986,8 @@ lb_render_table <- function(d, level, show_cols, rank_offset = 0) {
   # player cell replaces the plain name
   if ("Pitcher" %in% cols) {
     keep$Pitcher <- lb_player_cell(d$Pitcher, d$Logo,
-                                   if ("T" %in% names(d)) d$T else NA_character_)
+                                   if ("T" %in% names(d)) d$T else NA_character_,
+                                   if ("tm_id" %in% names(d)) d$tm_id else NULL)
   } else {
     keep$Pitcher <- NULL
   }

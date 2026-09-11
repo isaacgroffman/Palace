@@ -63,6 +63,12 @@
       # Hitter picks never stick here — the search snaps back to an arm.
       keep_global <- {
         cur <- input$global_pitcher
+        # a player named in the URL (refresh / reconnect / shared link) wins
+        # the first time the choices are built
+        rp <- session$userData$restore_player
+        if (!is.null(rp) && !is_hitter_pick(rp)) {
+          cur <- rp; session$userData$restore_player <- NULL
+        }
         res <- if (!is.null(cur) && nzchar(cur) && !is_hitter_pick(cur))
                  resolve_pitcher_name(cur, unname(global_choices)) else NULL
         if (!is.null(res)) res else available_pitchers[1]

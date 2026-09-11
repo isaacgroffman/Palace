@@ -111,8 +111,8 @@ if ("artifacts" %in% want) {
   gp5 <- build_grade_pool(p5); gsbc <- build_grade_pool(sbc)
   cat(sprintf("[ref build] slim grading pools: P5 %d x %d (%.0f MB in R), SBC %d x %d (%.0f MB in R)\n",
               nrow(gp5), ncol(gp5), as.numeric(object.size(gp5)) / 1e6, nrow(gsbc), ncol(gsbc), as.numeric(object.size(gsbc)) / 1e6))
-  artifact_upload(gp5, "grade_P5", stamp, "parquet")
-  artifact_upload(gsbc, "grade_SBC", stamp, "parquet")
+  artifact_upload_parts(gp5, "grade_P5", "League", as.list(GRADE_PARTS$P5), stamp)
+  artifact_upload_parts(gsbc, "grade_SBC", "League", as.list(GRADE_PARTS$SBC), stamp)
   rm(gp5, gsbc)
 
   # hitter Process model: expectation tables + league distribution from the

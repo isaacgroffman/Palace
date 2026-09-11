@@ -518,6 +518,7 @@ app_ui <- fluidPage(
         e.stopPropagation();
         Shiny.setInputValue('player_link_click', {
           name: this.getAttribute('data-name') || '',
+          id:   this.getAttribute('data-id') || '',
           side: this.getAttribute('data-side') || 'pitcher'
         }, {priority: 'event'});
       });

@@ -1877,13 +1877,17 @@ load_matchup_team_pool <- function(team_key) {
   if (!is.null(cached)) return(cached)
 
   if (!startsWith(team_key, "ncaa::")) {
-    out <- full_data_p5_compare %>%
-      dplyr::filter(PitcherTeam == team_key |
-                      (!is.na(BatterTeam) & BatterTeam == team_key)) %>%
-      dplyr::select(dplyr::any_of(MM_POOL_COLS)) %>%
-      as.data.frame()
-    # non-Coastal arms in the P5/SBC pool carry raw operator tags —
-    # reclassify them; Coastal arms pass through untouched
+    # TrackMan team code: both halves of the team's games straight from
+    # Supabase (already reclassified + scored), same as the ncaa:: path
+    out <- tryCatch(pp_team_rows(team_key, cols = pp_cols_for(c(MM_POOL_COLS, "PitchTypeSource", "OriginalPitchType"))),
+                    error = function(e) NULL)
+    if (is.null(out) || nrow(out) == 0) {
+      out <- full_data_p5_compare %>%
+        dplyr::filter(PitcherTeam == team_key |
+                        (!is.na(BatterTeam) & BatterTeam == team_key)) %>%
+        as.data.frame()
+    }
+    out <- out %>% dplyr::select(dplyr::any_of(MM_POOL_COLS)) %>% as.data.frame()
     out <- reclassify_noncoastal_pitches(out, context = team_key)
     .mm_pool_cache[[ck]] <- out
     return(out)

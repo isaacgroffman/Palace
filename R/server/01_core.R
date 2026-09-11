@@ -83,17 +83,43 @@
     updateTextInput(session, "g_vs_team", value = "")
   })
 
+  # ---- Remember-me cookie ---------------------------------------------
+  # A successful login sets a 30-day cookie holding a token derived from the
+  # app password (never the password itself); a new session that presents a
+  # valid token skips the form. Changing the password invalidates every
+  # cookie. Per-user logins can replace auth_token() with a per-user HMAC
+  # without touching the plumbing.
+  auth_token <- function() {
+    if (!nzchar(PASSWORD)) return("")
+    as.character(openssl::sha256(charToRaw(paste0("palace-auth:v1:", PASSWORD))))
+  }
+  session_js <- tags$script(HTML("
+    (function(){
+      Shiny.addCustomMessageHandler('setAuthCookie', function(tok){
+        document.cookie = 'palace_auth=' + encodeURIComponent(tok) +
+          '; max-age=' + (30*24*3600) + '; path=/; SameSite=Lax' +
+          (location.protocol === 'https:' ? '; Secure' : '');
+      });
+      Shiny.addCustomMessageHandler('clearAuthCookie', function(x){
+        document.cookie = 'palace_auth=; max-age=0; path=/';
+      });
+      var m = document.cookie.match(/(?:^|; )palace_auth=([^;]*)/);
+      Shiny.setInputValue('auth_cookie', m ? decodeURIComponent(m[1]) : '', {priority: 'event'});
+    })();
+  "))
+  observeEvent(input$auth_cookie, {
+    tok <- input$auth_cookie
+    if (!logged_in() && nzchar(tok %||% "") && identical(tok, auth_token())) logged_in(TRUE)
+  }, ignoreInit = FALSE)
+
   output$page <- renderUI({
-    if (logged_in()) {
-      app_ui
-    } else {
-      login_ui
-    }
+    tagList(session_js, if (logged_in()) app_ui else login_ui)
   })
-  
+
   observeEvent(input$login, {
     if (input$password == PASSWORD) {
       logged_in(TRUE)
+      session$sendCustomMessage("setAuthCookie", auth_token())
       output$wrong_pass <- renderText("")
     } else {
       output$wrong_pass <- renderText("Incorrect password, please try again.")
@@ -361,6 +387,34 @@
             "Pitcher profile \u2014 overview, viz, trends and reports."))
   })
 
+
+  # ===== URL state: ?p=<player>&tab=<main>&sub=<subtab>&s=<seasons> =====
+  # Written on every change and restored once at session start, so a
+  # refresh, a reconnect or a bookmarked link lands on the same page.
+  .url_restore <- reactiveVal(parseQueryString(isolate(session$clientData$url_search)))
+  session$userData$restore_player <- {
+    q <- isolate(.url_restore()); p <- q$p %||% ""
+    if (nzchar(p)) p else NULL
+  }
+  observe({
+    req(logged_in())
+    gp  <- input$global_pitcher %||% ""; tab <- input$main_tabs %||% ""
+    sub <- input$player_subtabs %||% ""; s <- paste(input$season_type %||% character(0), collapse = ",")
+    if (!nzchar(tab)) return()
+    updateQueryString(paste0("?p=", URLencode(gp, reserved = TRUE), "&tab=", URLencode(tab, reserved = TRUE),
+                             "&sub=", URLencode(sub, reserved = TRUE), "&s=", URLencode(s, reserved = TRUE)),
+                      mode = "replace", session = session)
+  })
+  observeEvent(logged_in(), {
+    req(logged_in())
+    q <- .url_restore(); if (!length(q)) return()
+    if (nzchar(q$s %||% "")) shinyWidgets::updatePickerInput(session, "season_type",
+                                                             selected = strsplit(q$s, ",")[[1]])
+    if (nzchar(q$tab %||% "")) updateTabsetPanel(session, "main_tabs", selected = q$tab)
+    if (nzchar(q$sub %||% "")) updateTabsetPanel(session, "player_subtabs", selected = q$sub)
+    if (is_hitter_pick(q$p %||% "")) { player_mode("hitter"); open_hitter_page(sub(paste0("^", HB_PREFIX), "", q$p)) }
+    .url_restore(list())
+  }, once = TRUE)
 
   # ===== Top nav routing =====
   observeEvent(input$go_roster, {

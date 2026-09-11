@@ -183,8 +183,8 @@ SBC_LEAGUES <- c("NCAA Sun Belt")
   obj
 }
 
-# One copy of each full pool in memory (feet convention); only the matchup
-# matrix, hitter process model and pitch arsenal touch these.
+# Full processed pools: only the compute FALLBACKS below touch these (when
+# an artifact is missing from Storage). Nothing in the app reads them directly.
 delayedAssign("P5_2026",  .ref_processed("P5",  P5_LEAGUES,  "P5_ind"))
 delayedAssign("SBC_2026", .ref_processed("SBC", SBC_LEAGUES, "SBC_ind"))
 delayedAssign("full_data_p5_compare", pool_all())
@@ -193,10 +193,23 @@ delayedAssign("full_data_p5_compare", pool_all())
 delayedAssign("p5_maps",           .artifact("p5_maps", "rds", function() slim_ecdf_maps(build_p5_ecdf_maps(P5_2026))))
 delayedAssign("exp_movement_grid", .artifact("exp_movement_grid", "rds", function() build_expected_movement_grid(P5_2026, bin_size = 0.10)))
 delayedAssign("p5_slot_grid",      .artifact("p5_slot_grid", "rds", function() build_p5_slot_grid(P5_2026, bin = 0.10)))
-delayedAssign("P5_slim",  .artifact("grade_P5",  "parquet", function() build_grade_pool(P5_2026)))
-delayedAssign("SBC_slim", .artifact("grade_SBC", "parquet", function() build_grade_pool(SBC_2026)))
+.slim_pool <- function(label, full_expr) {
+  cp <- tryCatch(.ref_cache_path(paste0("art_grade_", label)), error = function(e) NULL)
+  if (!is.null(cp) && file.exists(cp)) {
+    obj <- tryCatch(readRDS(cp), error = function(e) NULL)
+    if (is.data.frame(obj)) { cat("[artifacts] grade_", label, ": disk cache hit\n", sep = ""); return(obj) }
+  }
+  stamp <- gsub("[^0-9]", "", pp_built_at() %||% "")
+  obj <- tryCatch(artifact_download_parts(paste0("grade_", label), names(GRADE_PARTS[[label]]), stamp),
+                  error = function(e) NULL)
+  if (is.null(obj)) { cat("[artifacts] grade_", label, " not in Storage - building from the full pool\n", sep = ""); obj <- build_grade_pool(full_expr()) }
+  if (!is.null(cp)) tryCatch(saveRDS(obj, cp), error = function(e) NULL)
+  obj
+}
+delayedAssign("P5_slim",  .slim_pool("P5",  function() P5_2026))
+delayedAssign("SBC_slim", .slim_pool("SBC", function() SBC_2026))
 
 if (PALACE_PREWARM) {
   cat("[pools] PALACE_PREWARM=TRUE: forcing lazy reference pools at boot\n")
-  invisible(list(p5_maps, exp_movement_grid, p5_slot_grid, P5_slim, SBC_slim, P5_2026, SBC_2026, full_data_p5_compare))
+  invisible(list(p5_maps, exp_movement_grid, p5_slot_grid, P5_slim, SBC_slim, full_data_p5_compare))
 }

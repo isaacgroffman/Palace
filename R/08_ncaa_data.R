@@ -59,13 +59,15 @@ is_coastal_ctx <- function(nm, seasons) {
 ncaa_dir_pairs <- tryCatch({
   sb <- pp_directory()
   if (is.null(sb) || nrow(sb) == 0) stop("Supabase directory unavailable")
+  if (!"PitcherId" %in% names(sb)) sb$PitcherId <- NA_character_
   out <- sb %>%
     filter(!is.na(Pitcher), nzchar(Pitcher)) %>%
     mutate(
       display   = ifelse(grepl(",", Pitcher), normalize_lastfirst(Pitcher), Pitcher),
-      team_disp = prettify_team(PitcherTeam)
+      team_disp = prettify_team(PitcherTeam),
+      PitcherId = as.character(PitcherId)
     ) %>%
-    distinct(Pitcher, PitcherTeam, display, team_disp, src)
+    distinct(Pitcher, PitcherTeam, PitcherId, display, team_disp, src)
   cat("[pitchprofiler] directory:", nrow(out), "pitcher-team pairs\n")
   out
 }, error = function(e) {
@@ -73,6 +75,16 @@ ncaa_dir_pairs <- tryCatch({
   data.frame(Pitcher = character(0), PitcherTeam = character(0),
              display = character(0), team_disp = character(0), src = character(0))
 })
+
+# TrackMan id -> directory display name (leaderboard / matrix links carry the
+# id, which survives every spelling difference between TruMedia and TrackMan)
+ncaa_display_for_id <- function(id) {
+  id <- as.character(id %||% "")
+  if (!nzchar(id) || !"PitcherId" %in% names(ncaa_dir_pairs)) return(NULL)
+  hit <- ncaa_dir_pairs$display[!is.na(ncaa_dir_pairs$PitcherId) & ncaa_dir_pairs$PitcherId == id]
+  hit <- hit[!is.na(hit) & nzchar(hit)]
+  if (length(hit)) hit[1] else NULL
+}
 
 ncaa_directory <- tryCatch({
   if (nrow(ncaa_dir_pairs) == 0) stop("empty NCAA directory")

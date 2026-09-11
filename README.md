@@ -123,6 +123,17 @@ See `scripts/README_process_master.md`. The pipeline reclassifies pitch types
 (same engine as `R/12`, verified identical), scores every pitch, and never
 trims outliers or velocity.
 
+## Sessions
+
+- A successful login sets a 30-day `palace_auth` cookie (a hash derived from
+  the app password, never the password); a new session presenting it skips
+  the form. Changing `password` invalidates every cookie.
+- The page state (`?p=<player>&tab=&sub=&s=`) is kept in the URL and restored
+  at session start, so a refresh, a reconnect or a shared link lands on the
+  same player and tab. `session$allowReconnect(TRUE)` resumes brief drops.
+- Per-user logins: replace `auth_token()` in `R/server/01_core.R` with a
+  per-user HMAC over a users table; the cookie and restore plumbing stay.
+
 ## Running locally
 
 ```

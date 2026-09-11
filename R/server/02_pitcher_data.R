@@ -331,9 +331,12 @@
     # Start with full dataset
     filtered <- df
     
-    # Only filter by pitcher if one is selected
-    if (!is.null(input$global_pitcher) && input$global_pitcher != "" && input$global_pitcher %in% df$Pitcher) {
-      filtered <- filtered %>% filter(Pitcher == input$global_pitcher)
+    # Filter by the selected pitcher. A pitcher the frame does not contain
+    # yields an EMPTY frame (never the whole staff); hitter picks are parked
+    # behind hidden tabs and keep the unfiltered frame as before.
+    gp <- input$global_pitcher
+    if (!is.null(gp) && nzchar(gp) && !is_hitter_pick(gp)) {
+      filtered <- filtered %>% filter(Pitcher == gp)
     }
     
     # Apply other filters

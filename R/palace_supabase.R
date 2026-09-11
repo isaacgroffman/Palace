@@ -327,7 +327,8 @@ pp_team_rows <- function(team_codes, cols = names(.PP_COLMAP)) {
 pp_directory <- function() {
   if (!pp_sb_available()) return(NULL)
   d <- .pp_with_retry("directory", function() DBI::dbGetQuery(palace_pool(),
-    "select distinct pitcher_name as \"Pitcher\", pitcher_team as \"PitcherTeam\"
+    "select distinct pitcher_name as \"Pitcher\", pitcher_team as \"PitcherTeam\",
+            pitcher_id as \"PitcherId\"
        from pitchprofiler.pitcher_season
       where pitcher_name is not null and pitcher_name <> ''"))
   if (is.null(d) || nrow(d) == 0) return(NULL)
@@ -448,10 +449,13 @@ pp_batter_directory <- function() {
 # Build stamp of the scored tables (changes when process_master.py reloads
 # them); used to key on-disk caches of the processed reference pools.
 pp_built_at <- function() {
+  if (!is.null(.pp_sb$built_at)) return(.pp_sb$built_at)   # one query per process
   if (!pp_sb_available()) return(NA_character_)
   b <- .pp_with_retry("build stamp", function() DBI::dbGetQuery(palace_pool(),
     "select max(built_at) as b from pitchprofiler.pitcher_season")$b[1])
-  if (is.null(b)) NA_character_ else as.character(b)
+  out <- if (is.null(b)) NA_character_ else as.character(b)
+  if (!is.na(out)) .pp_sb$built_at <- out
+  out
 }
 
 # ---- Supabase Storage (bucket `palace-serving`) -----------------------------

@@ -51,10 +51,16 @@ slim_ecdf_maps <- function(maps) {
 # ---- slim grading pool ------------------------------------------------------
 # Everything grade_pool_df() consumers read (summarise_grade_stats,
 # pp_pct_per_arm, build_gauge_facets, the xwOBAcon block) and nothing else.
+# ... plus what the Advance tab's league reference reads: the matchup
+# feature scaler (shape), pitch-arsenal similarity + familiarity (pitcher x
+# batter x pitch type over time) and the hitter-model fallback.
 GRADE_POOL_COLS <- c(
   "Pitcher", "PitcherId", "PitcherTeam", "PitcherThrows", "TaggedPitchType", "League",
-  "GameID", "Inning", "PAofInning", "Balls", "Strikes", "KorBB", "PitchCall",
-  "RelSpeed", "Extension", "ExitSpeed", "VertApprAngle", "HorzApprAngle",
+  "Batter", "BatterSide", "BatterTeam", "Date", "PitchUID",
+  "GameID", "Inning", "PAofInning", "Balls", "Strikes", "KorBB", "PitchCall", "PlayResult",
+  "TaggedHitType", "PlateLocSide", "PlateLocHeight",
+  "RelSpeed", "InducedVertBreak", "HorzBreak", "SpinRate", "RelSide", "RelHeight",
+  "Extension", "ExitSpeed", "VertApprAngle", "HorzApprAngle", "pitching_xrv",
   "stuff_plus", "pitching_plus", "location_plus",
   "StrikeIndicator", "StrikeZoneIndicator", "WalkIndicator", "PAindicator",
   "WhiffIndicator", "SwingIndicator", "Zwhiffind", "Zswing", "Chaseindicator",
@@ -146,6 +152,27 @@ storage_read_json <- function(path) {
   obj <- tryCatch(jsonlite::fromJSON(dest), error = function(e) NULL)
   unlink(dest); obj
 }
+
+# A frame stored as <name>_<part>.parquet per league, bound on read.
+artifact_download_parts <- function(name, parts, stamp) {
+  out <- list()
+  for (part in parts) {
+    d <- artifact_download(paste0(name, "_", part), stamp, "parquet")
+    if (is.null(d)) return(NULL)
+    out[[part]] <- d
+  }
+  if (length(out) == 1) out[[1]] else dplyr::bind_rows(harmonize_types(out))
+}
+artifact_upload_parts <- function(df, name, by_col, part_of, stamp) {
+  for (part in names(part_of)) {
+    d <- df[df[[by_col]] %in% part_of[[part]], , drop = FALSE]
+    if (!nrow(d)) stop("no rows for part ", part)
+    artifact_upload(d, paste0(name, "_", part), stamp, "parquet")
+  }
+}
+# league -> part name, shared by the builder and the app
+GRADE_PARTS <- list(P5 = c(SEC = "NCAA SEC", ACC = "NCAA ACC", Big12 = "NCAA Big 12", BigTen = "NCAA Big Ten"),
+                    SBC = c(SBC = "NCAA Sun Belt"))
 
 artifact_upload <- function(obj, name, stamp, kind = c("rds", "parquet")) {
   kind <- match.arg(kind)
