@@ -131,6 +131,22 @@ artifact_download <- function(name, stamp, kind = c("rds", "parquet")) {
   obj
 }
 
+# Any parquet / json object in the bucket by path (lb/<season>/pitchers.parquet ...).
+storage_read_parquet <- function(path) {
+  if (!sb_storage_enabled()) return(NULL)
+  dest <- tempfile(fileext = ".parquet")
+  if (!sb_storage_download(path, dest)) return(NULL)
+  obj <- tryCatch(as.data.frame(arrow::read_parquet(dest)), error = function(e) NULL)
+  unlink(dest); obj
+}
+storage_read_json <- function(path) {
+  if (!sb_storage_enabled()) return(NULL)
+  dest <- tempfile(fileext = ".json")
+  if (!sb_storage_download(path, dest)) return(NULL)
+  obj <- tryCatch(jsonlite::fromJSON(dest), error = function(e) NULL)
+  unlink(dest); obj
+}
+
 artifact_upload <- function(obj, name, stamp, kind = c("rds", "parquet")) {
   kind <- match.arg(kind)
   tmp <- tempfile(fileext = paste0(".", kind))

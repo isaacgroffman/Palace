@@ -677,13 +677,62 @@ lb_tm_team_pitches <- function(team_disp, season) {
 # ---- Public: build both boards for a season -----------------------------
 # `teams` = display names to include. Tier 1 runs for all of them.
 # `deep`  = subset of `teams` to also pull pitch level for.
+# ---- Precomputed tables (scripts/build_leaderboards.R) -------------------
+# lb/<season>/ in Storage: the two boards, the hitters table, the raw
+# league-wide TruMedia totals and the team list. Loaded once per process.
+.lb_env$pre <- list()
+lb_precomputed <- function(season = TM_SEASON) {
+  key <- as.character(season)
+  if (!is.null(.lb_env$pre[[key]])) return(.lb_env$pre[[key]])
+  if (!exists("storage_read_parquet", mode = "function") || !sb_storage_enabled()) {
+    .lb_env$pre[[key]] <- list(); return(.lb_env$pre[[key]])
+  }
+  man <- tryCatch(storage_read_json(sprintf("lb/%s/manifest.json", key)), error = function(e) NULL)
+  if (is.null(man)) { .lb_env$pre[[key]] <- list(); return(.lb_env$pre[[key]]) }
+  t0 <- Sys.time()
+  out <- list(manifest = man)
+  for (nm in c("teams", "tm_pitching_totals", "tm_batting_totals", "pitchers", "pitches", "hitters"))
+    out[[nm]] <- tryCatch(storage_read_parquet(sprintf("lb/%s/%s.parquet", key, nm)), error = function(e) NULL)
+  cat(sprintf("[LB] precomputed %s tables from Storage (built %s) in %.0fs: %s\n", key, man$built_at %||% "?",
+              as.numeric(difftime(Sys.time(), t0, units = "secs")),
+              paste(names(out)[-1][!vapply(out[-1], is.null, logical(1))], collapse = ", ")))
+  .lb_env$pre[[key]] <- out
+  out
+}
+
+# teamIds matching a set of picker names (location / fullName / teamName / abbrev)
+.lb_team_ids <- function(pre, picks) {
+  tt <- pre$teams
+  if (is.null(tt) || !length(picks)) return(character(0))
+  pk <- .tm_norm(picks); ids <- character(0)
+  for (nc in intersect(c("location", "fullName", "teamName", "abbrevName"), names(tt)))
+    ids <- c(ids, as.character(tt$teamId)[.tm_norm(as.character(tt[[nc]])) %in% pk])
+  unique(ids)
+}
+
 # ---- Public: build both boards for a season -----------------------------
-# Default behaviour is league wide and automatic: one PlayerTotals call
-# for the season, top `limit` arms by innings. Passing `teams` narrows to
-# those staffs instead (per-team calls). `deep` adds the pitch-level tier
-# for the named teams only.
+# Precomputed tables when the season has them (every team, every column,
+# instantly); otherwise the live TruMedia path below. `teams` filters.
 lb_league_tables <- function(season = TM_SEASON, teams = NULL, deep = character(0),
                              progress = NULL, shape = TRUE) {
+  pre <- tryCatch(lb_precomputed(season), error = function(e) list())
+  if (is.data.frame(pre$pitchers) && nrow(pre$pitchers) > 0) {
+    pitchers <- pre$pitchers; pitches <- pre$pitches %||% data.frame()
+    if (length(teams)) {
+      ids <- .lb_team_ids(pre, teams); pk <- .tm_norm(teams)
+      keep <- function(d) (as.character(d$tm_team_id) %in% ids) | (.tm_norm(d$School) %in% pk)
+      pitchers <- pitchers[keep(pitchers), , drop = FALSE]
+      if (nrow(pitches)) pitches <- pitches[keep(pitches), , drop = FALSE]
+    }
+    return(list(pitchers = pitchers, pitches = pitches,
+                note = paste0("Precomputed ", season, " tables (built ", pre$manifest$built_at %||% "?",
+                              "): TruMedia season lines + TrackMan pitch data for every team.")))
+  }
+  .lb_league_tables_live(season, teams, deep, progress, shape)
+}
+
+.lb_league_tables_live <- function(season = TM_SEASON, teams = NULL, deep = character(0),
+                                   progress = NULL, shape = TRUE) {
   # Picking teams now implies "score them too". Velo, spin, release height
   # and Stuff+/Pitching+/Location+ have no season-level source at all, so
   # requiring a second opt-in picker just meant those columns were blank

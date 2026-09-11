@@ -94,6 +94,21 @@ Rscript scripts/build_reference_pools.R     # ~25 min, needs SUPABASE_URL + SUPA
 Small lookups live in the repo: `reference/*.csv` (rosters, bios, team map,
 leagues, heights), `DRS26.csv`, `trumedia_player_bio_master.csv`.
 
+### Leaderboards and the Advance tab
+
+`scripts/build_leaderboards.R` writes `lb/<season>/` to Storage: the season
+team list and league-wide TruMedia pitching / batting totals (raw API
+columns, so `tm_team_player_totals()` and `tm_all_teams()` are served
+without a request), the two leaderboard boards (TruMedia traditional stats +
+TrackMan velo / spin / release / arm angle / Stuff+ / Pitching+ / Location+
+/ RV / xstats, joined on the TrackMan player id), and a hitters table
+(TruMedia line + TrackMan contact and discipline). Rerun it after a
+TruMedia refresh or a pipeline reload:
+
+```
+Rscript scripts/build_leaderboards.R --pipeline-dir serving_build/master_2026
+```
+
 ### Refreshing the scored tables
 
 When the master TrackMan file changes, rerun the pipeline and reload:

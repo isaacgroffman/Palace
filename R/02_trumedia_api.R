@@ -177,7 +177,31 @@ tm_get_csv <- function(dataFormat, params = list(), raw_query = "",
 
 # ---- team directory (AllTeams once per session) -------------------
 tm_all_teams <- function() {
+  pre <- tryCatch(if (exists("lb_precomputed", mode = "function")) lb_precomputed(tm_season()) else NULL,
+                  error = function(e) NULL)
+  if (is.data.frame(pre$teams) && nrow(pre$teams) > 0) return(pre$teams)
   tm_get_csv("AllTeams", params = list(seasonYear = tm_season()))
+}
+
+# "overall" PlayerTotals for one team from the precomputed league-wide
+# frames (scripts/build_leaderboards.R), when every requested column is
+# there. Same shape the API returns, so callers are unchanged.
+.tm_totals_precomputed <- function(team_id, columns) {
+  pre <- tryCatch(if (exists("lb_precomputed", mode = "function")) lb_precomputed(tm_season()) else NULL,
+                  error = function(e) NULL)
+  if (is.null(pre) || !length(pre)) return(NULL)
+  want <- if (is.null(columns)) character(0) else
+    gsub("^\\[|\\]$", "", strsplit(columns, ",")[[1]])
+  want <- sub("\\|.*$", "", trimws(want))
+  canon <- function(x) gsub("[^a-z0-9]", "", tolower(x))
+  for (fr in list(pre$tm_pitching_totals, pre$tm_batting_totals)) {
+    if (!is.data.frame(fr) || !nrow(fr) || !"mostRecentTeamId" %in% names(fr)) next
+    have <- canon(names(fr))
+    if (!all(canon(want) %in% have)) next
+    out <- fr[as.character(fr$mostRecentTeamId) == as.character(team_id), , drop = FALSE]
+    if (nrow(out)) return(out)
+  }
+  NULL
 }
 
 .tm_pick_col <- function(df, patterns) {
@@ -362,6 +386,10 @@ TM_BAT_ATOMIC_CANDIDATES <- list(
 tm_team_player_totals <- function(team_id, split = "overall",
                                   columns = TM_TRAD_COLS) {
   if (is.null(team_id)) return(NULL)
+  if (identical(split, "overall")) {
+    pre <- tryCatch(.tm_totals_precomputed(team_id, columns), error = function(e) NULL)
+    if (!is.null(pre)) return(pre)
+  }
   rq <- TM_SPLIT_FILTERS[[split]] %||% ""
   col_min <- if (identical(columns, TM_TRAD_COLS)) TM_TRAD_COLS_MIN
              else if (identical(columns, TM_BAT_COLS) ||
