@@ -633,6 +633,16 @@ tm_batter_grades_team <- function(team_disp, pool = NULL) {
   # 500s on this site (EV90 now comes from pitch data via .pool_ev_table)
   # and Edge-Take% is no longer part of the grade.
   if (is.null(.tm_env$bat_tok)) {
+    # the precomputed league build already found the accepted spellings
+    pre <- tryCatch(if (exists("lb_precomputed", mode = "function")) lb_precomputed(tm_season()) else NULL,
+                    error = function(e) NULL)
+    pt <- pre$manifest$tokens$batting
+    if (is.list(pt) && length(pt)) {
+      .tm_env$bat_tok <- list(swing = pt$swing %||% NULL, contact = pt$contact %||% NULL, miss = pt$miss %||% NULL,
+                              chase = pt$chase %||% NULL, ooz = pt$ooz %||% NULL, xwoba = pt$xwoba %||% NULL)
+    }
+  }
+  if (is.null(.tm_env$bat_tok)) {
     ok_one <- function(tok) {
       out <- tm_get_csv("PlayerTotals",
         params = list(seasonYear = tm_season(), format = "RAW",

@@ -45,6 +45,14 @@ eval(parse(text = l10[1:(grep("^bio_heights_ncaa <- ", l10) - 1)]))
 l09 <- readLines("R/09_leaderboard.R")
 eval(parse(text = l09[1:(grep("^ncaa_raw_lookup <- ", l09) - 1)]))   # functions + constants only
 normalize_lastfirst <- function(x) sub("^\\s*([^,]+),\\s*(.+)\\s*$", "\\2 \\1", as.character(x))
+# TrackMan ids as join keys: blank / "NA" become NA so they never match each other
+idk <- function(x) { x <- trimws(as.character(x)); x[is.na(x) | !nzchar(x) | x %in% c("NA", "0")] <- NA_character_; x }
+# one TruMedia row per player: the one with the most playing time
+dedupe_players <- function(df, qty) {
+  q <- suppressWarnings(as.numeric(df[[qty]])); q[!is.finite(q)] <- -Inf
+  df <- df[order(-q), , drop = FALSE]
+  df[!duplicated(df$playerId), , drop = FALSE]
+}
 if (!tm_enabled()) stop("set TM_USERNAME / TM_SITENAME / TM_MASTER_TOKEN")
 if (!sb_storage_enabled()) stop("set SUPABASE_URL / SUPABASE_SECRET_KEY")
 .tm_env$season_override <- season
@@ -74,6 +82,7 @@ tm_pitching <- if (!is.null(rates) && "playerId" %in% names(rates)) {
   extra <- rates[, setdiff(names(rates), setdiff(names(trad), "playerId")), drop = FALSE]
   dplyr::left_join(trad, extra, by = "playerId")
 } else trad
+tm_pitching <- dedupe_players(tm_pitching, "IP")
 cat("[lb build] pitching totals:", nrow(tm_pitching), "rows x", ncol(tm_pitching), "cols\n")
 
 bat <- pull(TM_BAT_TRAD_COLS)
@@ -95,6 +104,7 @@ tm_batting <- if (!is.null(bat_rates) && "playerId" %in% names(bat_rates)) {
   extra <- bat_rates[, setdiff(names(bat_rates), setdiff(names(bat), "playerId")), drop = FALSE]
   dplyr::left_join(bat, extra, by = "playerId")
 } else bat
+tm_batting <- dedupe_players(tm_batting, "PA")
 cat("[lb build] batting totals:", nrow(tm_batting), "rows x", ncol(tm_batting), "cols\n")
 
 # =============================================================================
@@ -160,8 +170,9 @@ rm(px); invisible(gc())
 
 # ---- TrackMan pitcher frame in board vocabulary -------------------------------
 hand1 <- function(x) { h <- toupper(substr(as.character(x), 1, 1)); h[!h %in% c("L", "R")] <- NA_character_; h }
-tk_pt <- pst %>% filter(!is.na(pitch_type), !pitch_type %in% c("Undefined", "Other", "")) %>%
-  transmute(pitcher_id = as.character(pitcher_id), Pitch = pitch_type, P = pitches,
+MODEL_COLS <- c("Stuff+", "Pitching+", "Location+", "RV", "xBA", "xSLG", "xwOBA")
+tk_pt <- pst %>% filter(!is.na(pitch_type), !pitch_type %in% c("Undefined", "Other", ""), !is.na(idk(pitcher_id))) %>%
+  transmute(pitcher_id = idk(pitcher_id), Pitch = pitch_type, P = pitches, n_scored = pitches_scored,
             `Whiff%` = round(100 * whiff_pct, 1), `Chase%` = round(100 * chase_pct, 1), `Zone%` = round(100 * zone_pct, 1),
             Velo = round(velo_avg, 1), Spin = round(spin_avg, 0), relh = rel_height_avg, rels = rel_side_avg,
             `Stuff+` = round(stuff_plus, 0), `Pitching+` = round(pitching_plus, 0), `Location+` = round(location_plus, 0),
@@ -169,7 +180,7 @@ tk_pt <- pst %>% filter(!is.na(pitch_type), !pitch_type %in% c("Undefined", "Oth
             T = hand1(pitcher_throws), TkName = ifelse(grepl(",", pitcher_name), normalize_lastfirst(pitcher_name), pitcher_name),
             TkSchool = prettify_team(pitcher_team), Level = level) %>%
   left_join(mutate(rv_pt, pitcher_id = as.character(pitcher_id)), by = c("pitcher_id", "Pitch"))
-tk_p <- ps %>% transmute(pitcher_id = as.character(pitcher_id), TkName = ifelse(grepl(",", pitcher_name), normalize_lastfirst(pitcher_name), pitcher_name),
+tk_p <- ps %>% filter(!is.na(idk(pitcher_id))) %>% transmute(pitcher_id = idk(pitcher_id), n_scored = pitches_scored, TkName = ifelse(grepl(",", pitcher_name), normalize_lastfirst(pitcher_name), pitcher_name),
                          TkSchool = prettify_team(pitcher_team), Level = level, T = hand1(pitcher_throws), P = pitches,
                          `Whiff%` = round(100 * whiff_pct, 1), `Chase%` = round(100 * chase_pct, 1), `Zone%` = round(100 * zone_pct, 1),
                          relh = rel_height_avg, rels = rel_side_avg, `Rel Ht` = round(rel_height_avg, 2), `Rel Sd` = round(rel_side_avg, 2),
@@ -182,7 +193,10 @@ ru <- tk_pt %>% group_by(pitcher_id) %>% summarise(
   `FB Spin` = { w <- P * (Pitch %in% LB_FB_TYPES); if (sum(w) > 0) round(sum(Spin * w, na.rm = TRUE) / sum(w[is.finite(Spin)]), 0) else NA_real_ },
   Arsenal = paste(Pitch[order(-P)], collapse = ", "), .groups = "drop")
 tk_p <- left_join(tk_p, ru, by = "pitcher_id")
-tk_p <- tk_p[!duplicated(tk_p$pitcher_id), , drop = FALSE]
+tk_p <- tk_p[order(-tk_p$P), , drop = FALSE]; tk_p <- tk_p[!duplicated(tk_p$pitcher_id), , drop = FALSE]
+# model / expected-stat columns only on a real sample (same floor the app's
+# grading distributions use); velo, release and rates stay
+for (cc in MODEL_COLS) { tk_p[[cc]][!is.finite(tk_p$n_scored) | tk_p$n_scored < 100] <- NA; tk_pt[[cc]][!is.finite(tk_pt$n_scored) | tk_pt$n_scored < 25] <- NA }
 
 # =============================================================================
 # 3) Boards
@@ -190,7 +204,7 @@ tk_p <- tk_p[!duplicated(tk_p$pitcher_id), , drop = FALSE]
 # TruMedia pitcher lines (the lb_tm_league_line recipe, keeping the ids)
 nm <- .lb_chr(tm_pitching, c("^player$", "playerName", "^name$", "fullName"))
 d <- data.frame(Pitcher = nm, School = .lb_chr(tm_pitching, c("mostRecentTeamName", "teamName", "^team$")) %||% NA_character_,
-                tm_id = as.character(tm_pitching$trackmanPlayerId), tm_team_id = as.character(tm_pitching$mostRecentTeamId),
+                tm_id = idk(tm_pitching$trackmanPlayerId), tm_team_id = as.character(tm_pitching$mostRecentTeamId),
                 stringsAsFactors = FALSE)
 grab <- function(w) { v <- .lb_col(tm_pitching, w); if (is.null(v)) rep(NA_real_, nrow(d)) else v }
 d$W <- grab("W"); d$L <- grab("L"); d$S <- grab("SV"); d$G <- grab("G"); d$IP <- tm_ip_decimal(grab("IP")); d$ERA <- round(grab("ERA"), 2)
@@ -243,19 +257,21 @@ cat("[lb build] boards: pitchers", nrow(pitchers), "| pitches", nrow(pitches), "
 # hitters: TruMedia line + TrackMan contact/discipline by id
 bn <- .lb_chr(tm_batting, c("^player$", "playerName", "^name$", "fullName"))
 h <- data.frame(Batter = bn, School = .lb_chr(tm_batting, c("mostRecentTeamName", "teamName", "^team$")) %||% NA_character_,
-                tm_id = as.character(tm_batting$trackmanPlayerId), tm_team_id = as.character(tm_batting$mostRecentTeamId),
+                tm_id = idk(tm_batting$trackmanPlayerId), tm_team_id = as.character(tm_batting$mostRecentTeamId),
                 stringsAsFactors = FALSE)
 gb <- function(w) { v <- .lb_col(tm_batting, w); if (is.null(v)) rep(NA_real_, nrow(h)) else v }
 for (cc in c("G","PA","AB","H","2B","3B","HR","BB","HBP","K","SB","BA","OBP","SLG")) h[[cc]] <- gb(cc)
 h <- h[is.finite(h$PA) & h$PA > 0 & !is.na(h$Batter) & nzchar(h$Batter), , drop = FALSE]
-tmtok <- function(slot) { t <- bat_tok[[slot]]; if (is.null(t)) rep(NA_real_, nrow(h)) else { v <- .lb_col(tm_batting, sub("\\|.*$", "", t)); if (is.null(v)) rep(NA_real_, nrow(h)) else v[match(h$tm_id, as.character(tm_batting$trackmanPlayerId))] } }
-h$`TM Swing%` <- .lb_rate(tmtok("swing"), tmtok("swing") * 0 + gb("PA")[match(h$tm_id, as.character(tm_batting$trackmanPlayerId))])
+bi <- match(h$tm_id, idk(tm_batting$trackmanPlayerId))
+tmtok <- function(slot) { t <- bat_tok[[slot]]; if (is.null(t)) rep(NA_real_, nrow(h)) else { v <- .lb_col(tm_batting, sub("\\|.*$", "", t)); if (is.null(v)) rep(NA_real_, nrow(h)) else v[bi] } }
+h$`TM Swing%` <- .lb_rate(tmtok("swing"), gb("PA")[bi])
 h$`TM Contact%` <- .lb_rate(tmtok("contact"), tmtok("swing")); h$`TM Whiff%` <- .lb_rate(tmtok("miss"), tmtok("swing"))
 h$`TM Chase%` <- .lb_rate(tmtok("chase"), tmtok("ooz")); h$`TM xwOBA` <- round(tmtok("xwoba"), 3)
-hi <- match(h$tm_id, as.character(hit_agg$batter_id))
+hit_agg$batter_id <- idk(hit_agg$batter_id); hit_agg <- hit_agg[!is.na(hit_agg$batter_id), , drop = FALSE]
+hi <- match(h$tm_id, hit_agg$batter_id)
 cat("[lb build] TruMedia hitters with PA:", nrow(h), "| matched to TrackMan by id:", sum(!is.na(hi)), "\n")
 for (cc in setdiff(names(hit_agg), c("batter_id", "Batter", "TeamCode", "School", "Level"))) h[[cc]] <- hit_agg[[cc]][hi]
-hx <- hit_agg[!as.character(hit_agg$batter_id) %in% h$tm_id & hit_agg$Level %in% "D1" & hit_agg$Pitches >= 100, , drop = FALSE]
+hx <- hit_agg[!hit_agg$batter_id %in% h$tm_id & hit_agg$Level %in% "D1" & hit_agg$Pitches >= 100, , drop = FALSE]
 if (nrow(hx)) {
   e <- data.frame(Batter = hx$Batter, School = hx$School, tm_id = as.character(hx$batter_id), tm_team_id = NA_character_, stringsAsFactors = FALSE)
   for (cc in setdiff(names(h), names(e))) e[[cc]] <- if (cc %in% names(hx)) hx[[cc]] else NA
