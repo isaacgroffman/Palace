@@ -45,6 +45,7 @@ library(httr2)
 
 source("R/00_config.R",          local = TRUE)
 source("R/palace_supabase.R",    local = TRUE)
+source("R/palace_auth.R",        local = TRUE)
 source("R/palace_video.R",       local = TRUE)
 source("R/palace_bullpen.R",     local = TRUE)
 source("R/palace_artifacts.R", local = TRUE)

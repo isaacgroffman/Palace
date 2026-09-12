@@ -83,37 +83,56 @@
     updateTextInput(session, "g_vs_team", value = "")
   })
 
-  # ---- Remember-me cookie ---------------------------------------------
-  # A successful login sets a 30-day cookie holding a token derived from the
-  # app password (never the password itself); a new session that presents a
-  # valid token skips the form. Changing the password invalidates every
-  # cookie. Per-user logins can replace auth_token() with a per-user HMAC
-  # without touching the plumbing.
-  auth_token <- function() {
-    if (!nzchar(PASSWORD)) return("")
-    as.character(openssl::sha256(charToRaw(paste0("palace-auth:v1:", PASSWORD))))
-  }
+  # ---- Per-user logins + session cookie (R/palace_auth.R) --------------
+  # A successful login sets a 30-day signed cookie (user | expiry | version |
+  # HMAC). A new session that presents a valid cookie skips the form, so a
+  # refresh, a closed laptop or a reconnect lands back in the app. Resetting
+  # a password or deactivating a user bumps the version and signs that user
+  # out everywhere.
+  current_user <- reactiveVal(NULL)
+  is_admin <- reactive(identical(current_user()$role %||% "", "admin"))
   session_js <- tags$script(HTML("
     (function(){
       Shiny.addCustomMessageHandler('setAuthCookie', function(tok){
-        document.cookie = 'palace_auth=' + encodeURIComponent(tok) +
+        document.cookie = 'palace_session=' + encodeURIComponent(tok) +
           '; max-age=' + (30*24*3600) + '; path=/; SameSite=Lax' +
           (location.protocol === 'https:' ? '; Secure' : '');
       });
       Shiny.addCustomMessageHandler('clearAuthCookie', function(x){
+        document.cookie = 'palace_session=; max-age=0; path=/';
         document.cookie = 'palace_auth=; max-age=0; path=/';
+        try { localStorage.removeItem('palace_last_url'); } catch(e) {}
+        location.replace(location.pathname);
       });
+      // URL <-> app state. Every navigation the server reports becomes a
+      // history entry, so the browser's Back / Forward buttons walk through
+      // players and tabs; a popstate hands the URL back to the server.
+      var quietUntil = 0;
       Shiny.addCustomMessageHandler('palaceUrl', function(qs){
         var u = location.pathname + (qs ? ('?' + qs) : '');
-        if (location.pathname + location.search !== u) history.replaceState(null, '', u);
+        if (location.pathname + location.search !== u) {
+          if (Date.now() < quietUntil) history.replaceState(null, '', u);
+          else history.pushState(null, '', u);
+        }
+        try { localStorage.setItem('palace_last_url', qs || ''); } catch(e) {}
       });
-      var m = document.cookie.match(/(?:^|; )palace_auth=([^;]*)/);
+      window.addEventListener('popstate', function(){
+        quietUntil = Date.now() + 1500;
+        Shiny.setInputValue('palace_nav', location.search.replace(/^\\?/, ''), {priority: 'event'});
+      });
+      var m = document.cookie.match(/(?:^|; )palace_session=([^;]*)/);
+      var last = '';
+      try { last = localStorage.getItem('palace_last_url') || ''; } catch(e) {}
+      Shiny.setInputValue('auth_last_url', last, {priority: 'event'});
       Shiny.setInputValue('auth_cookie', m ? decodeURIComponent(m[1]) : '', {priority: 'event'});
     })();
   "))
   observeEvent(input$auth_cookie, {
+    if (logged_in()) return()
     tok <- input$auth_cookie
-    if (!logged_in() && nzchar(tok %||% "") && identical(tok, auth_token())) logged_in(TRUE)
+    if (!nzchar(tok %||% "")) return()
+    u <- tryCatch(auth_session_user(tok), error = function(e) NULL)
+    if (!is.null(u)) { current_user(u); logged_in(TRUE) }
   }, ignoreInit = FALSE)
 
   output$page <- renderUI({
@@ -121,14 +140,122 @@
   })
 
   observeEvent(input$login, {
-    if (input$password == PASSWORD) {
-      logged_in(TRUE)
-      session$sendCustomMessage("setAuthCookie", auth_token())
+    u <- tryCatch(auth_login(input$username %||% "", input$password %||% ""), error = function(e) {
+      cat("[auth] login error:", conditionMessage(e), "\n"); NULL })
+    if (!is.null(u)) {
+      current_user(u); logged_in(TRUE)
+      session$sendCustomMessage("setAuthCookie", auth_session_token(u))
       output$wrong_pass <- renderText("")
     } else {
-      output$wrong_pass <- renderText("Incorrect password, please try again.")
+      output$wrong_pass <- renderText("Incorrect username or password.")
     }
   })
+  observeEvent(input$auth_logout, {
+    session$sendCustomMessage("clearAuthCookie", TRUE)
+  })
+
+  # who is signed in (header chip) + the Users panel for admins
+  output$auth_user_chip <- renderUI({
+    u <- current_user(); if (is.null(u)) return(NULL)
+    div(class = "header-user",
+        div(class = "header-user-name", u$display,
+            tags$span(class = "header-user-role", toupper(u$role))),
+        actionLink("auth_account", "Account", class = "header-user-link"),
+        if (is_admin()) actionLink("auth_users_open", "Users", class = "header-user-link"),
+        actionLink("auth_logout", "Sign out", class = "header-user-link"))
+  })
+  observeEvent(input$auth_account, {
+    u <- current_user(); req(u)
+    showModal(modalDialog(title = paste0("Account — ", u$display), easyClose = TRUE, footer = modalButton("Close"),
+      if (isTRUE(u$legacy)) p(class = "text-muted", "You are signed in with the shared app password. Create a user for yourself in the Users panel; the shared password stays as a fallback until it is removed from the deployment.")
+      else tagList(
+        passwordInput("acct_old", "Current password"),
+        passwordInput("acct_new", "New password (8+ characters)"),
+        passwordInput("acct_new2", "Repeat new password"),
+        actionButton("acct_change", "Change password", class = "btn-primary"),
+        uiOutput("acct_msg"))))
+  })
+  observeEvent(input$acct_change, {
+    u <- current_user(); req(u, !isTRUE(u$legacy))
+    msg <- tryCatch({
+      if (is.null(auth_login(u$username, input$acct_old %||% ""))) stop("current password is wrong")
+      if (!identical(input$acct_new, input$acct_new2)) stop("the new passwords do not match")
+      auth_set_password(u$username, input$acct_new)
+      nu <- auth_session_user(auth_session_token(auth_public(auth_users(force = TRUE)[[auth_find(auth_users(), u$username)]])))
+      if (!is.null(nu)) { current_user(nu); session$sendCustomMessage("setAuthCookie", auth_session_token(nu)) }
+      "Password changed. Other devices are signed out."
+    }, error = function(e) paste("Error:", conditionMessage(e)))
+    output$acct_msg <- renderUI(div(style = "margin-top:8px;", msg))
+  })
+
+  observeEvent(input$auth_users_open, {
+    req(is_admin())
+    showModal(modalDialog(title = "Users", size = "l", easyClose = TRUE, footer = modalButton("Close"),
+      div(style = "font-size:12.5px; color:#6B7280; margin-bottom:10px;",
+          "Accounts are stored in Supabase Storage (auth/users.json). Resetting a password or deactivating a user signs that user out on every device."),
+      DT::DTOutput("adm_table"),
+      hr(),
+      fluidRow(
+        column(6, h5("Add a user"),
+               textInput("adm_user", "Username", placeholder = "first.last"),
+               textInput("adm_display", "Display name"),
+               selectInput("adm_role", "Role", choices = AUTH_ROLES, selected = "coach"),
+               passwordInput("adm_pass", "Password (8+ characters)"),
+               actionButton("adm_add", "Add user", class = "btn-primary")),
+        column(6, h5("Manage a user"),
+               selectInput("adm_target", "User", choices = NULL),
+               passwordInput("adm_newpass", "New password (8+ characters)"),
+               div(style = "display:flex; gap:6px; flex-wrap:wrap;",
+                   actionButton("adm_reset", "Reset password"),
+                   actionButton("adm_toggle", "Activate / deactivate"),
+                   actionButton("adm_signout", "Sign out everywhere"),
+                   actionButton("adm_delete", "Delete", class = "btn-danger")),
+               selectInput("adm_newrole", "Change role", choices = AUTH_ROLES),
+               actionButton("adm_setrole", "Set role"))),
+      uiOutput("adm_msg")))
+    adm_refresh()
+  })
+  adm_tick <- reactiveVal(0)
+  adm_refresh <- function() adm_tick(isolate(adm_tick()) + 1)
+  observe({
+    adm_tick(); req(is_admin())
+    tb <- tryCatch(auth_user_table(), error = function(e) data.frame())
+    un <- if (nrow(tb)) tb$Username else character(0)
+    updateSelectInput(session, "adm_target", choices = un, selected = isolate(input$adm_target) %||% un[1])
+  })
+  output$adm_table <- DT::renderDT({
+    adm_tick(); req(is_admin())
+    tb <- tryCatch(auth_user_table(), error = function(e) data.frame())
+    if (!nrow(tb)) tb <- data.frame(Username = character(0), Name = character(0), Role = character(0))
+    DT::datatable(tb, rownames = FALSE, selection = "none", options = list(dom = "t", pageLength = 50), class = "compact stripe")
+  })
+  adm_do <- function(expr, ok) {
+    req(is_admin())
+    msg <- tryCatch({ force(expr); adm_refresh(); ok }, error = function(e) paste("Error:", conditionMessage(e)))
+    output$adm_msg <- renderUI(div(style = "margin-top:8px; font-weight:600;", msg))
+  }
+  observeEvent(input$adm_add, adm_do(auth_add_user(input$adm_user, input$adm_pass, input$adm_display, input$adm_role),
+                                     paste0("Added ", auth_norm_user(input$adm_user), ".")))
+  observeEvent(input$adm_reset, adm_do(auth_set_password(input$adm_target, input$adm_newpass),
+                                       paste0("Password reset for ", input$adm_target, ".")))
+  observeEvent(input$adm_toggle, adm_do({
+    users <- auth_users(force = TRUE); i <- auth_find(users, input$adm_target); req(!is.na(i))
+    now <- isTRUE(users[[i]]$active %||% TRUE)
+    if (now && identical(users[[i]]$role, "admin") && auth_admin_count() <= 1) stop("that is the last active admin")
+    auth_set_active(input$adm_target, !now)
+  }, paste0("Updated ", input$adm_target, ".")))
+  observeEvent(input$adm_signout, adm_do(auth_logout_everywhere(input$adm_target),
+                                         paste0(input$adm_target, " signed out everywhere.")))
+  observeEvent(input$adm_setrole, adm_do({
+    if (identical(input$adm_newrole, "admin") || auth_admin_count() > 1 ||
+        !identical(auth_users()[[auth_find(auth_users(), input$adm_target)]]$role, "admin"))
+      auth_set_role(input$adm_target, input$adm_newrole) else stop("that is the last admin")
+  }, paste0(input$adm_target, " is now ", input$adm_newrole, ".")))
+  observeEvent(input$adm_delete, adm_do({
+    if (identical(input$adm_target, current_user()$username)) stop("you cannot delete yourself")
+    auth_remove_user(input$adm_target)
+  }, paste0("Deleted ", input$adm_target, ".")))
+
   # Keep the startup loading overlay up until the data is fully filtered down
   # to the selected pitcher and ready to display (covers the ~30s where all
   # team pitchers are still combined in the charts).
@@ -413,6 +540,37 @@
     q <- isolate(.url_restore()); p <- q$p %||% ""
     if (nzchar(p)) p else NULL
   }
+  # a plain URL on a returning browser: pick up where that browser left off
+  observeEvent(input$auth_last_url, {
+    if (length(.url_restore()) || !nzchar(input$auth_last_url %||% "")) return()
+    q <- parseQueryString(paste0("?", input$auth_last_url))
+    if (!length(q)) return()
+    .url_restore(q)
+    if (nzchar(q$p %||% "") && !is_hitter_pick(q$p)) session$userData$restore_player <- q$p
+  }, once = TRUE)
+
+  # Apply a query string to the app: the login-time restore and every
+  # Back / Forward press go through here.
+  apply_url_state <- function(q, restore = FALSE) {
+    if (!length(q)) { updateTabsetPanel(session, "main_tabs", selected = "Roster"); return(invisible()) }
+    if (nzchar(q$s %||% "")) shinyWidgets::updatePickerInput(session, "season_type",
+                                                             selected = strsplit(q$s, ",")[[1]])
+    if (nzchar(q$tab %||% "")) updateTabsetPanel(session, "main_tabs", selected = q$tab)
+    if (nzchar(q$sub %||% "")) updateTabsetPanel(session, "player_subtabs", selected = q$sub)
+    p <- q$p %||% ""
+    if (is_hitter_pick(p)) { player_mode("hitter"); open_hitter_page(sub(paste0("^", HB_PREFIX), "", p)) }
+    else if (nzchar(p) && !restore) {
+      player_mode("pitcher")
+      ch <- session$userData$global_choices
+      if (!is.null(ch) && p %in% ch) updateSelectizeInput(session, "global_pitcher", choices = ch, selected = p, server = TRUE)
+      else session$userData$restore_player <- p
+    }
+    invisible()
+  }
+  observeEvent(input$palace_nav, {
+    req(logged_in())
+    apply_url_state(parseQueryString(paste0("?", input$palace_nav %||% "")))
+  })
   observe({
     req(logged_in())
     gp  <- input$global_pitcher %||% ""; tab <- input$main_tabs %||% ""
@@ -433,11 +591,7 @@
   observeEvent(logged_in(), {
     req(logged_in())
     q <- .url_restore(); if (!length(q)) return()
-    if (nzchar(q$s %||% "")) shinyWidgets::updatePickerInput(session, "season_type",
-                                                             selected = strsplit(q$s, ",")[[1]])
-    if (nzchar(q$tab %||% "")) updateTabsetPanel(session, "main_tabs", selected = q$tab)
-    if (nzchar(q$sub %||% "")) updateTabsetPanel(session, "player_subtabs", selected = q$sub)
-    if (is_hitter_pick(q$p %||% "")) { player_mode("hitter"); open_hitter_page(sub(paste0("^", HB_PREFIX), "", q$p)) }
+    apply_url_state(q, restore = TRUE)   # the pitcher pick itself lands via restore_player
     .url_restore(list())
   }, once = TRUE)
 

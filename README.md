@@ -145,16 +145,34 @@ See `scripts/README_process_master.md`. The pipeline reclassifies pitch types
 (same engine as `R/12`, verified identical), scores every pitch, and never
 trims outliers or velocity.
 
-## Sessions
+## Logins and sessions
 
-- A successful login sets a 30-day `palace_auth` cookie (a hash derived from
-  the app password, never the password); a new session presenting it skips
-  the form. Changing `password` invalidates every cookie.
-- The page state (`?p=<player>&tab=&sub=&s=`) is kept in the URL and restored
-  at session start, so a refresh, a reconnect or a shared link lands on the
-  same player and tab. `session$allowReconnect(TRUE)` resumes brief drops.
-- Per-user logins: replace `auth_token()` in `R/server/01_core.R` with a
-  per-user HMAC over a users table; the cookie and restore plumbing stay.
+- Accounts are per user (`R/palace_auth.R`). They live in Supabase Storage
+  (`palace-serving/auth/users.json`) as bcrypt-pbkdf hashes with a per-user
+  salt. Roles: admin, coach, analyst, player, viewer (only admin changes
+  what you can do today: the Users panel).
+- Admins manage accounts from **Users** in the header (add, reset password,
+  change role, deactivate, delete, sign out everywhere); everyone can change
+  their own password under **Account**. From a terminal:
+
+  ```
+  Rscript scripts/palace_users.R add isaac <password> "Isaac Groffman" admin
+  Rscript scripts/palace_users.R list
+  ```
+
+- Break-glass: the `password` environment variable still signs in as user
+  `admin` until it is removed from the deployment.
+- A login sets a 30-day `palace_session` cookie (`user|expiry|version|HMAC`)
+  signed with `PALACE_SESSION_SECRET` (fallback: a hash of the Supabase key
+  and `password`). A new browser session that presents it skips the form, so
+  a refresh, a closed laptop or a reconnect lands back in the app. Resetting a
+  password or deactivating a user bumps the version and signs that user out
+  everywhere.
+- Page state (`?p=<player>&tab=&sub=&s=`) is written to the URL as a history
+  entry on every navigation, so the browser's Back and Forward buttons walk
+  through players and tabs, and a shared link opens the same page. The last
+  page is also kept in the browser (`localStorage`), so opening the plain app
+  URL returns to it. `session$allowReconnect(TRUE)` resumes brief drops.
 
 ## Running locally
 

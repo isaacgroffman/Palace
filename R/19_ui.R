@@ -215,7 +215,9 @@ login_ui <- fluidPage(
                   HTML(palace_lockup("light", "signal", "COASTAL CAROLINA BASEBALL"))),
               tags$h2("Welcome back"),
               tags$p(class = "subtitle", "Sign in to open the Palace."),
+              textInput("username", "Username"),
               passwordInput("password", "Password"),
+              tags$script(HTML("$(document).on('keydown', '#username, #password', function(e){ if (e.key === 'Enter') $('#login').click(); });")),
               actionButton("login", "Sign In", class = "btn"),
               textOutput("wrong_pass"),
               div(class = "login-foot", "Coastal Carolina Baseball \u2022 Analytics")
@@ -578,6 +580,13 @@ app_ui <- fluidPage(
     }
     /* Nav is pushed to the far right */
     .header-nav { margin-left: auto; }
+    .header-user { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+                   color: #fff; font-size: 12px; white-space: nowrap; }
+    .header-user-name { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .header-user-role { background: rgba(255,255,255,.18); border-radius: 10px; padding: 1px 7px; font-size: 9.5px;
+                        letter-spacing: .08em; font-weight: 800; }
+    .header-user-link { color: rgba(255,255,255,.85) !important; font-size: 11.5px; margin-left: 10px; }
+    .header-user-link:hover { color: #fff !important; text-decoration: underline; }
 
     .header-brand {
       display: inline-flex;
@@ -1620,7 +1629,8 @@ app_ui <- fluidPage(
                     multiple = TRUE
                   ))
           )
-      )
+      ),
+      uiOutput("auth_user_chip")
       ),
 
   # Floating Filters button — stays accessible while scrolling (hidden on Roster)
