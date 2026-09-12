@@ -91,6 +91,17 @@
   # out everywhere.
   current_user <- reactiveVal(NULL)
   is_admin <- reactive(identical(current_user()$role %||% "", "admin"))
+  # The session cookie arrives with the connection itself, so a returning
+  # browser is signed in before anything is rendered -- no login-page flash.
+  local({
+    ck <- session$request$HTTP_COOKIE %||% ""
+    m  <- regmatches(ck, regexec("(?:^|;\\s*)palace_session=([^;]*)", ck, perl = TRUE))[[1]]
+    if (length(m) == 2) {
+      u <- tryCatch(auth_session_user(URLdecode(m[2])), error = function(e) NULL)
+      if (!is.null(u)) { current_user(u); logged_in(TRUE) }
+    }
+  })
+  auth_checked <- reactiveVal(isolate(logged_in()))
   session_js <- tags$script(HTML("
     (function(){
       Shiny.addCustomMessageHandler('setAuthCookie', function(tok){
@@ -128,15 +139,20 @@
     })();
   "))
   observeEvent(input$auth_cookie, {
-    if (logged_in()) return()
     tok <- input$auth_cookie
-    if (!nzchar(tok %||% "")) return()
-    u <- tryCatch(auth_session_user(tok), error = function(e) NULL)
-    if (!is.null(u)) { current_user(u); logged_in(TRUE) }
+    if (!logged_in() && nzchar(tok %||% "")) {
+      u <- tryCatch(auth_session_user(tok), error = function(e) NULL)
+      if (!is.null(u)) { current_user(u); logged_in(TRUE) }
+    }
+    auth_checked(TRUE)
   }, ignoreInit = FALSE)
 
+  # blank until the cookie has been checked (the proxy stripped it, say), so
+  # a signed-in user never sees the form for a split second
   output$page <- renderUI({
-    tagList(session_js, if (logged_in()) app_ui else login_ui)
+    if (logged_in()) return(tagList(session_js, app_ui))
+    if (!auth_checked()) return(session_js)
+    tagList(session_js, login_ui)
   })
 
   observeEvent(input$login, {
@@ -588,7 +604,7 @@
     }
     session$sendCustomMessage("palaceUrl", paste(parts, collapse = "&"))
   })
-  observeEvent(logged_in(), {
+  observeEvent(input$app_ui_ready, {
     req(logged_in())
     q <- .url_restore(); if (!length(q)) return()
     apply_url_state(q, restore = TRUE)   # the pitcher pick itself lands via restore_player

@@ -217,7 +217,12 @@ login_ui <- fluidPage(
               tags$p(class = "subtitle", "Sign in to open the Palace."),
               textInput("username", "Username"),
               passwordInput("password", "Password"),
-              tags$script(HTML("$(document).on('keydown', '#username, #password', function(e){ if (e.key === 'Enter') $('#login').click(); });")),
+              tags$script(HTML("
+                $(document).off('keyup.palaceLogin').on('keyup.palaceLogin', '#username, #password', function(e){
+                  if (e.which === 13 || e.key === 'Enter') { e.preventDefault(); $('#login').trigger('click'); }
+                });
+                setTimeout(function(){ var u = document.getElementById('username'); if (u && !u.value) u.focus(); }, 50);
+              ")),
               actionButton("login", "Sign In", class = "btn"),
               textOutput("wrong_pass"),
               div(class = "login-foot", "Coastal Carolina Baseball \u2022 Analytics")
@@ -240,6 +245,7 @@ tp_skeleton_table <- function(rows = 6) {
 }
 
 app_ui <- fluidPage(
+  tags$script(HTML("Shiny.setInputValue('app_ui_ready', Date.now(), {priority: 'event'});")),
   tags$head(
     tags$link(rel = "icon", type = "image/svg+xml", href = PALACE_FAVICON_URI),
     tags$title("Palace \u2014 Coastal Carolina Baseball"),
@@ -580,8 +586,9 @@ app_ui <- fluidPage(
     }
     /* Nav is pushed to the far right */
     .header-nav { margin-left: auto; }
-    .header-user { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
-                   color: #fff; font-size: 12px; white-space: nowrap; }
+    .app-header { position: relative; }
+    .header-user { position: absolute; top: 10px; right: 18px; display: flex; flex-direction: column;
+                   align-items: flex-end; gap: 2px; color: #fff; font-size: 12px; white-space: nowrap; z-index: 5; }
     .header-user-name { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; }
     .header-user-role { background: rgba(255,255,255,.18); border-radius: 10px; padding: 1px 7px; font-size: 9.5px;
                         letter-spacing: .08em; font-weight: 800; }
@@ -677,6 +684,7 @@ app_ui <- fluidPage(
       }
       .header-left { flex-direction: column; align-items: center; width: 100%; }
       .header-controls { flex-direction: column; width: 100%; }
+      .header-user { position: static; align-items: center; }
       .header-brand-logo { width: 190px; }
       .header-nav { gap: 18px; flex-wrap: wrap; justify-content: center;
                     margin-left: 0; }
