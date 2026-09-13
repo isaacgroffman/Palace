@@ -251,6 +251,36 @@ app_ui <- fluidPage(
   tags$head(
     tags$link(rel = "icon", type = "image/svg+xml", href = PALACE_FAVICON_URI),
     tags$title("Palace \u2014 Coastal Carolina Baseball"),
+    # Header search rows (headshot | name — team | season / class line | logo).
+    # Defined here, outside the selectize option string, so no quote escaping
+    # can ever break the input's initialisation.
+    tags$script(HTML("
+      window.palaceImgErr = function(el) {
+        if (el.classList.contains('gs-head')) { el.className = 'gs-head gs-head-blank'; el.removeAttribute('src'); }
+        else { el.style.visibility = 'hidden'; }
+      };
+      window.palaceSearchRender = {
+        option: function(item, escape) {
+          var head = item.head
+            ? '<img class=\"gs-head\" src=\"' + escape(item.head) + '\" loading=\"lazy\" onerror=\"palaceImgErr(this)\">'
+            : '<span class=\"gs-head gs-head-blank\"></span>';
+          var logo = item.logo
+            ? '<img class=\"gs-logo\" src=\"' + escape(item.logo) + '\" loading=\"lazy\" onerror=\"palaceImgErr(this)\">'
+            : '';
+          var side = item.kind === 'bat'
+            ? '<span class=\"gs-side gs-side-bat\">HITTER</span>'
+            : '<span class=\"gs-side\">PITCHER</span>';
+          return '<div class=\"gs-opt\">' + head +
+                 '<div class=\"gs-txt\"><div class=\"gs-name\">' + escape(item.name || '') +
+                 (item.team ? ' <span class=\"gs-team\">' + escape(item.team) + '</span>' : '') + side + '</div>' +
+                 '<div class=\"gs-meta\">' + escape(item.meta || '') + '</div></div>' + logo + '</div>';
+        },
+        item: function(item, escape) {
+          return '<div class=\"gs-item\">' + escape(item.name || '') +
+                 (item.team ? ' <span class=\"gs-team\">' + escape(item.team) + '</span>' : '') + '</div>';
+        }
+      };
+    ")),
     tags$script(HTML("
       Shiny.addCustomMessageHandler('toggleFilters', function(open) {
         if (open) { document.body.classList.add('filters-open'); }
@@ -1647,19 +1677,7 @@ app_ui <- fluidPage(
                       searchField = c("name", "team", "meta"),
                       valueField = "value", labelField = "label",
                       maxOptions = 40, openOnFocus = FALSE, closeAfterSelect = TRUE,
-                      render = I("{
-                        option: function(item, escape) {
-                          var head = item.head ? '<img class=\"gs-head\" src=\"' + escape(item.head) + '\" loading=\"lazy\" onerror=\"this.className=\'gs-head gs-head-blank\';this.removeAttribute(\'src\')\">' : '<span class=\"gs-head gs-head-blank\"></span>';
-                          var logo = item.logo ? '<img class=\"gs-logo\" src=\"' + escape(item.logo) + '\" loading=\"lazy\" onerror=\"this.style.visibility=\'hidden\'\">' : '';
-                          var side = item.kind === 'bat' ? '<span class=\"gs-side gs-side-bat\">HITTER</span>' : '<span class=\"gs-side\">PITCHER</span>';
-                          return '<div class=\"gs-opt\">' + head + '<div class=\"gs-txt\"><div class=\"gs-name\">' + escape(item.name) +
-                                 (item.team ? ' <span class=\"gs-team\">' + escape(item.team) + '</span>' : '') + side + '</div>' +
-                                 '<div class=\"gs-meta\">' + escape(item.meta || '') + '</div></div>' + logo + '</div>';
-                        },
-                        item: function(item, escape) {
-                          return '<div class=\"gs-item\">' + escape(item.name) + (item.team ? ' <span class=\"gs-team\">' + escape(item.team) + '</span>' : '') + '</div>';
-                        }
-                      }")
+                      render = I("window.palaceSearchRender")
                     )
                   )),
               # legacy name-keyed driver every pitcher page reads; the search
