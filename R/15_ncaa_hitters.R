@@ -12,8 +12,9 @@ ncaa_batter_directory <- function() {
   raw <- tryCatch(pp_batter_directory(), error = function(e) NULL)
   if (is.null(raw)) raw <- data.frame(Batter = character(0), BatterTeam = character(0), src = character(0))
   if (nrow(raw) == 0) {
-    .hb_env$dir <- data.frame(display = character(0), teams = character(0))
-    return(.hb_env$dir)
+    # not cached: an empty answer (Storage file missing during the boot
+    # index, database hiccup) must not block a later, real index
+    return(data.frame(display = character(0), teams = character(0)))
   }
   if (!"BatterId" %in% names(raw)) raw$BatterId <- NA_character_
   d <- raw %>%

@@ -16,7 +16,11 @@
 REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring26 = "Pre-Spring 2026",
                        Spring26 = "Spring 2026", Fall26 = "Fall 2026")
 .reg_key <- function(x) bp_norm_name(x)
-.reg_id  <- function(x) { x <- trimws(as.character(x)); x[is.na(x) | !nzchar(x) | x %in% c("NA", "0", "NaN")] <- NA_character_; x }
+.reg_id  <- function(x) {
+  # numeric ids print as "1e+09" through as.character(); format them whole
+  if (is.numeric(x) || inherits(x, "integer64")) x <- ifelse(is.na(x), NA_character_, sprintf("%.0f", as.numeric(x)))
+  x <- trimws(as.character(x)); x[is.na(x) | !nzchar(x) | x %in% c("NA", "0", "NaN")] <- NA_character_; x
+}
 .reg_looks_like_code <- function(x) !is.na(x) & grepl("^[A-Z0-9_]{3,}$", x)
 
 # ---- pitchers ----------------------------------------------------------------
@@ -24,8 +28,14 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
   rows <- list()
   # 1) NCAA pairs (games in Supabase): one identity per TrackMan id
   pr <- if (exists("ncaa_dir_pairs") && is.data.frame(ncaa_dir_pairs) && nrow(ncaa_dir_pairs)) ncaa_dir_pairs else NULL
+  cat("[registry] sources: ncaa_dir_pairs", NROW(pr), "rows | spring26",
+      if (exists("spring26") && is.data.frame(spring26)) nrow(spring26) else 0, "| roster27",
+      if (exists("roster27") && is.data.frame(roster27)) nrow(roster27) else 0, "| bullpen names",
+      if (exists("bullpen_pitchers_fl")) length(bullpen_pitchers_fl) else 0, "\n")
   coastal_ids <- character(0)
   if (!is.null(pr)) {
+    for (cc in c("Pitcher", "PitcherTeam", "PitcherId", "display", "team_disp")) if (!cc %in% names(pr)) pr[[cc]] <- NA_character_
+    if (all(is.na(pr$display))) pr$display <- ifelse(grepl(",", pr$Pitcher), normalize_lastfirst(pr$Pitcher), pr$Pitcher)
     pr$PitcherId <- .reg_id(pr$PitcherId)
     pr$key <- .reg_key(pr$display)
     ccu <- !is.na(pr$PitcherTeam) & pr$PitcherTeam == "COA_CHA"
@@ -40,6 +50,30 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
       .groups = "drop") %>% as.data.frame()
     rows$ncaa <- data.frame(token = g$grp, kind = "pit", name = g$name, tm_id = g$tm_id, team_code = g$team_code,
                             team = g$teams, seasons = "Spring26", coastal = FALSE, stringsAsFactors = FALSE)
+    cat("[registry] NCAA pitchers:", nrow(rows$ncaa), "identities from", nrow(nc), "pairs\n")
+  }
+  # database directory empty (Postgres unreachable at boot): the identity
+  # table in Storage still lists every arm with tracked pitches by id
+  if (is.null(rows$ncaa)) {
+    idt <- tryCatch(ref_identity(), error = function(e) NULL)
+    if (is.data.frame(idt) && nrow(idt)) {
+      tk <- idt[idt$kind == "pit" & idt$source == "trackman" & !is.na(idt$tm_id) & !is.na(idt$name), , drop = FALSE]
+      tk <- tk[!(!is.na(tk$team_id) & tk$team_id == "4104"), , drop = FALSE]
+      tk <- tk[!duplicated(tk$tm_id), , drop = FALSE]
+      if (nrow(tk)) {
+        rows$ncaa <- data.frame(token = paste0("t:", tk$tm_id), kind = "pit", name = as.character(tk$name), tm_id = tk$tm_id,
+                                team_code = NA_character_, team = ifelse(is.na(tk$team), "", as.character(tk$team)),
+                                seasons = "Spring26", coastal = FALSE, stringsAsFactors = FALSE)
+        cat("[registry] NCAA pitchers from the Storage identity table (database directory empty):", nrow(rows$ncaa), "\n")
+      }
+    }
+  }
+  # last resort: the name directory (no ids) when the pair table is unusable
+  if (is.null(rows$ncaa) && exists("ncaa_directory") && is.data.frame(ncaa_directory) && nrow(ncaa_directory)) {
+    rows$ncaa <- data.frame(token = paste0("n:", .reg_key(ncaa_directory$display), "|"), kind = "pit", name = ncaa_directory$display,
+                            tm_id = NA_character_, team_code = NA_character_, team = as.character(ncaa_directory$teams),
+                            seasons = "Spring26", coastal = FALSE, stringsAsFactors = FALSE)
+    cat("[registry] NCAA pitchers from the name directory (no ids):", nrow(rows$ncaa), "\n")
   }
   # 2) Coastal: spring game data + 2027 roster + bullpens, merged by name
   ccu <- list()
@@ -160,14 +194,17 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
 # ---- enrichment: reference team, identity, bio -------------------------------------
 .reg_enrich <- function(d) {
   if (!nrow(d)) return(d)
+  for (cc in c("class", "head", "team_code", "team")) if (!cc %in% names(d)) d[[cc]] <- NA_character_
   # team through the crosswalk / reference: level, conference, logo, a real name
-  ti <- ref_team_info(code = d$team_code, name = d$team, by_name = TRUE)
+  ti <- tryCatch(ref_team_info(code = d$team_code, name = d$team, by_name = TRUE), error = function(e) {
+    cat("[registry] team info failed:", conditionMessage(e), "\n")
+    data.frame(team_id = NA_character_, level = NA_character_, conf = NA_character_, logo = NA_character_, team = NA_character_)[rep(1, nrow(d)), ] })
   d$team_id <- ti$team_id; d$level <- ti$level; d$conf <- ti$conf; d$logo <- ti$logo
   d$team <- ifelse(is.na(d$team) | !nzchar(d$team) | .reg_looks_like_code(d$team), ifelse(is.na(ti$team), d$team, ti$team), d$team)
   d$team[is.na(d$team)] <- ""
   if (any(d$coastal)) { d$level[d$coastal] <- "D1"; d$conf[d$coastal] <- "SBELT"; d$logo[d$coastal] <- tryCatch(ccu_logo_url, error = function(e) NA_character_) }
   # identity table: TruMedia player id (class, headshot), summer clubs
-  idt <- tryCatch(ref_identity(), error = function(e) NULL)
+  idt <- tryCatch(ref_identity(), error = function(e) { cat("[registry] identity table unavailable:", conditionMessage(e), "\n"); NULL })
   d$player_id <- NA_character_; d$summer <- FALSE
   if (is.data.frame(idt) && nrow(idt) && any(!is.na(d$tm_id))) {
     ok <- idt[!is.na(idt$tm_id) & !is.na(idt$player_id), , drop = FALSE]
@@ -210,6 +247,9 @@ player_registry <- function(with_hitters = FALSE, refresh = FALSE) {
   h <- tryCatch(.reg_build_hitters(require_dir = with_hitters), error = function(e) { cat("[registry] hitters failed:", conditionMessage(e), "\n"); data.frame() })
   d <- dplyr::bind_rows(p, h)
   d <- tryCatch(.reg_enrich(d), error = function(e) { cat("[registry] enrich failed:", conditionMessage(e), "\n"); d })
+  for (cc in c("class", "head", "logo", "meta", "conf", "level", "team_id", "player_id")) if (!cc %in% names(d)) d[[cc]] <- ""
+  if (!"label" %in% names(d)) d$label <- paste0(d$name, " \u2014 ", d$team)
+  if (!"value" %in% names(d)) d$value <- d$token
   # Coastal first, then by name
   d <- d[order(!d$coastal, d$kind != "pit", d$name), , drop = FALSE]
   .reg_env$reg <- d

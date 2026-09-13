@@ -326,6 +326,7 @@
     if (is.null(ch) || !nrow(ch)) return(invisible())
     session$userData$global_choice_pool <- unique(ch$name[ch$kind == "pit"])
     sel <- if (!is.null(selected) && nzchar(selected %||% "") && selected %in% ch$value) selected else character(0)
+    cat("[search] pushing", nrow(ch), "players (", sum(ch$kind == "pit"), "pitchers,", sum(ch$kind == "bat"), "hitters ) to", session$token, "\n")
     updateSelectizeInput(session, "global_search", choices = ch, selected = sel, server = TRUE)
   }
   select_player <- function(token, season = NULL, sub = NULL) {

@@ -1680,7 +1680,7 @@ app_ui <- fluidPage(
                     width = "100%",
                     options = list(
                       placeholder = "Search players\u2026",
-                      searchField = c("name", "team", "meta"),
+                      searchField = c("label", "name", "team", "meta"),
                       valueField = "value", labelField = "label",
                       maxOptions = 40, openOnFocus = FALSE, closeAfterSelect = TRUE,
                       render = I("window.palaceSearchRender")
