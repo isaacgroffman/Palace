@@ -1,0 +1,81 @@
+Rank,teamId,teamName,team,teamFullName,location,teamAbbrevName,teamLevel,synergyTeamId,newestTeamId,newestTeamLevel,newestTeamName,newestTeamAbbrevName,newestTeamLocation,Conf
+1,777504555,HiToms,High Point-Thomasville,High Point-Thomasville,High Point-Thomasville,HPT,BBC,,777504555,BBC,HiToms,HPT,High Point-Thomasville,SUM Coastal Plain League
+1,999393689,Zookeepers,Asheboro,Asheboro,Asheboro,ASHE,BBC,,999393689,BBC,Zookeepers,ASHE,Asheboro,SUM Coastal Plain League
+1,650355522,Sharks,Wilmington,Wilmington,Wilmington,WILM,BBC,,650355522,BBC,Sharks,WILM,Wilmington,SUM Coastal Plain League
+1,563375407,Bigfoots,Boone,Boone,Boone,BOON,BBC,,563375407,BBC,Bigfoots,BOON,Boone,SUM Coastal Plain League
+1,942639754,Mustangs,Martinsville,Martinsville,Martinsville,MART,BBC,,942639754,BBC,Mustangs,MART,Martinsville,SUM Coastal Plain League
+1,795629716,Salamanders,Holly Springs,Holly Springs,Holly Springs,HOLL,BBC,,795629716,BBC,Salamanders,HOLL,Holly Springs,SUM Coastal Plain League
+1,508935036,Owls,Forest City,Forest City,Forest City,FORE,BBC,,508935036,BBC,Owls,FORE,Forest City,SUM Coastal Plain League
+1,690791291,Blowfish,Lexington County,Lexington County,Lexington County,LEXI,BBC,,690791291,BBC,Blowfish,LEXI,Lexington County,SUM Coastal Plain League
+1,903531949,Flamingos,Florence,Florence,Florence,FLOR,BBC,,903531949,BBC,Flamingos,FLOR,Florence,SUM Coastal Plain League
+1,992554612,Chili Peppers,Tri-City,Tri-City,Tri-City,TRI-,BBC,,992554612,BBC,Chili Peppers,TRI-,Tri-City,SUM Coastal Plain League
+1,704987040,Bacon,Macon,Macon,Macon,MACO,BBC,,704987040,BBC,Bacon,MACO,Macon,SUM Coastal Plain League
+1,741086357,Stingers,Willmar,Willmar,Willmar,WILL,BBC,,741086357,BBC,Stingers,WILL,Willmar,SUM Northwoods League
+1,986117995,Big Sticks,Badlands,Badlands,Badlands,BADL,BBC,,986117995,BBC,Big Sticks,BADL,Badlands,SUM Northwoods League
+1,723404532,Larks,Bismarck,Bismarck,Bismarck,BISM,BBC,,723404532,BBC,Larks,BISM,Bismarck,SUM Northwoods League
+1,678391541,MoonDogs,Mankato,Mankato,Mankato,MANK,BBC,,678391541,BBC,MoonDogs,MANK,Mankato,SUM Northwoods League
+1,752644203,Huskies,Duluth,Duluth,Duluth,DULU,BBC,,752644203,BBC,Huskies,DULU,Duluth,SUM Northwoods League
+1,745843853,Hot Tots,Minot,Minot,Minot,MINO,BBC,,745843853,BBC,Hot Tots,MINO,Minot,SUM Northwoods League
+1,858556376,Loggers,La Crosse,La Crosse,La Crosse,LA C,BBC,,858556376,BBC,Loggers,LA C,La Crosse,SUM Northwoods League
+1,551478262,Rox,St. Cloud,St. Cloud,St. Cloud,ST.,BBC,,551478262,BBC,Rox,ST.,St. Cloud,SUM Northwoods League
+1,771245755,Honkers,Rochester,Rochester,Rochester,ROCH,BBC,,771245755,BBC,Honkers,ROCH,Rochester,SUM Northwoods League
+1,754202429,Chinooks,Lakeshore,Lakeshore,Lakeshore,LAKE,BBC,,754202429,BBC,Chinooks,LAKE,Lakeshore,SUM Northwoods League
+1,794138857,Bombers,Battle Creek,Battle Creek,Battle Creek,BATT,BBC,,794138857,BBC,Bombers,BATT,Battle Creek,SUM Northwoods League
+1,566088734,Kingfish,Kenosha,Kenosha,Kenosha,KENO,BBC,,566088734,BBC,Kingfish,KENO,Kenosha,SUM Northwoods League
+1,691561986,Growlers,Kalamazoo,Kalamazoo,Kalamazoo,KALA,BBC,,691561986,BBC,Growlers,KALA,Kalamazoo,SUM Northwoods League
+1,826649226,Leprechauns,Royal Oak,Royal Oak,Royal Oak,ROYA,BBC,,826649226,BBC,Leprechauns,ROYA,Royal Oak,SUM Northwoods League
+1,904868903,Rivets,Rockford,Rockford,Rockford,ROCK,BBC,,904868903,BBC,Rivets,ROCK,Rockford,SUM Northwoods League
+1,918020147,Rockers,Green Bay,Green Bay,Green Bay,GREE,BBC,,918020147,BBC,Rockers,GREE,Green Bay,SUM Northwoods League
+1,546924158,Pit Spitters,Traverse City,Traverse City,Traverse City,TRAV,BBC,,546924158,BBC,Pit Spitters,TRAV,Traverse City,SUM Northwoods League
+1,738095658,Mallards,Madison,Madison,Madison,MADI,BBC,,738095658,BBC,Mallards,MADI,Madison,SUM Northwoods League
+1,551556465,NorthPaws,Kamloops,Kamloops,Kamloops,KAML,BBC,,551556465,BBC,NorthPaws,KAML,Kamloops,SUM West Coast League
+1,911343783,Bells,Bellingham,Bellingham,Bellingham,BELL,BBC,,911343783,BBC,Bells,BELL,Bellingham,SUM West Coast League
+1,952539240,Elks,Bend,Bend,Bend,BEND,BBC,,952539240,BBC,Elks,BEND,Bend,SUM West Coast League
+1,598492153,Berries,Marion,Marion,Marion,MARI,BBC,,598492153,BBC,Berries,MARI,Marion,SUM West Coast League
+1,654558733,AppleSox,Wenatchee,Wenatchee,Wenatchee,WENA,BBC,,654558733,BBC,AppleSox,WENA,Wenatchee,SUM West Coast League
+1,754105378,Lefties,Port Angeles,Port Angeles,Port Angeles,PORT,BBC,,754105378,BBC,Lefties,PORT,Port Angeles,SUM West Coast League
+1,633133922,Riverhawks,Edmonton,Edmonton,Edmonton,EDMO,BBC,,633133922,BBC,Riverhawks,EDMO,Edmonton,SUM West Coast League
+1,623564645,HarbourCats,Victoria,Victoria,Victoria,VICT,BBC,,623564645,BBC,HarbourCats,VICT,Victoria,SUM West Coast League
+1,856943687,Falcons,Kelowna,Kelowna,Kelowna,KELO,BBC,,856943687,BBC,Falcons,KELO,Kelowna,SUM West Coast League
+1,678932201,NightOwls,Nanaimo,Nanaimo,Nanaimo,NANA,BBC,,678932201,BBC,NightOwls,NANA,Nanaimo,SUM West Coast League
+1,754034370,Raptors,Ridgefield,Ridgefield,Ridgefield,RIDG,BBC,,754034370,BBC,Raptors,RIDG,Ridgefield,SUM West Coast League
+1,783609008,Knights,Corvallis,Corvallis,Corvallis,CORV,BBC,,783609008,BBC,Knights,CORV,Corvallis,SUM West Coast League
+1,872208959,Drifters,Springfield,Springfield,Springfield,SPRI,BBC,,872208959,BBC,Drifters,SPRI,Springfield,SUM West Coast League
+1,952384487,Pippins,Yakima Valley,Yakima Valley,Yakima Valley,YAKI,BBC,,952384487,BBC,Pippins,YAKI,Yakima Valley,SUM West Coast League
+1,539619212,Sweets,Walla Walla,Walla Walla,Walla Walla,WALL,BBC,,539619212,BBC,Sweets,WALL,Walla Walla,SUM West Coast League
+1,870264241,Pickles,Portland,Portland,Portland,PORT,BBC,,870264241,BBC,Pickles,PORT,Portland,SUM West Coast League
+1,653442912,Express,Eau Claire,Eau Claire,Eau Claire,EAU,BBC,,653442912,BBC,Express,EAU,Eau Claire,SUM Northwoods League
+1,736945857,Marlins,Morehead City,Morehead City,Morehead City,MORE,BBC,,736945857,BBC,Marlins,MORE,Morehead City,SUM Coastal Plain League
+1,673497096,Blues,Bristol,Bristol,Bristol,BRIS,BBC,,673497096,BBC,Blues,BRIS,Bristol,SUM New England Collegiate Baseball League
+1,977062040,Westerners,Danbury,Danbury,Danbury,DANB,BBC,,977062040,BBC,Westerners,DANB,Danbury,SUM New England Collegiate Baseball League
+1,600609239,Gulls,Newport,Newport,Newport,NEWP,BBC,,600609239,BBC,Gulls,NEWP,Newport,SUM New England Collegiate Baseball League
+1,937167739,Navigators,North Shore,North Shore,North Shore,NORT,BBC,,937167739,BBC,Navigators,NORT,North Shore,SUM New England Collegiate Baseball League
+1,619936449,Mountaineers,Vermont,Vermont,Vermont,VERM,BBC,,619936449,BBC,Mountaineers,VERM,Vermont,SUM New England Collegiate Baseball League
+1,761691823,Schooners,Mystic,Mystic,Mystic,MYST,BBC,,761691823,BBC,Schooners,MYST,Mystic,SUM New England Collegiate Baseball League
+1,885831508,Swamp Bats,Keene,Keene,Keene,KEEN,BBC,,885831508,BBC,Swamp Bats,KEEN,Keene,SUM New England Collegiate Baseball League
+1,815199267,Waves,Ocean State,Ocean State,Ocean State,OCEA,BBC,,815199267,BBC,Waves,OCEA,Ocean State,SUM New England Collegiate Baseball League
+1,839315763,Blue Sox,Valley,Valley,Valley,VALL,BBC,,839315763,BBC,Blue Sox,VALL,Valley,SUM New England Collegiate Baseball League
+1,983138939,Mainers,Sanford,Sanford,Sanford,SANF,BBC,,983138939,BBC,Mainers,SANF,Sanford,SUM New England Collegiate Baseball League
+1,517865383,SteepleCats,North Adams,North Adams,North Adams,NORT,BBC,,517865383,BBC,SteepleCats,NORT,North Adams,SUM New England Collegiate Baseball League
+1,910871784,Sharks,Marthas Vineyard,Marthas Vineyard,Marthas Vineyard,MART,BBC,,910871784,BBC,Sharks,MART,Marthas Vineyard,SUM New England Collegiate Baseball League
+1,658186681,Nighthawks,Upper Valley,Upper Valley,Upper Valley,UPPE,BBC,,658186681,BBC,Nighthawks,UPPE,Upper Valley,SUM New England Collegiate Baseball League
+1,520236969,Pilots,Peninsula,Peninsula,Peninsula,PENI,BBC,,520236969,BBC,Pilots,PENI,Peninsula,SUM Coastal Plain League
+1,763496134,Bucks,Waterloo,Waterloo,Waterloo,WATE,BBC,,763496134,BBC,Bucks,WATE,Waterloo,SUM Northwoods League
+1,833825892,Border Cats,Thunder Bay,Thunder Bay,Thunder Bay,THUN,BBC,,833825892,BBC,Border Cats,THUN,Thunder Bay,SUM Northwoods League
+1,507756015,Dock Spiders,Fond du Lac,Fond du Lac,Fond du Lac,FOND,BBC,,507756015,BBC,Dock Spiders,FOND,Fond du Lac,SUM Northwoods League
+1,750766572,Woodchucks,Wausau,Wausau,Wausau,WAUS,BBC,,750766572,BBC,Woodchucks,WAUS,Wausau,SUM Northwoods League
+1,631280907,Rafters,Wisconsin Rapids,Wisconsin Rapids,Wisconsin Rapids,WISC,BBC,,631280907,BBC,Rafters,WISC,Wisconsin Rapids,SUM Northwoods League
+1,744941663,Yard Gnomes,Greenville,Greenville,Greenville,GREE,BBC,,744941663,BBC,Yard Gnomes,GREE,Greenville,SUM Coastal Plain League
+1,684488457,Devil Dogz,Zebulon,Zebulon,Zebulon,ZEBU,BBC,,684488457,BBC,Devil Dogz,ZEBU,Zebulon,SUM Coastal Plain League
+1,960263871,Flying Mummies,Richmond,Richmond,Richmond,RICH,BBC,,960263871,BBC,Flying Mummies,RICH,Richmond,SUM Northwoods League
+1,764233036,Mud Puppies,Minnesota,Minnesota,Minnesota,MINN,BBC,,764233036,BBC,Mud Puppies,MINN,Minnesota,SUM Northwoods League
+1,6095,Braves,Bourne,Bourne,Bourne,BOUR,BBC,,6095,BBC,Braves,BOUR,Bourne,CCBL Cape Cod League
+1,6100,Mariners,Harwich,Harwich,Harwich,HARW,BBC,,6100,BBC,Mariners,HARW,Harwich,CCBL Cape Cod League
+1,6102,Firebirds,Orleans,Orleans,Orleans,ORLE,BBC,,6102,BBC,Firebirds,ORLE,Orleans,CCBL Cape Cod League
+1,6101,Harbor Hawks,Hyannis,Hyannis,Hyannis,HYAN,BBC,,6101,BBC,Harbor Hawks,HYAN,Hyannis,CCBL Cape Cod League
+1,6103,Gatemen,Wareham,Wareham,Wareham,WARE,BBC,,6103,BBC,Gatemen,WARE,Wareham,CCBL Cape Cod League
+1,6096,Whitecaps,Brewster,Brewster,Brewster,BREW,BBC,,6096,BBC,Whitecaps,BREW,Brewster,CCBL Cape Cod League
+1,6098,Kettleers,Cotuit,Cotuit,Cotuit,COTU,BBC,,6098,BBC,Kettleers,COTU,Cotuit,CCBL Cape Cod League
+1,6097,Anglers,Chatham,Chatham,Chatham,CHAT,BBC,,6097,BBC,Anglers,CHAT,Chatham,CCBL Cape Cod League
+1,6099,Commodores,Falmouth,Falmouth,Falmouth,FALM,BBC,,6099,BBC,Commodores,FALM,Falmouth,CCBL Cape Cod League
+1,6104,Red Sox,Yarmouth-Dennis,Yarmouth-Dennis,Yarmouth-Dennis,YARM,BBC,,6104,BBC,Red Sox,YARM,Yarmouth-Dennis,CCBL Cape Cod League

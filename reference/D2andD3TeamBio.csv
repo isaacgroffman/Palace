@@ -1,0 +1,634 @@
+Rank,teamId,teamName,team,teamFullName,location,teamAbbrevName,teamLevel,synergyTeamId,newestTeamId,newestTeamLevel,newestTeamName,newestTeamAbbrevName,newestTeamLocation,Conf
+1,730188544,Pioneers,Malone,Malone University,Malone,MU,BBC,,730188544,BBC,Pioneers,MU,Malone,D2 Great Midwest Athletic Conference
+1,605673472,Roosevelt Lakers,Roosevelt Lakers,Roosevelt Lakers,Roosevelt Lakers,ROO,BBC,,605673472,BBC,Roosevelt Lakers,ROO,Roosevelt Lakers,D2 Great Lakes Intercollegiate Athletic Conference
+1,730286848,Henderson State,Henderson State,Henderson State University,Henderson State,HSU,BBC,,730286848,BBC,Henderson State,HSU,Henderson State,D2 Great American Conference
+1,730291968,Menlo,Menlo,Menlo College,Menlo,MC,BBC,,730291968,BBC,Menlo,MC,Menlo,D2 California Collegiate Athletic Association
+1,730204416,Saginaw Valley State,Saginaw Valley State,Saginaw Valley State University,Saginaw Valley State,SVSU,BBC,,730204416,BBC,Saginaw Valley State,SVSU,Saginaw Valley State,D2 Great Lakes Intercollegiate Athletic Conference
+1,730308608,Hillsdale,Hillsdale,Hillsdale College,Hillsdale,HC,BBC,,730308608,BBC,Hillsdale,HC,Hillsdale,D2 Great Midwest Athletic Conference
+1,730312960,Timberwolves,Northwood,Northwood University (Michigan),Northwood,NWOOD,BBC,,730312960,BBC,Timberwolves,NWOOD,Northwood,D2 Great Midwest Athletic Conference
+1,730252800,Colorado School of Mines,Colorado School of Mines,Colorado School of Mines,Colorado School of Mines,CSOM,BBC,,730252800,BBC,Colorado School of Mines,CSOM,Colorado School of Mines,D2 Rocky Mountain Athletic Conference
+1,576632832,University of Colorado(Colorado Springs),University of Colorado(Colorado Springs),University of Colorado(Colorado Springs),University of Colorado(Colorado Springs),UCCS,BBC,,576632832,BBC,University of Colorado(Colorado Springs),UCCS,University of Colorado(Colorado Springs),D2 Rocky Mountain Athletic Conference
+1,730171136,Upper Iowa,Upper Iowa,Upper Iowa University,Upper Iowa,UIU,BBC,,730171136,BBC,Upper Iowa,UIU,Upper Iowa,D2 Great Lakes Valley Conference
+1,730332928,Lake Erie,Lake Erie,Lake Erie College,Lake Erie,LEC,BBC,,730332928,BBC,Lake Erie,LEC,Lake Erie,D2 Great Midwest Athletic Conference
+1,730358272,Dragons,Tiffin,Tiffin University,Tiffin,TIFF,BBC,,730358272,BBC,Dragons,TIFF,Tiffin,D2 Great Midwest Athletic Conference
+1,730334208,Minnesota State University-Mankato,Minnesota State University-Mankato,Minnesota State University-Mankato,Minnesota State University-Mankato,MSU,BBC,,730334208,BBC,Minnesota State University-Mankato,MSU,Minnesota State University-Mankato,D2 Northern Sun Intercollegiate Conference
+1,730385152,Northwest Nazarene,Northwest Nazarene,Northwest Nazarene University,Northwest Nazarene,NNU,BBC,,730385152,BBC,Northwest Nazarene,NNU,Northwest Nazarene,D2 Great Northwest Athletic Conference
+1,730371328,Bearcats,McKendree,McKendree University,McKendree,MCKN,BBC,,730371328,BBC,Bearcats,MCKN,McKendree,D2 Great Lakes Valley Conference
+1,730180864,Mitchell,Mitchell,Mitchell College,Mitchell,MC,BBC,,730180864,BBC,Mitchell,MC,Mitchell,D3 Great Northeast Athletic Conference
+1,730184448,University of Hawaii at Hilo,University of Hawaii at Hilo,University of Hawaii at Hilo,University of Hawaii at Hilo,UOHAH,BBC,,730184448,BBC,University of Hawaii at Hilo,UOHAH,University of Hawaii at Hilo,D2 Pacific West Conference
+1,730242816,Bluefield State,Bluefield State,Bluefield State College,Bluefield State,BSC,BBC,,730242816,BBC,Bluefield State,BSC,Bluefield State,D2 Independent
+1,730309632,Hawaii Pacific,Hawaii Pacific,Hawaii Pacific University,Hawaii Pacific,HPU,BBC,,730309632,BBC,Hawaii Pacific,HPU,Hawaii Pacific,D2 Pacific West Conference
+1,718806784,Silverswords,Chaminade,Chaminade University,Chaminade,CSS,BBC,,718806784,BBC,Silverswords,CSS,Chaminade,D2 Pacific West Conference
+1,730341120,Clarion University of Pennsylvania,Clarion University of Pennsylvania,Clarion University of Pennsylvania,Clarion University of Pennsylvania,CUOP,BBC,,730341120,BBC,Clarion University of Pennsylvania,CUOP,Clarion University of Pennsylvania,D2 Pennsylvania State Athletic Conference
+1,730366464,Rollins,Rollins,Rollins College,Rollins,RC,BBC,,730366464,BBC,Rollins,RC,Rollins,D2 Sunshine State Conference
+1,730355968,Saint Martin's,Saint Martin's,Saint Martin's University,Saint Martin's,SMU,BBC,,730355968,BBC,Saint Martin's,SMU,Saint Martin's,D2 Great Northwest Athletic Conference
+1,730358528,Virginia State,Virginia State,Virginia State University,Virginia State,VSU,BBC,,730358528,BBC,Virginia State,VSU,Virginia State,D2 Independent
+1,730369792,Rangers,UW-Parkside,University of Wisconsin-Parkside,UW-Parkside,UWPS,BBC,,730369792,BBC,Rangers,UWPS,UW-Parkside,D2 Great Lakes Intercollegiate Athletic Conference
+1,761442356,Golden Tigers,Tuskegee,Tuskegee University,Tuskegee,TUSK,BBC,,761442356,BBC,Golden Tigers,TUSK,Tuskegee,D2 Southern Intercol. Ath. Conf.
+1,645227672,Thunderwolves,Colorado State Pueblo,Colorado State University Pueblo,Colorado State Pueblo,CSP,BBC,,645227672,BBC,Thunderwolves,CSP,Colorado State Pueblo,D2 Rocky Mountain Athletic Conference
+1,662024311,Magicians,Lemoyne Owen College,LeMoyneOwen College,Lemoyne Owen College,LOC,BBC,,662024311,BBC,Magicians,LOC,Lemoyne Owen College,D2 Southern Intercol. Ath. Conf.
+1,730313472,Thorobreds,Kentucky State,Kentucky State University,Kentucky State,KTS,BBC,,730313472,BBC,Thorobreds,KTS,Kentucky State,D2 Southern Intercol. Ath. Conf.
+1,730210560,Colorado Christian,Colorado Christian,Colorado Christian University,Colorado Christian,CCU,BBC,,730210560,BBC,Colorado Christian,CCU,Colorado Christian,D2 Rocky Mountain Athletic Conference
+1,730364416,University of Charleston,University of Charleston,University of Charleston,University of Charleston,UOC,BBC,,730364416,BBC,University of Charleston,UOC,University of Charleston,D2 Mountain East Conference
+1,730192384,Salem International,Salem International,Salem International University,Salem International,SIU,BBC,,730192384,BBC,Salem International,SIU,Salem International,D2 Independent
+1,730342912,Grand Valley State,Grand Valley State,Grand Valley State University,Grand Valley State,GVSU,BBC,,730342912,BBC,Grand Valley State,GVSU,Grand Valley State,D2 Great Lakes Intercollegiate Athletic Conference
+1,730377472,Walsh,Walsh,Walsh University,Walsh,WU,BBC,,730377472,BBC,Walsh,WU,Walsh,D2 Great Midwest Athletic Conference
+1,730340864,Trevecca Nazarene,Trevecca Nazarene,Trevecca Nazarene University,Trevecca Nazarene,TNU,BBC,,730340864,BBC,Trevecca Nazarene,TNU,Trevecca Nazarene,D2 Gulf South Conference
+1,730345728,Emmanuel College (Ga.),Emmanuel College (Ga.),Emmanuel College (Ga.),Emmanuel College (Ga.),EC,BBC,,730345728,BBC,Emmanuel College (Ga.),EC,Emmanuel College (Ga.),D2 Conference Carolinas
+1,730187520,Spring Hill,Spring Hill,Spring Hill College,Spring Hill,SHC,BBC,,730187520,BBC,Spring Hill,SHC,Spring Hill,D2 Southern Intercol. Ath. Conf.
+1,730161408,Maryville University of Saint Louis,Maryville University of Saint Louis,Maryville University of Saint Louis,Maryville University of Saint Louis,MUOSL,BBC,,730161408,BBC,Maryville University of Saint Louis,MUOSL,Maryville University of Saint Louis,D2 Great Lakes Valley Conference
+1,730254080,Drury,Drury,Drury University,Drury,DU,BBC,,730254080,BBC,Drury,DU,Drury,D2 Great Lakes Valley Conference
+1,746499607,Lions,Vanguard,Vanguard,Vanguard,VANG,BBC,,746499607,BBC,Lions,VANG,Vanguard,D2 Pacific West Conference
+1,730294272,Hawks,Rockhurst,Rockhurst University,Rockhurst,ROCK,BBC,,730294272,BBC,Hawks,ROCK,Rockhurst,D2 Great Lakes Valley Conference
+1,730268160,Lane,Lane,Lane College,Lane,LC,BBC,,730268160,BBC,Lane,LC,Lane,D2 Southern Intercol. Ath. Conf.
+1,730183424,Statesmen,Delta State,Delta State University,Delta State,DLTA,BBC,,730183424,BBC,Statesmen,DLTA,Delta State,D2 Gulf South Conference
+1,730328064,Falcons,UT Permian Basin,"University of Texas, Permian Basin",UT Permian Basin,UTPB,BBC,,730328064,BBC,Falcons,UTPB,UT Permian Basin,D2 Lone Star Conference
+1,730263040,Tigers,Savannah State,Savannah State University,Savannah State,SAV,BBC,,730263040,BBC,Tigers,SAV,Savannah State,D2 Southern Intercol. Ath. Conf.
+1,577507072,Panthers,Davenport,Davenport University,Davenport,DVNPT,BBC,,577507072,BBC,Panthers,DVNPT,Davenport,D2 Great Lakes Intercollegiate Athletic Conference
+1,730351104,Wayne State,Wayne State,Wayne State University,Wayne State,WSU,BBC,,730351104,BBC,Wayne State,WSU,Wayne State,D2 Great Lakes Intercollegiate Athletic Conference
+1,577494016,Goldey-Beacom,Goldey-Beacom,Goldey-Beacom College,Goldey-Beacom,GBC,BBC,,577494016,BBC,Goldey-Beacom,GBC,Goldey-Beacom,D2 Central Atlantic Collegiate Conference
+1,730162688,West Chester Univ. of Pennsylvania,West Chester Univ. of Pennsylvania,West Chester Univ. of Pennsylvania,West Chester Univ. of Pennsylvania,WCUOP,BBC,,730162688,BBC,West Chester Univ. of Pennsylvania,WCUOP,West Chester Univ. of Pennsylvania,D2 Pennsylvania State Athletic Conference
+1,730308096,Hurricanes,Georgia Southwestern State,Georgia Southwestern State Univ.,Georgia Southwestern State,GSW,BBC,,730308096,BBC,Hurricanes,GSW,Georgia Southwestern State,D2 Peach Belt Conference
+1,730199552,Roadrunners,MSU Denver,Metropolitan St. University of Denver,MSU Denver,METS,BBC,,730199552,BBC,Roadrunners,METS,MSU Denver,D2 Rocky Mountain Athletic Conference
+1,730361344,Cougars,Sioux Falls,University of Sioux Falls,Sioux Falls,SIOU,BBC,,730361344,BBC,Cougars,SIOU,Sioux Falls,D2 Northern Sun Intercollegiate Conference
+1,730266368,Bulldogs,Union (TN),Union University (Tenn.),Union (TN),UNIO,BBC,,730266368,BBC,Bulldogs,UNIO,Union (TN),D2 Gulf South Conference
+1,730330368,Bucs,Christian Brothers,Christian Brothers University,Christian Brothers,CHB,BBC,,730330368,BBC,Bucs,CHB,Christian Brothers,D2 Gulf South Conference
+1,730336768,Cedarville,Cedarville,Cedarville University,Cedarville,CU,BBC,,730336768,BBC,Cedarville,CU,Cedarville,D2 Great Midwest Athletic Conference
+1,730377984,The Lincoln University (Pa.),The Lincoln University (Pa.),The Lincoln University (Pa.),The Lincoln University (Pa.),TLU,BBC,,730377984,BBC,The Lincoln University (Pa.),TLU,The Lincoln University (Pa.),D2 Central Atlantic Collegiate Conference
+1,570533322,Lions,Albright,Albright College,Albright,ALBR,BBC,,570533322,BBC,Lions,ALBR,Albright,D3 Middle Atlantic Commonwealth Conference
+1,730280192,Miles,Miles,Miles College,Miles,MC,BBC,,730280192,BBC,Miles,MC,Miles,D2 Southern Intercol. Ath. Conf.
+1,730202112,Southwest Minnesota State,Southwest Minnesota State,Southwest Minnesota State University,Southwest Minnesota State,SMSU,BBC,,730202112,BBC,Southwest Minnesota State,SMSU,Southwest Minnesota State,D2 Northern Sun Intercollegiate Conference
+1,730321920,Newman,Newman,Newman University,Newman,NU,BBC,,730321920,BBC,Newman,NU,Newman,D2 Mid-America Intercollegiate Athletics Association
+1,730149632,Western Oregon,Western Oregon,Western Oregon University,Western Oregon,WOU,BBC,,730149632,BBC,Western Oregon,WOU,Western Oregon,D2 Great Northwest Athletic Conference
+1,730279168,University of Missouri-St. Louis,University of Missouri-St. Louis,University of Missouri-St. Louis,University of Missouri-St. Louis,UOML,BBC,,730279168,BBC,University of Missouri-St. Louis,UOML,University of Missouri-St. Louis,D2 Great Lakes Valley Conference
+1,730198528,Lenoir-Rhyne,Lenoir-Rhyne,Lenoir-Rhyne University,Lenoir-Rhyne,LU,BBC,,730198528,BBC,Lenoir-Rhyne,LU,Lenoir-Rhyne,D2 South Atlantic Conference
+1,730336512,Anderson University (S.C.),Anderson University (S.C.),Anderson University (S.C.),Anderson University (S.C.),AU,BBC,,730336512,BBC,Anderson University (S.C.),AU,Anderson University (S.C.),D2 South Atlantic Conference
+1,730205696,Ashland,Ashland,Ashland University,Ashland,AU,BBC,,730205696,BBC,Ashland,AU,Ashland,D2 Great Midwest Athletic Conference
+1,730305024,Southern Connecticut St.,Southern Connecticut St.,Southern Connecticut St. University,Southern Connecticut St.,SCSU,BBC,,730305024,BBC,Southern Connecticut St.,SCSU,Southern Connecticut St.,D2 Northeast-10 Conference
+1,730383872,Assumption,Assumption,Assumption College,Assumption,AC,BBC,,730383872,BBC,Assumption,AC,Assumption,D2 Northeast-10 Conference
+1,730185984,Augustana University (SD),Augustana University (SD),Augustana University (SD),Augustana University (SD),AU,BBC,,730185984,BBC,Augustana University (SD),AU,Augustana University (SD),D2 Northern Sun Intercollegiate Conference
+1,730184960,Flagler,Flagler,Flagler College,Flagler,FC,BBC,,730184960,BBC,Flagler,FC,Flagler,D2 Peach Belt Conference
+1,730275328,Augusta,Augusta,Augusta University,Augusta,AU,BBC,,730275328,BBC,Augusta,AU,Augusta,D2 Peach Belt Conference
+1,669114198,Jimmies,Jamestown,Jamestown,Jamestown,JAME,BBC,,669114198,BBC,Jimmies,JAME,Jamestown,D2 Northern Sun Intercollegiate Conference
+1,730147072,Bentley,Bentley,Bentley University,Bentley,BU,BBC,,730147072,BBC,Bentley,BU,Bentley,D2 Northeast-10 Conference
+1,730376960,University of Bridgeport,University of Bridgeport,University of Bridgeport,University of Bridgeport,UOB,BBC,,730376960,BBC,University of Bridgeport,UOB,University of Bridgeport,D2 Central Atlantic Collegiate Conference
+1,730350336,Cal State-Monterey Bay,Cal State-Monterey Bay,Cal State-Monterey Bay,Cal State-Monterey Bay,CSB,BBC,,730350336,BBC,Cal State-Monterey Bay,CSB,Cal State-Monterey Bay,D2 California Collegiate Athletic Association
+1,797746294,Warriors,Cal State Stanislaus,California State University  Stanislaus,Cal State Stanislaus,CSS,BBC,,797746294,BBC,Warriors,CSS,Cal State Stanislaus,D2 California Collegiate Athletic Association
+1,730329600,Cal Poly-Pomona,Cal Poly-Pomona,Cal Poly-Pomona,Cal Poly-Pomona,CP,BBC,,730329600,BBC,Cal Poly-Pomona,CP,Cal Poly-Pomona,D2 California Collegiate Athletic Association
+1,730205952,Cal State-Los Angeles,Cal State-Los Angeles,Cal State-Los Angeles,Cal State-Los Angeles,CSA,BBC,,730205952,BBC,Cal State-Los Angeles,CSA,Cal State-Los Angeles,D2 California Collegiate Athletic Association
+1,730239488,Cal State-San Bernardino,Cal State-San Bernardino,Cal State-San Bernardino,Cal State-San Bernardino,CSB,BBC,,730239488,BBC,Cal State-San Bernardino,CSB,Cal State-San Bernardino,D2 California Collegiate Athletic Association
+1,618871964,Cougars,Cal State San Marcos,Cal State San Marcos,Cal State San Marcos,CSSM,BBC,,618871964,BBC,Cougars,CSSM,Cal State San Marcos,D2 California Collegiate Athletic Association
+1,730145536,"California State University, Chico","California State University, Chico","California State University, Chico","California State University, Chico",CSUC,BBC,,730145536,BBC,"California State University, Chico",CSUC,"California State University, Chico",D2 California Collegiate Athletic Association
+1,798377853,Red Men,Carthage College,Carthage College,Carthage College,CART,BBC,,798377853,BBC,Red Men,CART,Carthage College,D3 College Conference of Illinois & Wisconsin
+1,730274816,Northeastern State,Northeastern State,Northeastern State University,Northeastern State,NSU,BBC,,730274816,BBC,Northeastern State,NSU,Northeastern State,D2 Mid-America Intercollegiate Athletics Association
+1,730376704,University of Central Missouri,University of Central Missouri,University of Central Missouri,University of Central Missouri,UOCM,BBC,,730376704,BBC,University of Central Missouri,UOCM,University of Central Missouri,D2 Mid-America Intercollegiate Athletics Association
+1,673453101,Pirates,Whitworth,Whitworth University,Whitworth,WHIT,BBC,,673453101,BBC,Pirates,WHIT,Whitworth,D3 Northwest Conference
+1,730337280,Central Washington,Central Washington,Central Washington University,Central Washington,CWU,BBC,,730337280,BBC,Central Washington,CWU,Central Washington,D2 Great Northwest Athletic Conference
+1,730384896,Seton Hill,Seton Hill,Seton Hill University,Seton Hill,SHU,BBC,,730384896,BBC,Seton Hill,SHU,Seton Hill,D2 Pennsylvania State Athletic Conference
+1,730224640,Adams State,Adams State,Adams State College,Adams State,ASC,BBC,,730224640,BBC,Adams State,ASC,Adams State,D2 Rocky Mountain Athletic Conference
+1,730344192,Golden Bears,Concordia University (MN),"Concordia University, St. Paul",Concordia University (MN),CUSP,BBC,,730344192,BBC,Golden Bears,CUSP,Concordia University (MN),D2 Northern Sun Intercollegiate Conference
+1,730376448,Bemidji State,Bemidji State,Bemidji State University,Bemidji State,BSU,BBC,,730376448,BBC,Bemidji State,BSU,Bemidji State,D2 Northern Sun Intercollegiate Conference
+1,730255360,Concord,Concord,Concord University,Concord,CU,BBC,,730255360,BBC,Concord,CU,Concord,D2 Mountain East Conference
+1,730244352,Davis and Elkins,Davis and Elkins,Davis and Elkins College,Davis and Elkins,DAEC,BBC,,730244352,BBC,Davis and Elkins,DAEC,Davis and Elkins,D2 Mountain East Conference
+1,730274048,West Virginia State,West Virginia State,West Virginia State University,West Virginia State,WVSU,BBC,,730274048,BBC,West Virginia State,WVSU,West Virginia State,D2 Mountain East Conference
+1,730223360,Post,Post,Post University,Post,PU,BBC,,730223360,BBC,Post,PU,Post,D2 Central Atlantic Collegiate Conference
+1,730387200,Dominican College (N.Y.),Dominican College (N.Y.),Dominican College (N.Y.),Dominican College (N.Y.),DC,BBC,,730387200,BBC,Dominican College (N.Y.),DC,Dominican College (N.Y.),D2 Central Atlantic Collegiate Conference
+1,504543443,Spartans,D'Youville College,D'Youville College,D'Youville College,DYC,BBC,,504543443,BBC,Spartans,DYC,D'Youville College,D2 East Coast Conference
+1,730320128,Molloy,Molloy,Molloy College,Molloy,MC,BBC,,730320128,BBC,Molloy,MC,Molloy,D2 East Coast Conference
+1,730151936,Kutztown,Kutztown,Kutztown University,Kutztown,KU,BBC,,730151936,BBC,Kutztown,KU,Kutztown,D2 Pennsylvania State Athletic Conference
+1,730288128,East Stroudsburg,East Stroudsburg,East Stroudsburg University,East Stroudsburg,ESU,BBC,,730288128,BBC,East Stroudsburg,ESU,East Stroudsburg,D2 Pennsylvania State Athletic Conference
+1,730167808,East Central,East Central,East Central University,East Central,ECU,BBC,,730167808,BBC,East Central,ECU,East Central,D2 Great American Conference
+1,730243328,Southeastern Oklahoma State Univ.,Southeastern Oklahoma State Univ.,Southeastern Oklahoma State Univ.,Southeastern Oklahoma State Univ.,SOSU,BBC,,730243328,BBC,Southeastern Oklahoma State Univ.,SOSU,Southeastern Oklahoma State Univ.,D2 Great American Conference
+1,730182400,Eastern New Mexico,Eastern New Mexico,Eastern New Mexico University,Eastern New Mexico,ENMU,BBC,,730182400,BBC,Eastern New Mexico,ENMU,Eastern New Mexico,D2 Lone Star Conference
+1,730260480,Texas A&M International,Texas A&M International,Texas A&M International University,Texas A&M International,TAIU,BBC,,730260480,BBC,Texas A&M International,TAIU,Texas A&M International,D2 Lone Star Conference
+1,730197248,Wingate,Wingate,Wingate University,Wingate,WU,BBC,,730197248,BBC,Wingate,WU,Wingate,D2 South Atlantic Conference
+1,730385664,Emory and Henry,Emory and Henry,Emory and Henry College,Emory and Henry,EAHC,BBC,,730385664,BBC,Emory and Henry,EAHC,Emory and Henry,D2 South Atlantic Conference
+1,730251008,University of Arkansas-Fort Smith,University of Arkansas-Fort Smith,University of Arkansas-Fort Smith,University of Arkansas-Fort Smith,UOAS,BBC,,730251008,BBC,University of Arkansas-Fort Smith,UOAS,University of Arkansas-Fort Smith,D2 Mid-America Intercollegiate Athletics Association
+1,730286080,Emporia State,Emporia State,Emporia State University,Emporia State,ESU,BBC,,730286080,BBC,Emporia State,ESU,Emporia State,D2 Mid-America Intercollegiate Athletics Association
+1,730207488,West Liberty,West Liberty,West Liberty University,West Liberty,WLU,BBC,,730207488,BBC,West Liberty,WLU,West Liberty,D2 Mountain East Conference
+1,730207744,Fairmont State,Fairmont State,Fairmont State University,Fairmont State,FSU,BBC,,730207744,BBC,Fairmont State,FSU,Fairmont State,D2 Mountain East Conference
+1,730224896,Caldwell,Caldwell,Caldwell University,Caldwell,CU,BBC,,730224896,BBC,Caldwell,CU,Caldwell,D2 Central Atlantic Collegiate Conference
+1,730282240,Felician,Felician,Felician College,Felician,FC,BBC,,730282240,BBC,Felician,FC,Felician,D2 Central Atlantic Collegiate Conference
+1,730256384,Fort Hays State,Fort Hays State,Fort Hays State University,Fort Hays State,FHSU,BBC,,730256384,BBC,Fort Hays State,FHSU,Fort Hays State,D2 Mid-America Intercollegiate Athletics Association
+1,730322432,Northwest Missouri State,Northwest Missouri State,Northwest Missouri State University,Northwest Missouri State,NMSU,BBC,,730322432,BBC,Northwest Missouri State,NMSU,Northwest Missouri State,D2 Mid-America Intercollegiate Athletics Association
+1,730185472,Francis Marion,Francis Marion,Francis Marion University,Francis Marion,FMU,BBC,,730185472,BBC,Francis Marion,FMU,Francis Marion,D2 Conference Carolinas
+1,730343680,Newberry,Newberry,Newberry College,Newberry,NC,BBC,,730343680,BBC,Newberry,NC,Newberry,D2 South Atlantic Conference
+1,730210816,American International,American International,American International College,American International,AIC,BBC,,730210816,BBC,American International,AIC,American International,D2 Northeast-10 Conference
+1,730265856,Franklin Pierce,Franklin Pierce,Franklin Pierce University,Franklin Pierce,FPU,BBC,,730265856,BBC,Franklin Pierce,FPU,Franklin Pierce,D2 Northeast-10 Conference
+1,730266112,Georgia,Georgia,Georgia College,Georgia,GC,BBC,,730266112,BBC,Georgia,GC,Georgia,D2 Peach Belt Conference
+1,730327040,University of North Georgia,University of North Georgia,University of North Georgia,University of North Georgia,UONG,BBC,,730327040,BBC,University of North Georgia,UONG,University of North Georgia,D2 Peach Belt Conference
+1,730165760,Lander,Lander,Lander University,Lander,LU,BBC,,730165760,BBC,Lander,LU,Lander,D2 Peach Belt Conference
+1,514984079,Lions,Georgian Court,Georgian Court,Georgian Court,GEOR,BBC,,514984079,BBC,Lions,GEOR,Georgian Court,D2 Central Atlantic Collegiate Conference
+1,730287872,Spartans,St. Thomas Aquinas,St. Thomas Aquinas College,St. Thomas Aquinas,STAC,BBC,,730287872,BBC,Spartans,STAC,St. Thomas Aquinas,D2 East Coast Conference
+1,730193152,Wilmington,Wilmington,Wilmington University,Wilmington,WU,BBC,,730193152,BBC,Wilmington,WU,Wilmington,D2 Central Atlantic Collegiate Conference
+1,799059612,Tigers,Holy Family,Holy Family,Holy Family,HOLY,BBC,,799059612,BBC,Tigers,HOLY,Holy Family,D2 Central Atlantic Collegiate Conference
+1,730223104,Benedict,Benedict,Benedict College,Benedict,BC,BBC,,730223104,BBC,Benedict,BC,Benedict,D2 Southern Intercol. Ath. Conf.
+1,730269952,Kentucky Wesleyan,Kentucky Wesleyan,Kentucky Wesleyan College,Kentucky Wesleyan,KWC,BBC,,730269952,BBC,Kentucky Wesleyan,KWC,Kentucky Wesleyan,D2 Great Midwest Athletic Conference
+1,727165325,Leopards,La Verne,University of La Verne,La Verne,LA V,BBC,,727165325,BBC,Leopards,LA V,La Verne,D3 Southern California Intercollegiate Athletic Conf.
+1,730162176,University of Findlay,University of Findlay,University of Findlay,University of Findlay,UOF,BBC,,730162176,BBC,University of Findlay,UOF,University of Findlay,D2 Great Midwest Athletic Conference
+1,730319360,Lee,Lee,Lee University,Lee,LU,BBC,,730319360,BBC,Lee,LU,Lee,D2 Gulf South Conference
+1,730268928,Catawba,Catawba,Catawba College,Catawba,CC,BBC,,730268928,BBC,Catawba,CC,Catawba,D2 South Atlantic Conference
+1,730339072,Lincoln Memorial,Lincoln Memorial,Lincoln Memorial University,Lincoln Memorial,LMU,BBC,,730339072,BBC,Lincoln Memorial,LMU,Lincoln Memorial,D2 South Atlantic Conference
+1,702750133,Huskies,Bloomsburg,Bloomsburg,Bloomsburg,BLOO,BBC,,702750133,BBC,Huskies,BLOO,Bloomsburg,D2 Pennsylvania State Athletic Conference
+1,730224384,Mansfield Univ. of Pennsylvania,Mansfield Univ. of Pennsylvania,Mansfield Univ. of Pennsylvania,Mansfield Univ. of Pennsylvania,MUOP,BBC,,730224384,BBC,Mansfield Univ. of Pennsylvania,MUOP,Mansfield Univ. of Pennsylvania,D2 Pennsylvania State Athletic Conference
+1,730365184,Colorado Mesa,Colorado Mesa,Colorado Mesa University,Colorado Mesa,CMU,BBC,,730365184,BBC,Colorado Mesa,CMU,Colorado Mesa,D2 Rocky Mountain Athletic Conference
+1,803923968,Middle Georgia State,Middle Georgia State,Middle Georgia State University,Middle Georgia State,MGS,BBC,,803923968,BBC,Middle Georgia State,MGS,Middle Georgia State,D2 Peach Belt Conference
+1,730248192,University of Minnesota-Duluth,University of Minnesota-Duluth,University of Minnesota-Duluth,University of Minnesota-Duluth,UOM,BBC,,730248192,BBC,University of Minnesota-Duluth,UOM,University of Minnesota-Duluth,D2 Northern Sun Intercollegiate Conference
+1,730327296,University of Minnesota-Crookston,University of Minnesota-Crookston,University of Minnesota-Crookston,University of Minnesota-Crookston,UOM,BBC,,730327296,BBC,University of Minnesota-Crookston,UOM,University of Minnesota-Crookston,D2 Northern Sun Intercollegiate Conference
+1,730186240,Missouri Southern St.,Missouri Southern St.,Missouri Southern St. University,Missouri Southern St.,MSSU,BBC,,730186240,BBC,Missouri Southern St.,MSSU,Missouri Southern St.,D2 Mid-America Intercollegiate Athletics Association
+1,730366208,Rogers State,Rogers State,Rogers State University,Rogers State,RSU,BBC,,730366208,BBC,Rogers State,RSU,Rogers State,D2 Mid-America Intercollegiate Athletics Association
+1,730157056,Pittsburg State,Pittsburg State,Pittsburg State University,Pittsburg State,PSU,BBC,,730157056,BBC,Pittsburg State,PSU,Pittsburg State,D2 Mid-America Intercollegiate Athletics Association
+1,730317568,Missouri Western St.,Missouri Western St.,Missouri Western St. University,Missouri Western St.,MWSU,BBC,,730317568,BBC,Missouri Western St.,MWSU,Missouri Western St.,D2 Mid-America Intercollegiate Athletics Association
+1,730186496,Wayne State,Wayne State,Wayne State College,Wayne State,WSC,BBC,,730186496,BBC,Wayne State,WSC,Wayne State,D2 Northern Sun Intercollegiate Conference
+1,730340352,Northern State,Northern State,Northern State University,Northern State,NSU,BBC,,730340352,BBC,Northern State,NSU,Northern State,D2 Northern Sun Intercollegiate Conference
+1,730348288,George Fox,George Fox,George Fox University,George Fox,GFU,BBC,,730348288,BBC,George Fox,GFU,George Fox,D3 Northwest Conference
+1,509088102,Pacers,William Peace,William Peace,William Peace,WILL,BBC,,509088102,BBC,Pacers,WILL,William Peace,D3 USA South Athletic Conference
+1,626284544,Thomas Jefferson,Thomas Jefferson,Thomas Jefferson University,Thomas Jefferson,TJU,BBC,,626284544,BBC,Thomas Jefferson,TJU,Thomas Jefferson,D2 Central Atlantic Collegiate Conference
+1,730274304,Chestnut Hill,Chestnut Hill,Chestnut Hill College,Chestnut Hill,CHC,BBC,,730274304,BBC,Chestnut Hill,CHC,Chestnut Hill,D2 Central Atlantic Collegiate Conference
+1,609124096,Point Park University (PA),Point Park University (PA),Point Park University (PA),Point Park University (PA),PPU,BBC,,609124096,BBC,Point Park University (PA),PPU,Point Park University (PA),D2 Mountain East Conference
+1,730214912,Wheeling,Wheeling,Wheeling University,Wheeling,WU,BBC,,730214912,BBC,Wheeling,WU,Wheeling,D2 Mountain East Conference
+1,576590080,Purdue University Northwest,Purdue University Northwest,Purdue University Northwest,Purdue University Northwest,PNW,BBC,,576590080,BBC,Purdue University Northwest,PNW,Purdue University Northwest,D2 Great Lakes Intercollegiate Athletic Conference
+1,730156800,Queens,Queens,Queens College,Queens,QC,BBC,,730156800,BBC,Queens,QC,Queens,D2 East Coast Conference
+1,730314752,Mercy,Mercy,Mercy College,Mercy,MC,BBC,,730314752,BBC,Mercy,MC,Mercy,D2 East Coast Conference
+1,730305792,Quincy,Quincy,Quincy University,Quincy,QU,BBC,,730305792,BBC,Quincy,QU,Quincy,D2 Great Lakes Valley Conference
+1,730209536,Rangers,Regis,Regis University,Regis,RU,BBC,,730209536,BBC,Rangers,RU,Regis,D2 Rocky Mountain Athletic Conference
+1,730248448,New Mexico Highlands,New Mexico Highlands,New Mexico Highlands University,New Mexico Highlands,NMHU,BBC,,730248448,BBC,New Mexico Highlands,NMHU,New Mexico Highlands,D2 Rocky Mountain Athletic Conference
+1,730147328,Lewis,Lewis,Lewis University,Lewis,LU,BBC,,730147328,BBC,Lewis,LU,Lewis,D2 Great Lakes Valley Conference
+1,730316288,Frostburg State,Frostburg State,Frostburg State University,Frostburg State,FSU,BBC,,730316288,BBC,Frostburg State,FSU,Frostburg State,D2 Mountain East Conference
+1,523800626,Pioneers,Cal State East Bay,California State University  East Bay,Cal State East Bay,CSEB,BBC,,523800626,BBC,Pioneers,CSEB,Cal State East Bay,D2 California Collegiate Athletic Association
+1,730145280,Adelphi,Adelphi,Adelphi University,Adelphi,AU,BBC,,730145280,BBC,Adelphi,AU,Adelphi,D2 Northeast-10 Conference
+1,730204928,Southern New Hampshire,Southern New Hampshire,Southern New Hampshire University,Southern New Hampshire,SNHU,BBC,,730204928,BBC,Southern New Hampshire,SNHU,Southern New Hampshire,D2 Northeast-10 Conference
+1,730380800,University of Illinois-Springfield,University of Illinois-Springfield,University of Illinois-Springfield,University of Illinois-Springfield,UOI,BBC,,730380800,BBC,University of Illinois-Springfield,UOI,University of Illinois-Springfield,D2 Great Lakes Valley Conference
+1,730382080,Southwest Baptist,Southwest Baptist,Southwest Baptist University,Southwest Baptist,SBU,BBC,,730382080,BBC,Southwest Baptist,SBU,Southwest Baptist,D2 Great Lakes Valley Conference
+1,730316032,University of Mary,University of Mary,University of Mary,University of Mary,UOM,BBC,,730316032,BBC,University of Mary,UOM,University of Mary,D2 Northern Sun Intercollegiate Conference
+1,608977152,Oklahoma Baptist,Oklahoma Baptist,Oklahoma Baptist University,Oklahoma Baptist,OKB,BBC,,608977152,BBC,Oklahoma Baptist,OKB,Oklahoma Baptist,D2 Great American Conference
+1,730195200,Southern Nazarene,Southern Nazarene,Southern Nazarene University,Southern Nazarene,SNU,BBC,,730195200,BBC,Southern Nazarene,SNU,Southern Nazarene,D2 Great American Conference
+1,550573312,USC Beaufort,USC Beaufort,USC Beaufort,USC Beaufort,USCBF,BBC,,550573312,BBC,USC Beaufort,USCBF,USC Beaufort,D2 Peach Belt Conference
+1,730234112,University of South Carolina Aiken,University of South Carolina Aiken,University of South Carolina Aiken,University of South Carolina Aiken,UOSCA,BBC,,730234112,BBC,University of South Carolina Aiken,UOSCA,University of South Carolina Aiken,D2 Peach Belt Conference
+1,730202368,Pace,Pace,Pace University,Pace,PU,BBC,,730202368,BBC,Pace,PU,Pace,D2 Northeast-10 Conference
+1,730344704,Saint Anselm,Saint Anselm,Saint Anselm College,Saint Anselm,SAC,BBC,,730344704,BBC,Saint Anselm,SAC,Saint Anselm,D2 Northeast-10 Conference
+1,730144768,St. Cloud State,St. Cloud State,St. Cloud State University,St. Cloud State,SCSU,BBC,,730144768,BBC,St. Cloud State,SCSU,St. Cloud State,D2 Northern Sun Intercollegiate Conference
+1,730259968,Minot State,Minot State,Minot State University,Minot State,MSU,BBC,,730259968,BBC,Minot State,MSU,Minot State,D2 Northern Sun Intercollegiate Conference
+1,730276096,Sul Ross State,Sul Ross State,Sul Ross State University,Sul Ross State,SRSU,BBC,,730276096,BBC,Sul Ross State,SRSU,Sul Ross State,D2 Lone Star Conference
+1,730301184,Oklahoma Christian,Oklahoma Christian,Oklahoma Christian University,Oklahoma Christian,OCU,BBC,,730301184,BBC,Oklahoma Christian,OCU,Oklahoma Christian,D2 Lone Star Conference
+1,730277888,Lubbock Christian,Lubbock Christian,Lubbock Christian University,Lubbock Christian,LCU,BBC,,730277888,BBC,Lubbock Christian,LCU,Lubbock Christian,D2 Lone Star Conference
+1,730191104,St. Mary's University (TX),St. Mary's University (TX),St. Mary's University (TX),St. Mary's University (TX),SMU,BBC,,730191104,BBC,St. Mary's University (TX),SMU,St. Mary's University (TX),D2 Lone Star Conference
+1,730241536,University of Texas-Tyler,University of Texas-Tyler,University of Texas-Tyler,University of Texas-Tyler,UOT,BBC,,730241536,BBC,University of Texas-Tyler,UOT,University of Texas-Tyler,D2 Lone Star Conference
+1,730304512,Truman State,Truman State,Truman State University,Truman State,TSU,BBC,,730304512,BBC,Truman State,TSU,Truman State,D2 Great Lakes Valley Conference
+1,778445908,Blue Tigers,Lincoln (MO),Lincoln University (Missouri),Lincoln (MO),LMO,BBC,,778445908,BBC,Blue Tigers,LMO,Lincoln (MO),D2 Great Lakes Valley Conference
+1,730175488,Tusculum,Tusculum,Tusculum College,Tusculum,TC,BBC,,730175488,BBC,Tusculum,TC,Tusculum,D2 South Atlantic Conference
+1,730255104,Coker,Coker,Coker College,Coker,CC,BBC,,730255104,BBC,Coker,CC,Coker,D2 South Atlantic Conference
+1,730264320,Missouri S&T,Missouri S&T,Missouri S&T,Missouri S&T,MS,BBC,,730264320,BBC,Missouri S&T,MS,Missouri S&T,D2 Great Lakes Valley Conference
+1,730384128,Washburn University of Topeka,Washburn University of Topeka,Washburn University of Topeka,Washburn University of Topeka,WUOT,BBC,,730384128,BBC,Washburn University of Topeka,WUOT,Washburn University of Topeka,D2 Mid-America Intercollegiate Athletics Association
+1,690388992,West Texas A&M,West Texas A&M,West Texas A&M University,West Texas A&M,WTA,BBC,,690388992,BBC,West Texas A&M,WTA,West Texas A&M,D2 Lone Star Conference
+1,730350848,Texas A&M-Kingsville,Texas A&M-Kingsville,Texas A&M-Kingsville,Texas A&M-Kingsville,TA,BBC,,730350848,BBC,Texas A&M-Kingsville,TA,Texas A&M-Kingsville,D2 Lone Star Conference
+1,730273536,Glenville State,Glenville State,Glenville State College,Glenville State,GSC,BBC,,730273536,BBC,Glenville State,GSC,Glenville State,D2 Mountain East Conference
+1,730316800,West Virginia Wesleyan,West Virginia Wesleyan,West Virginia Wesleyan College,West Virginia Wesleyan,WVWC,BBC,,730316800,BBC,West Virginia Wesleyan,WVWC,West Virginia Wesleyan,D2 Mountain East Conference
+1,730175744,William Jewell,William Jewell,William Jewell College,William Jewell,WJC,BBC,,730175744,BBC,William Jewell,WJC,William Jewell,D2 Great Lakes Valley Conference
+1,730222080,University of Indianapolis,University of Indianapolis,University of Indianapolis,University of Indianapolis,UOI,BBC,,730222080,BBC,University of Indianapolis,UOI,University of Indianapolis,D2 Great Lakes Valley Conference
+1,730227712,Winona State,Winona State,Winona State University,Winona State,WSU,BBC,,730227712,BBC,Winona State,WSU,Winona State,D2 Northern Sun Intercollegiate Conference
+1,730160384,University of Alabama-Huntsville,University of Alabama-Huntsville,University of Alabama-Huntsville,University of Alabama-Huntsville,UOA,BBC,,730160384,BBC,University of Alabama-Huntsville,UOA,University of Alabama-Huntsville,D2 Gulf South Conference
+1,730360576,University of West Alabama,University of West Alabama,University of West Alabama,University of West Alabama,UOWA,BBC,,730360576,BBC,University of West Alabama,UOWA,University of West Alabama,D2 Gulf South Conference
+1,730204160,Mississippi,Mississippi,Mississippi College,Mississippi,MC,BBC,,730204160,BBC,Mississippi,MC,Mississippi,D2 Gulf South Conference
+1,730326016,University of Arkansas-Monticello,University of Arkansas-Monticello,University of Arkansas-Monticello,University of Arkansas-Monticello,UOA,BBC,,730326016,BBC,University of Arkansas-Monticello,UOA,University of Arkansas-Monticello,D2 Great American Conference
+1,730276864,Slippery Rock,Slippery Rock,Slippery Rock University,Slippery Rock,SRU,BBC,,730276864,BBC,Slippery Rock,SRU,Slippery Rock,D2 Pennsylvania State Athletic Conference
+1,730370816,University of Montevallo,University of Montevallo,University of Montevallo,University of Montevallo,UOM,BBC,,730370816,BBC,University of Montevallo,UOM,University of Montevallo,D2 Gulf South Conference
+1,774756608,Auburn Montgomery,Auburn Montgomery,Auburn Montgomery,Auburn Montgomery,AUBMNT,BBC,,774756608,BBC,Auburn Montgomery,AUBMNT,Auburn Montgomery,D2 Gulf South Conference
+1,610500417,Kangaroos,Austin College,Austin College,Austin College,AUST,BBC,,610500417,BBC,Kangaroos,AUST,Austin College,D3 Southern Collegiate Athletic Conference
+1,630703733,Cougars,Averett University,Averett University,Averett University,AVER,BBC,,630703733,BBC,Cougars,AVER,Averett University,D3 Old Dominion Athletic Conf.
+1,730174720,Barry,Barry,Barry University,Barry,BU,BBC,,730174720,BBC,Barry,BU,Barry,D2 Sunshine State Conference
+1,730243072,Florida Tech,Florida Tech,Florida Tech,Florida Tech,FT,BBC,,730243072,BBC,Florida Tech,FT,Florida Tech,D2 Sunshine State Conference
+1,730188800,Barton,Barton,Barton College,Barton,BC,BBC,,730188800,BBC,Barton,BC,Barton,D2 Conference Carolinas
+1,730326528,UNC Pembroke,UNC Pembroke,UNC Pembroke,UNC Pembroke,UP,BBC,,730326528,BBC,UNC Pembroke,UP,UNC Pembroke,D2 Conference Carolinas
+1,730228992,King,King,King University,King,KU,BBC,,730228992,BBC,King,KU,King,D2 Conference Carolinas
+1,730285824,Belmont Abbey,Belmont Abbey,Belmont Abbey College,Belmont Abbey,BAC,BBC,,730285824,BBC,Belmont Abbey,BAC,Belmont Abbey,D2 Conference Carolinas
+1,742533120,Biola,Biola,Biola University,Biola,BIO,BBC,,742533120,BBC,Biola,BIO,Biola,D2 Pacific West Conference
+1,730230784,California University of Pennsylvania,California University of Pennsylvania,California University of Pennsylvania,California University of Pennsylvania,CUOP,BBC,,730230784,BBC,California University of Pennsylvania,CUOP,California University of Pennsylvania,D2 Pennsylvania State Athletic Conference
+1,730180352,Cameron,Cameron,Cameron University,Cameron,CU,BBC,,730180352,BBC,Cameron,CU,Cameron,D2 Lone Star Conference
+1,730381568,Angelo State,Angelo State,Angelo State University,Angelo State,ASU,BBC,,730381568,BBC,Angelo State,ASU,Angelo State,D2 Lone Star Conference
+1,730181120,Mars Hill,Mars Hill,Mars Hill University,Mars Hill,MHU,BBC,,730181120,BBC,Mars Hill,MHU,Mars Hill,D2 South Atlantic Conference
+1,730297344,Carson-Newman,Carson-Newman,Carson-Newman College,Carson-Newman,CC,BBC,,730297344,BBC,Carson-Newman,CC,Carson-Newman,D2 South Atlantic Conference
+1,730197760,University of Central Oklahoma,University of Central Oklahoma,University of Central Oklahoma,University of Central Oklahoma,UOCO,BBC,,730197760,BBC,University of Central Oklahoma,UOCO,University of Central Oklahoma,D2 Mid-America Intercollegiate Athletics Association
+1,730179072,University of Mount Olive,University of Mount Olive,University of Mount Olive,University of Mount Olive,MOC,BBC,,730179072,BBC,University of Mount Olive,MOC,University of Mount Olive,D2 Conference Carolinas
+1,730278912,Chowan,Chowan,Chowan University,Chowan,CU,BBC,,730278912,BBC,Chowan,CU,Chowan,D2 Conference Carolinas
+1,687190241,Panthers,Claflin,Claflin University,Claflin,CLAF,BBC,,687190241,BBC,Panthers,CLAF,Claflin,D2 Peach Belt Conference
+1,730150912,Columbus State,Columbus State,Columbus State University,Columbus State,CSU,BBC,,730150912,BBC,Columbus State,CSU,Columbus State,D2 Peach Belt Conference
+1,730359296,College of Staten Island,College of Staten Island,College of Staten Island,College of Staten Island,COSI,BBC,,730359296,BBC,College of Staten Island,COSI,College of Staten Island,D2 East Coast Conference
+1,782546176,Concordia University Irvine,Concordia University Irvine,Concordia University Irvine,Concordia University Irvine,CUI,BBC,,782546176,BBC,Concordia University Irvine,CUI,Concordia University Irvine,D2 Pacific West Conference
+1,711856769,Bishops,Ohio Wesleyan,Ohio Wesleyan,Ohio Wesleyan,OHIO,BBC,,711856769,BBC,Bishops,OHIO,Ohio Wesleyan,D3 North Coast Athletic Conference
+1,514359582,Panthers,Clark Atlanta,Clark Atlanta University,Clark Atlanta,CLAR,BBC,,514359582,BBC,Panthers,CLAR,Clark Atlanta,D2 Southern Intercol. Ath. Conf.
+1,632347648,Edward Waters,Edward Waters,Edward Waters,Edward Waters,EDW,BBC,,632347648,BBC,Edward Waters,EDW,Edward Waters,D2 Southern Intercol. Ath. Conf.
+1,730244608,Young Harris,Young Harris,Young Harris College,Young Harris,YHC,BBC,,730244608,BBC,Young Harris,YHC,Young Harris,D2 Conference Carolinas
+1,730160896,Shorter,Shorter,Shorter University,Shorter,SU,BBC,,730160896,BBC,Shorter,SU,Shorter,D2 Conference Carolinas
+1,730241280,Erskine,Erskine,Erskine College,Erskine,EC,BBC,,730241280,BBC,Erskine,EC,Erskine,D2 Conference Carolinas
+1,783524464,Panthers,Ferrum College,Ferrum College,Ferrum College,FERR,BBC,,783524464,BBC,Panthers,FERR,Ferrum College,D2 Conference Carolinas
+1,730302464,Palm Beach Atlantic,Palm Beach Atlantic,Palm Beach Atlantic University,Palm Beach Atlantic,PBAU,BBC,,730302464,BBC,Palm Beach Atlantic,PBAU,Palm Beach Atlantic,D2 Sunshine State Conference
+1,730295296,Gannon,Gannon,Gannon University,Gannon,GU,BBC,,730295296,BBC,Gannon,GU,Gannon,D2 Pennsylvania State Athletic Conference
+1,730171392,Lock Haven,Lock Haven,Lock Haven University,Lock Haven,LHU,BBC,,730171392,BBC,Lock Haven,LHU,Lock Haven,D2 Pennsylvania State Athletic Conference
+1,774900197,Pipers,Hamline,Hamline University,Hamline,HAML,BBC,,774900197,BBC,Pipers,HAML,Hamline,D3 Minnesota Intercollegiate Athletic Conference
+1,730195968,Harding,Harding,Harding University,Harding,HU,BBC,,730195968,BBC,Harding,HU,Harding,D2 Great American Conference
+1,730208000,University of Pittsburgh-Johnstown,University of Pittsburgh-Johnstown,University of Pittsburgh-Johnstown,University of Pittsburgh-Johnstown,UOP,BBC,,730208000,BBC,University of Pittsburgh-Johnstown,UOP,University of Pittsburgh-Johnstown,D2 Pennsylvania State Athletic Conference
+1,730314496,Indiana University of Pennsylvania,Indiana University of Pennsylvania,Indiana University of Pennsylvania,Indiana University of Pennsylvania,IUOP,BBC,,730314496,BBC,Indiana University of Pennsylvania,IUOP,Indiana University of Pennsylvania,D2 Pennsylvania State Athletic Conference
+1,714643885,Comets,Texas Dallas,University of Texas at Dallas,Texas Dallas,TEXA,BBC,,714643885,BBC,Comets,TEXA,Texas Dallas,D2 Lone Star Conference
+1,730251776,Virginia's College at Wise,Virginia's College at Wise,Virginia's College at Wise,Virginia's College at Wise,VCAW,BBC,,730251776,BBC,Virginia's College at Wise,VCAW,Virginia's College at Wise,D2 South Atlantic Conference
+1,730272000,Fresno Pacific,Fresno Pacific,Fresno Pacific University,Fresno Pacific,FPU,BBC,,730272000,BBC,Fresno Pacific,FPU,Fresno Pacific,D2 Pacific West Conference
+1,730357504,Millersville,Millersville,Millersville University,Millersville,MU,BBC,,730357504,BBC,Millersville,MU,Millersville,D2 Pennsylvania State Athletic Conference
+1,730268416,North Greenville,North Greenville,North Greenville University,North Greenville,NGU,BBC,,730268416,BBC,North Greenville,NGU,North Greenville,D2 Conference Carolinas
+1,730313728,Southern Wesleyan,Southern Wesleyan,Southern Wesleyan University,Southern Wesleyan,SWU,BBC,,730313728,BBC,Southern Wesleyan,SWU,Southern Wesleyan,D2 Conference Carolinas
+1,730173184,Northwestern Oklahoma State Univ.,Northwestern Oklahoma State Univ.,Northwestern Oklahoma State Univ.,Northwestern Oklahoma State Univ.,NOSU,BBC,,730173184,BBC,Northwestern Oklahoma State Univ.,NOSU,Northwestern Oklahoma State Univ.,D2 Great American Conference
+1,730181632,Southwestern Oklahoma State Univ.,Southwestern Oklahoma State Univ.,Southwestern Oklahoma State Univ.,Southwestern Oklahoma State Univ.,SOSU,BBC,,730181632,BBC,Southwestern Oklahoma State Univ.,SOSU,Southwestern Oklahoma State Univ.,D2 Great American Conference
+1,730161920,Florida Southern,Florida Southern,Florida Southern College,Florida Southern,FSC,BBC,,730161920,BBC,Florida Southern,FSC,Florida Southern,D2 Sunshine State Conference
+1,730162944,Nova Southeastern,Nova Southeastern,Nova Southeastern University,Nova Southeastern,NSU,BBC,,730162944,BBC,Nova Southeastern,NSU,Nova Southeastern,D2 Sunshine State Conference
+1,730222848,Ohio Dominican,Ohio Dominican,Ohio Dominican University,Ohio Dominican,ODU,BBC,,730222848,BBC,Ohio Dominican,ODU,Ohio Dominican,D2 Great Midwest Athletic Conference
+1,730269184,Ouachita Baptist,Ouachita Baptist,Ouachita Baptist University,Ouachita Baptist,OBU,BBC,,730269184,BBC,Ouachita Baptist,OBU,Ouachita Baptist,D2 Great American Conference
+1,674823680,Embry-Riddle,Embry-Riddle,Embry-Riddle University,Embry-Riddle,ERAU,BBC,,674823680,BBC,Embry-Riddle,ERAU,Embry-Riddle,D2 Sunshine State Conference
+1,590076486,Defenders,Penn State Berks College,Penn State Berks College,Penn State Berks College,PSBC,BBC,,590076486,BBC,Defenders,PSBC,Penn State Berks College,D3 United East Conference
+1,730174464,Azusa Pacific,Azusa Pacific,Azusa Pacific University,Azusa Pacific,APU,BBC,,730174464,BBC,Azusa Pacific,APU,Azusa Pacific,D2 Pacific West Conference
+1,730367488,Point Loma,Point Loma,Point Loma,Point Loma,PL,BBC,,730367488,BBC,Point Loma,PL,Point Loma,D2 Pacific West Conference
+1,692970945,Bulldogs,Redlands,University of Redlands,Redlands,REDL,BBC,,692970945,BBC,Bulldogs,REDL,Redlands,D3 Southern California Intercollegiate Athletic Conf.
+1,502633579,Regents,Rockford,Rockford College,Rockford,ROCK,BBC,,502633579,BBC,Regents,ROCK,Rockford,D3 Northern Athletics Conference
+1,730235136,Saint Leo,Saint Leo,Saint Leo University,Saint Leo,SLU,BBC,,730235136,BBC,Saint Leo,SLU,Saint Leo,D2 Sunshine State Conference
+1,730379008,Fighting Knights,Lynn,Lynn University,Lynn,LYNN,BBC,,730379008,BBC,Fighting Knights,LYNN,Lynn,D2 Sunshine State Conference
+1,568519009,Maroon Tigers,Morehouse,Morehouse College,Morehouse,MORE,BBC,,568519009,BBC,Maroon Tigers,MORE,Morehouse,D2 Southern Intercol. Ath. Conf.
+1,730248704,Shepherd,Shepherd,Shepherd University,Shepherd,SU,BBC,,730248704,BBC,Shepherd,SU,Shepherd,D2 Pennsylvania State Athletic Conference
+1,730354944,Shippensburg,Shippensburg,Shippensburg University,Shippensburg,SU,BBC,,730354944,BBC,Shippensburg,SU,Shippensburg,D2 Pennsylvania State Athletic Conference
+1,730339584,Southern Arkansas,Southern Arkansas,Southern Arkansas University,Southern Arkansas,SAU,BBC,,730339584,BBC,Southern Arkansas,SAU,Southern Arkansas,D2 Great American Conference
+1,730370048,Albany State,Albany State,Albany State University,Albany State,ASU,BBC,,730370048,BBC,Albany State,ASU,Albany State,D2 Southern Intercol. Ath. Conf.
+1,730236672,Saint Michael's,Saint Michael's,Saint Michael's College,Saint Michael's,SMC,BBC,,730236672,BBC,Saint Michael's,SMC,Saint Michael's,D2 Northeast-10 Conference
+1,730247168,University of Tampa,University of Tampa,University of Tampa,University of Tampa,UOT,BBC,,730247168,BBC,University of Tampa,UOT,University of Tampa,D2 Sunshine State Conference
+1,730259456,Eckerd,Eckerd,Eckerd College,Eckerd,EC,BBC,,730259456,BBC,Eckerd,EC,Eckerd,D2 Sunshine State Conference
+1,730226176,Thomas More,Thomas More,Thomas More College,Thomas More,TMC,BBC,,730226176,BBC,Thomas More,TMC,Thomas More,D2 Great Midwest Athletic Conference
+1,730219008,Valdosta State,Valdosta State,Valdosta State University,Valdosta State,VSU,BBC,,730219008,BBC,Valdosta State,VSU,Valdosta State,D2 Gulf South Conference
+1,730338048,University of West Florida,University of West Florida,University of West Florida,University of West Florida,UOWF,BBC,,730338048,BBC,University of West Florida,UOWF,University of West Florida,D2 Gulf South Conference
+1,650031616,Westmont College,Westmont College,Westmont College,Westmont College,WSTMT,BBC,,650031616,BBC,Westmont College,WSTMT,Westmont College,D2 Pacific West Conference
+1,730262784,Montana St. University Billings,Montana St. University Billings,Montana St. University Billings,Montana St. University Billings,MSUB,BBC,,730262784,BBC,Montana St. University Billings,MSUB,Montana St. University Billings,D2 Great Northwest Athletic Conference
+1,730237696,St. Edward's University Hilltoppers,St. Edward's University Hilltoppers,St. Edward's University Hilltoppers,St. Edward's University Hilltoppers,SEU,BBC,,730237696,BBC,St. Edward's University Hilltoppers,SEU,St. Edward's University Hilltoppers,D2 Lone Star Conference
+1,730305536,Arkansas Tech,Arkansas Tech,Arkansas Tech University,Arkansas Tech,ATU,BBC,,730305536,BBC,Arkansas Tech,ATU,Arkansas Tech,D2 Great American Conference
+1,730200576,Cal State-Dominguez Hills,Cal State-Dominguez Hills,Cal State-Dominguez Hills,Cal State-Dominguez Hills,CSH,BBC,,730200576,BBC,Cal State-Dominguez Hills,CSH,Cal State-Dominguez Hills,D2 California Collegiate Athletic Association
+1,777752536,Warriors,Jessup,Jessup,Jessup,JESS,BBC,,777752536,BBC,Warriors,JESS,Jessup,D2 Pacific West Conference
+1,631641343,Sabercats,Maranatha Baptist Bible College,Maranatha Baptist Bible College,Maranatha Baptist Bible College,MBBC,BBC,,631641343,BBC,Sabercats,MBBC,Maranatha Baptist Bible College,D3 Independent
+1,998008116,Wildcats,Johnson and Wales Charlotte,Johnson and Wales Charlotte,Johnson and Wales Charlotte,JWC,BBC,,998008116,BBC,Wildcats,JWC,Johnson and Wales Charlotte,D3 Coast to Coast Athletic Conference
+1,730212352,Hawks,Hartford,University of Hartford,Hartford,HART,BBC,,730212352,BBC,Hawks,HART,Hartford,D3 Commonwealth Coast Conference
+1,730159104,Ithaca,Ithaca,Ithaca College,Ithaca,IC,BBC,,730159104,BBC,Ithaca,IC,Ithaca,D3 Liberty League
+1,730233856,Alma,Alma,Alma College,Alma,AC,BBC,,730233856,BBC,Alma,AC,Alma,D3 Michigan Intercol. Ath. Assn.
+1,730331392,Illinois Wesleyan,Illinois Wesleyan,Illinois Wesleyan University,Illinois Wesleyan,IWU,BBC,,730331392,BBC,Illinois Wesleyan,IWU,Illinois Wesleyan,D3 College Conference of Illinois & Wisconsin
+1,730321664,Loras,Loras,Loras College,Loras,LC,BBC,,730321664,BBC,Loras,LC,Loras,D3 American Rivers Conference
+1,730159872,Cairn,Cairn,Cairn University,Cairn,CU,BBC,,730159872,BBC,Cairn,CU,Cairn,D3 United East Conference
+1,730211328,Blackburn,Blackburn,Blackburn College,Blackburn,BC,BBC,,730211328,BBC,Blackburn,BC,Blackburn,D3 St. Louis Intercollegiate Athletic Conference
+1,730192896,Linfield,Linfield,Linfield College,Linfield,LC,BBC,,730192896,BBC,Linfield,LC,Linfield,D3 Northwest Conference
+1,730284800,Concordia University Wisconsin,Concordia University Wisconsin,Concordia University Wisconsin,Concordia University Wisconsin,CUW,BBC,,730284800,BBC,Concordia University Wisconsin,CUW,Concordia University Wisconsin,D3 Northern Athletics Conference
+1,730227968,Carroll,Carroll,Carroll University,Carroll,CU,BBC,,730227968,BBC,Carroll,CU,Carroll,D3 College Conference of Illinois & Wisconsin
+1,730215936,Milwaukee School of Engineering,Milwaukee School of Engineering,Milwaukee School of Engineering,Milwaukee School of Engineering,MSOE,BBC,,730215936,BBC,Milwaukee School of Engineering,MSOE,Milwaukee School of Engineering,D3 Northern Athletics Conference
+1,730378752,North Park,North Park,North Park University,North Park,NPU,BBC,,730378752,BBC,North Park,NPU,North Park,D3 College Conference of Illinois & Wisconsin
+1,730146560,Husson,Husson,Husson University,Husson,HU,BBC,,730146560,BBC,Husson,HU,Husson,D3 North Atlantic Conference
+1,730180608,St. Olaf,St. Olaf,St. Olaf College,St. Olaf,SOC,BBC,,730180608,BBC,St. Olaf,SOC,St. Olaf,D3 Minnesota Intercollegiate Athletic Conference
+1,730268672,DePauw,DePauw,DePauw University,DePauw,DU,BBC,,730268672,BBC,DePauw,DU,DePauw,D3 North Coast Athletic Conference
+1,556193615,Beavers,Maine Farmington,University of Maine  Farmington,Maine Farmington,MAIN,BBC,,556193615,BBC,Beavers,MAIN,Maine Farmington,D3 North Atlantic Conference
+1,544796882,Sagehens,Pomona Pitzer,Pomona-Pitzer Colleges,Pomona Pitzer,POMO,BBC,,544796882,BBC,Sagehens,POMO,Pomona Pitzer,D3 Southern California Intercollegiate Athletic Conf.
+1,566984419,Kohawks,Coe College,Coe College,Coe College,COE,BBC,,566984419,BBC,Kohawks,COE,Coe College,D3 American Rivers Conference
+1,603199701,Terriers,Thomas,Thomas College,Thomas,THOM,BBC,,603199701,BBC,Terriers,THOM,Thomas,D3 North Atlantic Conference
+1,730334976,Baldwin Wallace,Baldwin Wallace,Baldwin Wallace University,Baldwin Wallace,BWU,BBC,,730334976,BBC,Baldwin Wallace,BWU,Baldwin Wallace,D3 Ohio Athletic Conference
+1,730149376,Bowdoin,Bowdoin,Bowdoin College,Bowdoin,BC,BBC,,730149376,BBC,Bowdoin,BC,Bowdoin,D3 New England Small College Athletic Conference
+1,730347008,Manchester,Manchester,Manchester University,Manchester,MU,BBC,,730347008,BBC,Manchester,MU,Manchester,D3 Heartland Collegiate Athletic Conference
+1,730292992,Williams,Williams,Williams College,Williams,WC,BBC,,730292992,BBC,Williams,WC,Williams,D3 New England Small College Athletic Conference
+1,730159360,Hope,Hope,Hope College,Hope,HC,BBC,,730159360,BBC,Hope,HC,Hope,D3 Michigan Intercol. Ath. Assn.
+1,730300160,Wheaton College (IL),Wheaton College (IL),Wheaton College (IL),Wheaton College (IL),WC,BBC,,730300160,BBC,Wheaton College (IL),WC,Wheaton College (IL),D3 College Conference of Illinois & Wisconsin
+1,730223616,Cornell,Cornell,Cornell College,Cornell,CC,BBC,,730223616,BBC,Cornell,CC,Cornell,D3 Midwest Conference
+1,730250752,Colby,Colby,Colby College,Colby,CC,BBC,,730250752,BBC,Colby,CC,Colby,D3 New England Small College Athletic Conference
+1,630445824,University of St. Thomas,University of St. Thomas,University of St. Thomas,University of St. Thomas,UST,BBC,,630445824,BBC,University of St. Thomas,UST,University of St. Thomas,D3 Southern Collegiate Athletic Conference
+1,730246400,Olivet,Olivet,Olivet College,Olivet,OC,BBC,,730246400,BBC,Olivet,OC,Olivet,D3 Michigan Intercol. Ath. Assn.
+1,730262016,Wittenberg,Wittenberg,Wittenberg University,Wittenberg,WU,BBC,,730262016,BBC,Wittenberg,WU,Wittenberg,D3 North Coast Athletic Conference
+1,783755641,Cobbers,Concordia Moorhead,Concordia College  Moorhead,Concordia Moorhead,CONC,BBC,,783755641,BBC,Cobbers,CONC,Concordia Moorhead,D3 Minnesota Intercollegiate Athletic Conference
+1,730235904,Pacific Lutheran,Pacific Lutheran,Pacific Lutheran University,Pacific Lutheran,PLU,BBC,,730235904,BBC,Pacific Lutheran,PLU,Pacific Lutheran,D3 Northwest Conference
+1,730188288,Augustana College (IL),Augustana College (IL),Augustana College (IL),Augustana College (IL),AC,BBC,,730188288,BBC,Augustana College (IL),AC,Augustana College (IL),D3 College Conference of Illinois & Wisconsin
+1,602779764,Giants,Keystone,Keystone College,Keystone,KEYS,BBC,,602779764,BBC,Giants,KEYS,Keystone,D3 United East Conference
+1,730373632,Red Devils,Eureka,Eureka College,Eureka,EC,BBC,,730373632,BBC,Red Devils,EC,Eureka,D3 St. Louis Intercollegiate Athletic Conference
+1,577162405,Ravens,Anderson (IN),Anderson University (Indiana),Anderson (IN),AIN,BBC,,577162405,BBC,Ravens,AIN,Anderson (IN),D3 Heartland Collegiate Athletic Conference
+1,730226688,Middlebury,Middlebury,Middlebury College,Middlebury,MC,BBC,,730226688,BBC,Middlebury,MC,Middlebury,D3 New England Small College Athletic Conference
+1,666821657,Blueboys,Illinois College,Illinois College,Illinois College,ILLI,BBC,,666821657,BBC,Blueboys,ILLI,Illinois College,D3 Midwest Conference
+1,730184704,Maroons,Chicago,University of Chicago,Chicago,UCH,BBC,,730184704,BBC,Maroons,UCH,Chicago,D3 University Athletic Association
+1,730381824,Simpson,Simpson,Simpson College,Simpson,SC,BBC,,730381824,BBC,Simpson,SC,Simpson,D3 American Rivers Conference
+1,730277632,Lynchburg,Lynchburg,Lynchburg College,Lynchburg,LC,BBC,,730277632,BBC,Lynchburg,LC,Lynchburg,D3 Old Dominion Athletic Conf.
+1,710400022,Auggies,Augsburg College,Augsburg College,Augsburg College,AUGS,BBC,,710400022,BBC,Auggies,AUGS,Augsburg College,D3 Minnesota Intercollegiate Athletic Conference
+1,528646540,Saints,St. Scholastica,College of St. Scholastica,St. Scholastica,ST.,BBC,,528646540,BBC,Saints,ST.,St. Scholastica,D3 Minnesota Intercollegiate Athletic Conference
+1,550841745,Profs,Rowan,Rowan University,Rowan,ROWA,BBC,,550841745,BBC,Profs,ROWA,Rowan,D3 New Jersey Athletic Conference
+1,744971562,Muskies,Lakeland,Lakeland College,Lakeland,LAKE,BBC,,744971562,BBC,Muskies,LAKE,Lakeland,D3 Northern Athletics Conference
+1,615060990,Green Knights,St. Norbert's,St. Norbert College,St. Norbert's,ST.,BBC,,615060990,BBC,Green Knights,ST.,St. Norbert's,D3 Northern Athletics Conference
+1,516556216,Spartans,Aurora,Aurora University,Aurora,AURO,BBC,,516556216,BBC,Spartans,AURO,Aurora,D3 Northern Athletics Conference
+1,730189824,LeTourneau,LeTourneau,LeTourneau University,LeTourneau,LU,BBC,,730189824,BBC,LeTourneau,LU,LeTourneau,D3 Southern Collegiate Athletic Conference
+1,606786219,Spartans,Case Western,Case Western Reserve University,Case Western,CASE,BBC,,606786219,BBC,Spartans,CASE,Case Western,D3 University Athletic Association
+1,709458879,Gents,Centenary,Centenary College (Louisiana),Centenary,CENT,BBC,,709458879,BBC,Gents,CENT,Centenary,D3 Southern Collegiate Athletic Conference
+1,544754380,Falcons,Wisconsin River Falls,Wisconsin River Falls,Wisconsin River Falls,WRF,BBC,,544754380,BBC,Falcons,WRF,Wisconsin River Falls,D3 Wisconsin Intercollegiate Athletic Conference
+1,521887367,Presidents,Washington and Jefferson,Washington and Jefferson College,Washington and Jefferson,WASH,BBC,,521887367,BBC,Presidents,WASH,Washington and Jefferson,D3 Presidents' Athletic Conference
+1,507798810,Blazers,Hood College,Hood College,Hood College,HOOD,BBC,,507798810,BBC,Blazers,HOOD,Hood College,D3 Middle Atlantic Commonwealth Conference
+1,502497555,Red Hawks,La Roche (PA),La Roche College,La Roche (PA),LRPA,BBC,,502497555,BBC,Red Hawks,LRPA,La Roche (PA),D3 Allegheny Mountain Collegiate Conference
+1,544838279,Pioneers,Alfred State College,Alfred State College,Alfred State College,ASC,BBC,,544838279,BBC,Pioneers,ASC,Alfred State College,D3 Allegheny Mountain Collegiate Conference
+1,518050633,Saxons,Alfred,Alfred,Alfred,ALFR,BBC,,518050633,BBC,Saxons,ALFR,Alfred,D3 Empire 8
+1,524291940,Golden Eagles,Brockport,State University College at Brockport,Brockport,BROC,BBC,,524291940,BBC,Golden Eagles,BROC,Brockport,D3 Empire 8
+1,780749446,Fightin' Engineers,Rose Hulman,RoseHulman Institute of Technology,Rose Hulman,ROSE,BBC,,780749446,BBC,Fightin' Engineers,ROSE,Rose Hulman,D3 Heartland Collegiate Athletic Conference
+1,571542574,Amcats,Anna Maria College,Anna Maria College,Anna Maria College,AMC,BBC,,571542574,BBC,Amcats,AMC,Anna Maria College,D3 Massachusetts State College Athletic Conference
+1,707015785,Lasers,Lasell,Lasell College,Lasell,LASE,BBC,,707015785,BBC,Lasers,LASE,Lasell,D3 Great Northeast Athletic Conference
+1,723814266,Gorloks,Webster,Webster University,Webster,WEBS,BBC,,723814266,BBC,Gorloks,WEBS,Webster,D3 St. Louis Intercollegiate Athletic Conference
+1,641565404,Bears,U.S. Coast Guard Academy,U.S. Coast Guard Academy,U.S. Coast Guard Academy,USCG,BBC,,641565404,BBC,Bears,USCG,U.S. Coast Guard Academy,D3 New England Women's & Men's Athletic Conference
+1,775102560,Beavers,Babson College,Babson College,Babson College,BABS,BBC,,775102560,BBC,Beavers,BABS,Babson College,D3 New England Women's & Men's Athletic Conference
+1,628809746,Raptors,Bard College,Bard College,Bard College,BARD,BBC,,628809746,BBC,Raptors,BARD,Bard College,D3 Liberty League
+1,794448481,Brewers,Vassar College,Vassar College,Vassar College,VASS,BBC,,794448481,BBC,Brewers,VASS,Vassar College,D3 Liberty League
+1,547512281,Mountaineers,Berea College,Berea College,Berea College,BERE,BBC,,547512281,BBC,Mountaineers,BERE,Berea College,D3 Heartland Collegiate Athletic Conference
+1,584394712,Judges,Brandeis,Brandeis University,Brandeis,BRAN,BBC,,584394712,BBC,Judges,BRAN,Brandeis,D3 University Athletic Association
+1,619400827,Fighting Squirrels,Mary Baldwin,Mary Baldwin,Mary Baldwin,MARY,BBC,,619400827,BBC,Fighting Squirrels,MARY,Mary Baldwin,D3 USA South Athletic Conference
+1,730234624,Brevard,Brevard,Brevard College,Brevard,BC,BBC,,730234624,BBC,Brevard,BC,Brevard,D3 USA South Athletic Conference
+1,561232848,Bears,Bridgewater State,Bridgewater State College,Bridgewater State,BRID,BBC,,561232848,BBC,Bears,BRID,Bridgewater State,D3 Massachusetts State College Athletic Conference
+1,704549751,Trailblazers,Massachusetts College of Liberal Arts,Massachusetts College of Liberal Arts,Massachusetts College of Liberal Arts,MCLA,BBC,,704549751,BBC,Trailblazers,MCLA,Massachusetts College of Liberal Arts,D3 Massachusetts State College Athletic Conference
+1,656308156,Knights,Carleton College,Carleton College,Carleton College,CARL,BBC,,656308156,BBC,Knights,CARL,Carleton College,D3 Minnesota Intercollegiate Athletic Conference
+1,726465526,Norse,Luther College,Luther College,Luther College,LUTH,BBC,,726465526,BBC,Norse,LUTH,Luther College,D3 American Rivers Conference
+1,617865360,Violets,New York University,New York University,New York University,NYU,BBC,,617865360,BBC,Violets,NYU,New York University,D3 University Athletic Association
+1,523444307,Stags,Claremont,Claremont McKennaHarvey MuddScripps Colleges,Claremont,CLAR,BBC,,523444307,BBC,Stags,CLAR,Claremont,D3 Southern California Intercollegiate Athletic Conf.
+1,707935036,Beavers,Cal Tech,California Institute of Technology,Cal Tech,CAL,BBC,,707935036,BBC,Beavers,CAL,Cal Tech,D3 Southern California Intercollegiate Athletic Conf.
+1,611599890,Fighting Tigers,Cobleskill State,Cobleskill State,Cobleskill State,COBL,BBC,,611599890,BBC,Fighting Tigers,COBL,Cobleskill State,D3 North Atlantic Conference
+1,661742312,Lynx,Lesley,Lesley University,Lesley,LESL,BBC,,661742312,BBC,Lynx,LESL,Lesley,D3 North Atlantic Conference
+1,772232009,Jumbos,Tufts,Tufts University,Tufts,TUFT,BBC,,772232009,BBC,Jumbos,TUFT,Tufts,D3 New England Small College Athletic Conference
+1,535234825,Lions,College of New Jersey,The College of New Jersey,College of New Jersey,CNJ,BBC,,535234825,BBC,Lions,CNJ,College of New Jersey,D3 New Jersey Athletic Conference
+1,744340779,Red Hawks,Montclair State,Montclair State University,Montclair State,MONT,BBC,,744340779,BBC,Red Hawks,MONT,Montclair State,D3 New Jersey Athletic Conference
+1,693512261,Prairie Fire,Knox College,Knox College,Knox College,KNOX,BBC,,693512261,BBC,Prairie Fire,KNOX,Knox College,D3 Midwest Conference
+1,538036915,Red Devils,Dickinson,Dickinson College,Dickinson,DICK,BBC,,538036915,BBC,Red Devils,DICK,Dickinson,D3 Centennial Conference
+1,714249909,Black Squirrels,Haverford,Haverford College,Haverford,HAVE,BBC,,714249909,BBC,Black Squirrels,HAVE,Haverford,D3 Centennial Conference
+1,781887413,Stars,Dominican University (Illinois),Dominican University (Illinois),Dominican University (Illinois),DUI,BBC,,781887413,BBC,Stars,DUI,Dominican University (Illinois),D3 Northern Athletics Conference
+1,688532626,Grizzlies,Franklin,Franklin College,Franklin,FRAN,BBC,,688532626,BBC,Grizzlies,FRAN,Franklin,D3 Heartland Collegiate Athletic Conference
+1,713210860,Quakers,Earlham College,Earlham College,Earlham College,EARL,BBC,,713210860,BBC,Quakers,EARL,Earlham College,D3 Heartland Collegiate Athletic Conference
+1,542072750,Eagles,Eastern University,Eastern University,Eastern University,EAST,BBC,,542072750,BBC,Eagles,EAST,Eastern University,D3 Middle Atlantic Commonwealth Conference
+1,550106018,Mustangs,Stevenson University,Stevenson University,Stevenson University,STEV,BBC,,550106018,BBC,Mustangs,STEV,Stevenson University,D3 Middle Atlantic Commonwealth Conference
+1,587440773,Blue Jays,Elizabethtown College,Elizabethtown College,Elizabethtown College,ELIZ,BBC,,587440773,BBC,Blue Jays,ELIZ,Elizabethtown College,D3 Landmark Conference
+1,765706096,Rangers,Drew,Drew University,Drew,DREW,BBC,,765706096,BBC,Rangers,DREW,Drew,D3 Landmark Conference
+1,609058451,Big Blue,Milliken,Millikin University,Milliken,MILL,BBC,,609058451,BBC,Big Blue,MILL,Milliken,D3 College Conference of Illinois & Wisconsin
+1,672654920,Bluejays,Elmhurst,Elmhurst College,Elmhurst,ELMH,BBC,,672654920,BBC,Bluejays,ELMH,Elmhurst,D3 College Conference of Illinois & Wisconsin
+1,648324536,Blazers,Elms College,Elms College,Elms College,ELMS,BBC,,648324536,BBC,Blazers,ELMS,Elms College,D3 Great Northeast Athletic Conference
+1,705593055,Eagles,Emory,Emory University,Emory,EMOR,BBC,,705593055,BBC,Eagles,EMOR,Emory,D3 University Athletic Association
+1,781508637,Bears,Washington (MO),Washington University (Missouri),Washington (MO),WMO,BBC,,781508637,BBC,Bears,WMO,Washington (MO),D3 University Athletic Association
+1,566131870,Gulls,Endicott College,Endicott College,Endicott College,ENDI,BBC,,566131870,BBC,Gulls,ENDI,Endicott College,D3 Commonwealth Coast Conference
+1,623076813,Hawks,Roger Williams,Roger Williams University,Roger Williams,ROGE,BBC,,623076813,BBC,Hawks,ROGE,Roger Williams,D3 Commonwealth Coast Conference
+1,575813766,Bears,St. Joseph's (Brooklyn),St. Joseph's College (Brooklyn),St. Joseph's (Brooklyn),SJB,BBC,,575813766,BBC,Bears,SJB,St. Joseph's (Brooklyn),D3 Skyline Conference
+1,674179359,Rams,Farmingdale State,State University of New York at Farmingdale,Farmingdale State,FARM,BBC,,674179359,BBC,Rams,FARM,Farmingdale State,D3 Skyline Conference
+1,514356638,Falcons,Fitchburg State College,Fitchburg State College,Fitchburg State College,FSC,BBC,,514356638,BBC,Falcons,FSC,Fitchburg State College,D3 Massachusetts State College Athletic Conference
+1,576196809,Owls,Westfield State College,Westfield State College,Westfield State College,WSC,BBC,,576196809,BBC,Owls,WSC,Westfield State College,D3 Massachusetts State College Athletic Conference
+1,578194919,Hawks,New Paltz,State University College at New Paltz,New Paltz,NEW,BBC,,578194919,BBC,Hawks,NEW,New Paltz,D3 State University of New York Athletic Conference
+1,580393686,Blue Devils,Fredonia,State University College at Fredonia,Fredonia,FRED,BBC,,580393686,BBC,Blue Devils,FRED,Fredonia,D3 State University of New York Athletic Conference
+1,538714226,Red Hawks,Ripon,Ripon College,Ripon,RIPO,BBC,,538714226,BBC,Red Hawks,RIPO,Ripon,D3 Midwest Conference
+1,689972030,Pioneers,Grinnell College,Grinnell College,Grinnell College,GRIN,BBC,,689972030,BBC,Pioneers,GRIN,Grinnell College,D3 Midwest Conference
+1,675290752,Gusties,Gustavus Adolphus College,Gustavus Adolphus College,Gustavus Adolphus College,GAC,BBC,,675290752,BBC,Gusties,GAC,Gustavus Adolphus College,D3 Minnesota Intercollegiate Athletic Conference
+1,561461634,Continentals,Hamilton,Hamilton College,Hamilton,HAMI,BBC,,561461634,BBC,Continentals,HAMI,Hamilton,D3 New England Small College Athletic Conference
+1,778612450,Mammoths,Amherst College,Amherst College,Amherst College,AMHE,BBC,,778612450,BBC,Mammoths,AMHE,Amherst College,D3 New England Small College Athletic Conference
+1,564841459,Beavers,Bluffton University,Bluffton University,Bluffton University,BLUF,BBC,,564841459,BBC,Beavers,BLUF,Bluffton University,D3 Heartland Collegiate Athletic Conference
+1,726466086,Panthers,Hanover College,Hanover College,Hanover College,HANO,BBC,,726466086,BBC,Panthers,HANO,Hanover College,D3 Heartland Collegiate Athletic Conference
+1,628981901,Fighting Scots,Gordon College,Gordon College,Gordon College,GORD,BBC,,628981901,BBC,Fighting Scots,GORD,Gordon College,D3 Commonwealth Coast Conference
+1,647371208,Big Red,Denison,Denison University,Denison,DENI,BBC,,647371208,BBC,Big Red,DENI,Denison,D3 North Coast Athletic Conference
+1,696521389,Terriers,Hiram,Hiram College,Hiram,HIRA,BBC,,696521389,BBC,Terriers,HIRA,Hiram,D3 Presidents' Athletic Conference
+1,717370784,Statesmen,Hobart and William Smith,Hobart and William Smith,Hobart and William Smith,HWS,BBC,,717370784,BBC,Statesmen,HWS,Hobart and William Smith,D3 Liberty League
+1,797073193,Vikings,Lawrence University,Lawrence University,Lawrence University,LAWR,BBC,,797073193,BBC,Vikings,LAWR,Lawrence University,D3 Midwest Conference
+1,670551277,Bearcats,Saint Vincent College,Saint Vincent College,Saint Vincent College,SVC,BBC,,670551277,BBC,Bearcats,SVC,Saint Vincent College,D3 Presidents' Athletic Conference
+1,738205044,Eagles,Juniata College,Juniata College,Juniata College,JUNI,BBC,,738205044,BBC,Eagles,JUNI,Juniata College,D3 Landmark Conference
+1,764315275,Hornets,Kalamazoo College,Kalamazoo College,Kalamazoo College,KALA,BBC,,764315275,BBC,Hornets,KALA,Kalamazoo College,D3 Michigan Intercol. Ath. Assn.
+1,523274783,Monarchs,King's College,King's College (Pennsylvania),King's College,KING,BBC,,523274783,BBC,Monarchs,KING,King's College,D3 Middle Atlantic Freedom Conference
+1,636733935,Bulldogs,DeSales,DeSales University,DeSales,DESA,BBC,,636733935,BBC,Bulldogs,DESA,DeSales,D3 Middle Atlantic Freedom Conference
+1,603371503,Panthers,Chapman,Chapman University,Chapman,CHAP,BBC,,603371503,BBC,Panthers,CHAP,Chapman,D3 Southern California Intercollegiate Athletic Conf.
+1,553875501,Loggers,University of Puget Sound,University of Puget Sound,University of Puget Sound,UPS,BBC,,553875501,BBC,Loggers,UPS,University of Puget Sound,D3 Northwest Conference
+1,684763535,Cardinals,Catholic,Catholic University,Catholic,CATH,BBC,,684763535,BBC,Cardinals,CATH,Catholic,D3 Landmark Conference
+1,730997958,Warriors,Lycoming College,Lycoming College,Lycoming College,LYCO,BBC,,730997958,BBC,Warriors,LYCO,Lycoming College,D3 Landmark Conference
+1,643820437,Panthers,Purchase,Purchase College  State University of New York,Purchase,PURC,BBC,,643820437,BBC,Panthers,PURC,Purchase,D3 Skyline Conference
+1,783738236,Valiants,Manhattanville,Manhattanville College,Manhattanville,MANH,BBC,,783738236,BBC,Valiants,MANH,Manhattanville,D3 Skyline Conference
+1,544740934,Blue Devils,Marietta,Marietta College,Marietta,MARI,BBC,,544740934,BBC,Blue Devils,MARI,Marietta,D3 Ohio Athletic Conference
+1,625202324,Marlins,Hampden-Sydney College,HampdenSydney College,Hampden-Sydney College,HSC,BBC,,625202324,BBC,Marlins,HSC,Hampden-Sydney College,D3 Old Dominion Athletic Conf.
+1,659681757,Eagles,Mary Washington,University of Mary Washington,Mary Washington,MARY,BBC,,659681757,BBC,Eagles,MARY,Mary Washington,D3 Coast to Coast Athletic Conference
+1,633230237,Beacons,Massachusetts Boston,University of Massachusetts  Boston,Massachusetts Boston,MASS,BBC,,633230237,BBC,Beacons,MASS,Massachusetts Boston,D3 Little East Conference
+1,720495744,Warriors,Eastern Connecticut State,Eastern Connecticut State University,Eastern Connecticut State,ECS,BBC,,720495744,BBC,Warriors,ECS,Eastern Connecticut State,D3 Little East Conference
+1,561539265,Rams,Framingham State,Framingham State College,Framingham State,FRAM,BBC,,561539265,BBC,Rams,FRAM,Framingham State,D3 Massachusetts State College Athletic Conference
+1,685528895,Buccaneers,Massachusetts Maritime Academy,Massachusetts Maritime Academy,Massachusetts Maritime Academy,MMA,BBC,,685528895,BBC,Buccaneers,MMA,Massachusetts Maritime Academy,D3 Massachusetts State College Athletic Conference
+1,651366068,Dolphins,Mount St. Vincent,College of Mount St. Vincent,Mount St. Vincent,MSV,BBC,,651366068,BBC,Dolphins,MSV,Mount St. Vincent,D3 Skyline Conference
+1,754629068,Mariners,U.S. Merchant Marine Academy,U.S. Merchant Marine Academy,U.S. Merchant Marine Academy,USMM,BBC,,754629068,BBC,Mariners,USMM,U.S. Merchant Marine Academy,D3 Skyline Conference
+1,545181106,Thoroughbreds,Skidmore College,Skidmore College,Skidmore College,SKID,BBC,,545181106,BBC,Thoroughbreds,SKID,Skidmore College,D3 Liberty League
+1,502923156,Buccaneers,Beloit College,Beloit College,Beloit College,BELO,BBC,,502923156,BBC,Buccaneers,BELO,Beloit College,D3 Midwest Conference
+1,771935949,Scots,Monmouth (IL),Monmouth College (Illinois),Monmouth (IL),MIL,BBC,,771935949,BBC,Scots,MIL,Monmouth (IL),D3 Midwest Conference
+1,568636371,Greyhounds,Moravian College,Moravian College,Moravian College,MORA,BBC,,568636371,BBC,Greyhounds,MORA,Moravian College,D3 Landmark Conference
+1,666763567,Royals,Scranton,University of Scranton,Scranton,SCRA,BBC,,666763567,BBC,Royals,SCRA,Scranton,D3 Landmark Conference
+1,610411285,Purple Raiders,Mount Union,Mount Union College,Mount Union,MOUN,BBC,,610411285,BBC,Purple Raiders,MOUN,Mount Union,D3 Ohio Athletic Conference
+1,792838125,Tomcats,Thiel College,Thiel College,Thiel College,THIE,BBC,,792838125,BBC,Tomcats,THIE,Thiel College,D3 Presidents' Athletic Conference
+1,587482582,Panthers,Pittsburgh Bradford,University of Pittsburgh  Bradford,Pittsburgh Bradford,PITT,BBC,,587482582,BBC,Panthers,PITT,Pittsburgh Bradford,D3 Allegheny Mountain Collegiate Conference
+1,755218852,Victory,Mount Aloysius,Mount Aloysius College,Mount Aloysius,MOUN,BBC,,755218852,BBC,Victory,MOUN,Mount Aloysius,D3 Allegheny Mountain Collegiate Conference
+1,629172965,Lions,Mount St. Joseph,College of Mount St. Joseph,Mount St. Joseph,MSJ,BBC,,629172965,BBC,Lions,MSJ,Mount St. Joseph,D3 Heartland Collegiate Athletic Conference
+1,684897841,Pioneers,Transylvania (KY),Transylvania University,Transylvania (KY),TKY,BBC,,684897841,BBC,Pioneers,TKY,Transylvania (KY),D3 Heartland Collegiate Athletic Conference
+1,628499707,Pacers,Marywood University,Marywood University,Marywood University,MARY,BBC,,628499707,BBC,Pacers,MARY,Marywood University,D3 Atlantic East Conference
+1,793550477,Knights,Neumann College,Neumann College,Neumann College,NEUM,BBC,,793550477,BBC,Knights,NEUM,Neumann College,D3 Atlantic East Conference
+1,650486872,Gothic Knights,New Jersey City,New Jersey City University,New Jersey City,NJC,BBC,,650486872,BBC,Gothic Knights,NJC,New Jersey City,D3 New Jersey Athletic Conference
+1,683004922,Monks,Saint Joseph's College (Maine),Saint Joseph's College (Maine),Saint Joseph's College (Maine),SJCM,BBC,,683004922,BBC,Monks,SJCM,Saint Joseph's College (Maine),D3 Great Northeast Athletic Conference
+1,748435520,Pilgrims,New England College,New England College,New England College,NEC,BBC,,748435520,BBC,Pilgrims,NEC,New England College,D3 Great Northeast Athletic Conference
+1,636709794,Cardinals,North Central College,North Central College,North Central College,NCC,BBC,,636709794,BBC,Cardinals,NCC,North Central College,D3 College Conference of Illinois & Wisconsin
+1,799684915,Boxers,Pacific (OR),Pacific University (Oregon),Pacific (OR),POR,BBC,,799684915,BBC,Boxers,POR,Pacific (OR),D3 Northwest Conference
+1,563744209,Missionaries,Whitman College,Whitman College,Whitman College,WHIT,BBC,,563744209,BBC,Missionaries,WHIT,Whitman College,D3 Northwest Conference
+1,632759116,Nittany Lions,Penn State Altoona,Penn State University  Altoona,Penn State Altoona,PSA,BBC,,632759116,BBC,Nittany Lions,PSA,Penn State Altoona,D3 Allegheny Mountain Collegiate Conference
+1,709174932,Hawks,Hilbert College,Hilbert College,Hilbert College,HILB,BBC,,709174932,BBC,Hawks,HILB,Hilbert College,D3 Allegheny Mountain Collegiate Conference
+1,730190592,Pfeiffer,Pfeiffer,Pfeiffer University,Pfeiffer,PU,BBC,,730190592,BBC,Pfeiffer,PU,Pfeiffer,D3 USA South Athletic Conference
+1,789721823,Scots,Maryville College (TN),Maryville College (Tennessee),Maryville College (TN),MCTN,BBC,,789721823,BBC,Scots,MCTN,Maryville College (TN),D3 Collegiate Conference of the South
+1,888080019,Lions,Piedmont College,Piedmont College,Piedmont College,PIED,BBC,,888080019,BBC,Lions,PIED,Piedmont College,D3 Collegiate Conference of the South
+1,528895644,Behrend Lions,Penn State Erie,Pennsylvania State Univ. Erie  the Behrend College,Penn State Erie,PSE,BBC,,528895644,BBC,Behrend Lions,PSE,Penn State Erie,D3 Allegheny Mountain Collegiate Conference
+1,686806432,Bobcats,Pittsburgh Greensburg,University of Pittsburgh  Greensburg,Pittsburgh Greensburg,PITT,BBC,,686806432,BBC,Bobcats,PITT,Pittsburgh Greensburg,D3 Allegheny Mountain Collegiate Conference
+1,555452996,Kingsmen,California Lutheran,California Lutheran University,California Lutheran,CALI,BBC,,555452996,BBC,Kingsmen,CALI,California Lutheran,D3 Southern California Intercollegiate Athletic Conf.
+1,732942630,Anchormen,Rhode Island College,Rhode Island College,Rhode Island College,RIC,BBC,,732942630,BBC,Anchormen,RIC,Rhode Island College,D3 Little East Conference
+1,751602446,Panthers,Plymouth State,Plymouth State University,Plymouth State,PLYM,BBC,,751602446,BBC,Panthers,PLYM,Plymouth State,D3 Little East Conference
+1,542760493,Petrels,Oglethorpe (GA),Oglethorpe University,Oglethorpe (GA),OGA,BBC,,542760493,BBC,Petrels,OGA,Oglethorpe (GA),D3 Southern Athletic Association
+1,730315264,Rhodes,Rhodes,Rhodes College,Rhodes,RC,BBC,,730315264,BBC,Rhodes,RC,Rhodes,D3 Southern Athletic Association
+1,537421401,Ospreys,Richard Stockton,Richard Stockton College of New Jersey,Richard Stockton,RICH,BBC,,537421401,BBC,Ospreys,RICH,Richard Stockton,D3 New Jersey Athletic Conference
+1,581321873,Roadrunners,Ramapo College,Ramapo College,Ramapo College,RAMA,BBC,,581321873,BBC,Roadrunners,RAMA,Ramapo College,D3 New Jersey Athletic Conference
+1,653195880,Yellowjackets,Rochester,University of Rochester,Rochester,ROCH,BBC,,653195880,BBC,Yellowjackets,ROCH,Rochester,D3 Liberty League
+1,780337998,Tigers,Rochester Institute of Technology,Rochester Institute of Technology,Rochester Institute of Technology,RIT,BBC,,780337998,BBC,Tigers,RIT,Rochester Institute of Technology,D3 Liberty League
+1,663357642,Cougars,Kean,Kean University,Kean,KEAN,BBC,,663357642,BBC,Cougars,KEAN,Kean,D3 New Jersey Athletic Conference
+1,671096519,Scarlet Raiders,Rutgers Newark,Rutgers  The State Univ. of New Jersey  Newark,Rutgers Newark,RUTG,BBC,,671096519,BBC,Scarlet Raiders,RUTG,Rutgers Newark,D3 New Jersey Athletic Conference
+1,567935582,Red Storm,St. John Fisher,St. John Fisher College,St. John Fisher,SJF,BBC,,567935582,BBC,Red Storm,SJF,St. John Fisher,D3 Empire 8
+1,737063226,Gators,Russell Sage College,Russell Sage College,Russell Sage College,RSC,BBC,,737063226,BBC,Gators,RSC,Russell Sage College,D3 Empire 8
+1,529129468,Captains,Christopher Newport,Christopher Newport University,Christopher Newport,CHRI,BBC,,529129468,BBC,Captains,CHRI,Christopher Newport,D3 Coast to Coast Athletic Conference
+1,627305229,Seagulls,Salisbury,Salisbury University,Salisbury,SALI,BBC,,627305229,BBC,Seagulls,SALI,Salisbury,D3 Coast to Coast Athletic Conference
+1,556046065,Lions,Emerson College,Emerson College,Emerson College,EMER,BBC,,556046065,BBC,Lions,EMER,Emerson College,D3 New England Women's & Men's Athletic Conference
+1,743834092,Seahawks,Salve Regina,Salve Regina University,Salve Regina,SALV,BBC,,743834092,BBC,Seahawks,SALV,Salve Regina,D3 New England Women's & Men's Athletic Conference
+1,528263855,Tigers,University of the South,University of the South,University of the South,UNIV,BBC,,528263855,BBC,Tigers,UNIV,University of the South,D3 Southern Athletic Association
+1,787533932,Vikings,Berry College,Berry College,Berry College,BERR,BBC,,787533932,BBC,Vikings,BERR,Berry College,D3 Southern Athletic Association
+1,539223615,Eagles,St. Joseph's (NY-LI),St. Joseph's College (Long Island),St. Joseph's (NY-LI),SJNY,BBC,,539223615,BBC,Eagles,SJNY,St. Joseph's (NY-LI),D3 Skyline Conference
+1,718269954,Privateers,SUNY Maritime College,State University of New York Maritime College,SUNY Maritime College,SUNY,BBC,,718269954,BBC,Privateers,SUNY,SUNY Maritime College,D3 Skyline Conference
+1,544152269,Yellowjackets,Wisconsin Superior,University of Wisconsin  Superior,Wisconsin Superior,WISC,BBC,,544152269,BBC,Yellowjackets,WISC,Wisconsin Superior,D3 Upper Midwest Athletic
+1,774245196,Cardinals,Saint Mary's (MN),Saint Mary's University of Minnesota,Saint Mary's (MN),SMMN,BBC,,774245196,BBC,Cardinals,SMMN,Saint Mary's (MN),D3 Minnesota Intercollegiate Athletic Conference
+1,676224661,Golden Knights,Clarkson,Clarkson University,Clarkson,CLAR,BBC,,676224661,BBC,Golden Knights,CLAR,Clarkson,D3 Liberty League
+1,789937706,Saints,St. Lawrence University,St. Lawrence University,St. Lawrence University,SLU,BBC,,789937706,BBC,Saints,SLU,St. Lawrence University,D3 Liberty League
+1,542406494,Nittany Lions,Penn State Abington,Penn State Abington,Penn State Abington,PSA,BBC,,542406494,BBC,Nittany Lions,PSA,Penn State Abington,D3 United East Conference
+1,714857008,Seahawks,St. Mary's College of Maryland,St. Mary's College of Maryland,St. Mary's College of Maryland,SMCM,BBC,,714857008,BBC,Seahawks,SMCM,St. Mary's College of Maryland,D3 United East Conference
+1,649145905,Ducks,Stevens Institute of Technology,Stevens Institute of Technology,Stevens Institute of Technology,SIT,BBC,,649145905,BBC,Ducks,SIT,Stevens Institute of Technology,D3 Middle Atlantic Freedom Conference
+1,797670397,Cougars,Misericordia University,Misericordia University,Misericordia University,MISE,BBC,,797670397,BBC,Cougars,MISE,Misericordia University,D3 Middle Atlantic Freedom Conference
+1,544332995,Golden Bears,Western New England,Western New England College,Western New England,WNE,BBC,,544332995,BBC,Golden Bears,WNE,Western New England,D3 Commonwealth Coast Conference
+1,595016608,Rams,Suffolk,Suffolk University,Suffolk,SUFF,BBC,,595016608,BBC,Rams,SUFF,Suffolk,D3 Commonwealth Coast Conference
+1,546082919,Garnet,Swarthmore,Swarthmore College,Swarthmore,SWAR,BBC,,546082919,BBC,Garnet,SWAR,Swarthmore,D3 Centennial Conference
+1,729427222,Green Terror,McDaniel,McDaniel College,McDaniel,MCDA,BBC,,729427222,BBC,Green Terror,MCDA,McDaniel,D3 Centennial Conference
+1,625211752,Tigers,Trinity (TX),Trinity University (Texas),Trinity (TX),TTX,BBC,,625211752,BBC,Tigers,TTX,Trinity (TX),D3 Southern Athletic Association
+1,730171648,Southwestern,Southwestern,Southwestern University,Southwestern,SU,BBC,,730171648,BBC,Southwestern,SU,Southwestern,D3 Southern Athletic Association
+1,515364302,Engineers,Rensselaer Polytechnic,Rensselaer Polytechnic Institute,Rensselaer Polytechnic,RENS,BBC,,515364302,BBC,Engineers,RENS,Rensselaer Polytechnic,D3 Liberty League
+1,690396672,Union,Union,Union College,Union,UC,BBC,,690396672,BBC,Union,UC,Union,D3 Liberty League
+1,648271806,Blue Jays,Johns Hopkins,Johns Hopkins University,Johns Hopkins,JOHN,BBC,,648271806,BBC,Blue Jays,JOHN,Johns Hopkins,D3 Centennial Conference
+1,788615649,Bears,Ursinus,Ursinus College,Ursinus,URSI,BBC,,788615649,BBC,Bears,URSI,Ursinus,D3 Centennial Conference
+1,673735220,Nittany Lions,Penn State Harrisburg,Penn State Harrisburg,Penn State Harrisburg,PSH,BBC,,673735220,BBC,Nittany Lions,PSH,Penn State Harrisburg,D3 United East Conference
+1,697225439,Patriots,Valley Forge Christian,Valley Forge Christian,Valley Forge Christian,VFC,BBC,,697225439,BBC,Patriots,VFC,Valley Forge Christian,D3 United East Conference
+1,610254632,Marlins,Virginia Wesleyan College,Virginia Wesleyan College,Virginia Wesleyan College,VWC,BBC,,610254632,BBC,Marlins,VWC,Virginia Wesleyan College,D3 Old Dominion Athletic Conf.
+1,632983821,Maroons,Roanoke College,Roanoke College,Roanoke College,ROAN,BBC,,632983821,BBC,Maroons,ROAN,Roanoke College,D3 Old Dominion Athletic Conf.
+1,657396052,Bullets,Gettysburg College,Gettysburg College,Gettysburg College,GETT,BBC,,657396052,BBC,Bullets,GETT,Gettysburg College,D3 Centennial Conference
+1,733174844,Goose,Washington (MD),Washington College (Maryland),Washington (MD),WMD,BBC,,733174844,BBC,Goose,WMD,Washington (MD),D3 Centennial Conference
+1,606755690,Cardinals,Wesleyan,Wesleyan University (Connecticut),Wesleyan,WESL,BBC,,606755690,BBC,Cardinals,WESL,Wesleyan,D3 New England Small College Athletic Conference
+1,517522550,Lyons,Wheaton (MA),Wheaton College (Massachusetts),Wheaton (MA),WMA,BBC,,517522550,BBC,Lyons,WMA,Wheaton (MA),D3 New England Women's & Men's Athletic Conference
+1,547773069,Engineers,Massachusetts Institute of Technology,Massachusetts Institute of Technology,Massachusetts Institute of Technology,MIT,BBC,,547773069,BBC,Engineers,MIT,Massachusetts Institute of Technology,D3 New England Women's & Men's Athletic Conference
+1,554238651,Blue Streaks,John Carroll,John Carroll University,John Carroll,JOHN,BBC,,554238651,BBC,Blue Streaks,JOHN,John Carroll,D3 North Coast Athletic Conference
+1,726363161,Fightin' Quakers,Wilmington College,Wilmington College (Ohio),Wilmington College,WILM,BBC,,726363161,BBC,Fightin' Quakers,WILM,Wilmington College,D3 Ohio Athletic Conference
+1,635541563,Colonels,Wilkes University,Wilkes University,Wilkes University,WILK,BBC,,635541563,BBC,Colonels,WILK,Wilkes University,D3 Landmark Conference
+1,691254315,River Hawks,Susquehanna,Susquehanna University,Susquehanna,SUSQ,BBC,,691254315,BBC,River Hawks,SUSQ,Susquehanna,D3 Landmark Conference
+1,518974133,Pointers,Wisconsin Stevens Point,University of Wisconsin  Stevens Point,Wisconsin Stevens Point,WSP,BBC,,518974133,BBC,Pointers,WSP,Wisconsin Stevens Point,D3 Wisconsin Intercollegiate Athletic Conference
+1,620447604,Titans,Wisconsin Oshkosh,University of Wisconsin  Oshkosh,Wisconsin Oshkosh,WISC,BBC,,620447604,BBC,Titans,WISC,Wisconsin Oshkosh,D3 Wisconsin Intercollegiate Athletic Conference
+1,687836725,Blue Devils,Wisconsin Stout,University of Wisconsin  Stout,Wisconsin Stout,WISC,BBC,,687836725,BBC,Blue Devils,WISC,Wisconsin Stout,D3 Wisconsin Intercollegiate Athletic Conference
+1,738458267,Warhawks,Wisconsin Whitewater,University of Wisconsin  Whitewater,Wisconsin Whitewater,WISC,BBC,,738458267,BBC,Warhawks,WISC,Wisconsin Whitewater,D3 Wisconsin Intercollegiate Athletic Conference
+1,660079061,Blugolds,Wisconsin Eau Claire,Wisconsin Eau Claire,Wisconsin Eau Claire,WEC,BBC,,660079061,BBC,Blugolds,WEC,Wisconsin Eau Claire,D3 Wisconsin Intercollegiate Athletic Conference
+1,786720799,Pioneers,Wisconsin Platteville,University of Wisconsin  Platteville,Wisconsin Platteville,WISC,BBC,,786720799,BBC,Pioneers,WISC,Wisconsin Platteville,D3 Wisconsin Intercollegiate Athletic Conference
+1,684904829,Eagles,Wisconsin La Crosse,University of Wisconsin  La Crosse,Wisconsin La Crosse,WLC,BBC,,684904829,BBC,Eagles,WLC,Wisconsin La Crosse,D3 Wisconsin Intercollegiate Athletic Conference
+1,796651510,Polar Bears,Ohio Northern,Ohio Northern University,Ohio Northern,OHIO,BBC,,796651510,BBC,Polar Bears,OHIO,Ohio Northern,D3 Ohio Athletic Conference
+1,627016626,Scots,Wooster,College of Wooster,Wooster,WOOS,BBC,,627016626,BBC,Scots,WOOS,Wooster,D3 North Coast Athletic Conference
+1,644040395,Bison,Bethany (WV),Bethany College (West Virginia),Bethany (WV),BWV,BBC,,644040395,BBC,Bison,BWV,Bethany (WV),D3 Presidents' Athletic Conference
+1,508225353,Engineers,Worcester Polytechnic Institute,Worcester Polytechnic Institute,Worcester Polytechnic Institute,WPI,BBC,,508225353,BBC,Engineers,WPI,Worcester Polytechnic Institute,D3 New England Women's & Men's Athletic Conference
+1,532094669,Pride,Springfield College,Springfield College,Springfield College,SPRI,BBC,,532094669,BBC,Pride,SPRI,Springfield College,D3 New England Women's & Men's Athletic Conference
+1,556317313,Maccabees,Yeshiva University,Yeshiva University,Yeshiva University,YESH,BBC,,556317313,BBC,Maccabees,YESH,Yeshiva University,D3 Skyline Conference
+1,743166862,Panthers,Old Westbury,State University College at Old Westbury,Old Westbury,OLD,BBC,,743166862,BBC,Panthers,OLD,Old Westbury,D3 Skyline Conference
+1,602148996,Crusaders,Alvernia College,Alvernia College,Alvernia College,ALVE,BBC,,602148996,BBC,Crusaders,ALVE,Alvernia College,D3 Middle Atlantic Commonwealth Conference
+1,641830231,Spartans,York,York College (Pennsylvania),York,YORK,BBC,,641830231,BBC,Spartans,YORK,York,D3 Middle Atlantic Commonwealth Conference
+1,580267315,Bulldogs,Adrian College,Adrian College,Adrian College,ADRI,BBC,,580267315,BBC,Bulldogs,ADRI,Adrian College,D3 Michigan Intercol. Ath. Assn.
+1,641411517,Gators,Notre Dame of Maryland,Notre Dame of Maryland,Notre Dame of Maryland,NDM,BBC,,641411517,BBC,Gators,NDM,Notre Dame of Maryland,D3 United East Conference
+1,650434317,Knights,Calvin,Calvin College,Calvin,CALV,BBC,,650434317,BBC,Knights,CALV,Calvin,D3 Michigan Intercol. Ath. Assn.
+1,680925999,Brits,Albion,Albion College,Albion,ALBI,BBC,,680925999,BBC,Brits,ALBI,Albion,D3 Michigan Intercol. Ath. Assn.
+1,522013806,Soaring Eagles,Elmira,Elmira,Elmira,ELMI,BBC,,522013806,BBC,Soaring Eagles,ELMI,Elmira,D3 Empire 8
+1,658883067,Gators,Allegheny,Allegheny College,Allegheny,ALLE,BBC,,658883067,BBC,Gators,ALLE,Allegheny,D3 Presidents' Athletic Conference
+1,750986471,Titans,Westminster College (Pennsylvania),Westminster College (Pennsylvania),Westminster College (Pennsylvania),WCP,BBC,,750986471,BBC,Titans,WCP,Westminster College (Pennsylvania),D3 Presidents' Athletic Conference
+1,716004597,Thunder,Trine,Trine University,Trine,TRIN,BBC,,716004597,BBC,Thunder,TRIN,Trine,D3 Michigan Intercol. Ath. Assn.
+1,735055765,Knights,Arcadia,Arcadia University,Arcadia,ARCA,BBC,,735055765,BBC,Knights,ARCA,Arcadia,D3 Middle Atlantic Freedom Conference
+1,685894005,Flying Dutchmen,Lebanon Valley College,Lebanon Valley College,Lebanon Valley College,LVC,BBC,,685894005,BBC,Flying Dutchmen,LVC,Lebanon Valley College,D3 Middle Atlantic Freedom Conference
+1,762535794,Colonels,Centre College (KY),Centre College,Centre College (KY),CCKY,BBC,,762535794,BBC,Colonels,CCKY,Centre College (KY),D3 Southern Athletic Association
+1,578767855,Eagles,Ozarks,University of the Ozarks,Ozarks,OZAR,BBC,,578767855,BBC,Eagles,OZAR,Ozarks,D3 Southern Collegiate Athletic Conference
+1,616347577,Royals,Eastern Mennonite University,Eastern Mennonite University,Eastern Mennonite University,EMU,BBC,,616347577,BBC,Royals,EMU,Eastern Mennonite University,D3 Old Dominion Athletic Conf.
+1,599844191,Bearcats,Baruch College,Baruch College,Baruch College,BARU,BBC,,599844191,BBC,Bearcats,BARU,Baruch College,D3 City University of New York Athletic Conference
+1,542451770,Beavers,City College of New York,City College of New York,City College of New York,CCNY,BBC,,542451770,BBC,Beavers,CCNY,City College of New York,D3 City University of New York Athletic Conference
+1,668194971,Bobcats,Bates College,Bates College,Bates College,BATE,BBC,,668194971,BBC,Bobcats,BATE,Bates College,D3 New England Small College Athletic Conference
+1,626671273,Bantams,Trinity College (CT),Trinity College (Connecticut),Trinity College (CT),TCCT,BBC,,626671273,BBC,Bantams,TCCT,Trinity College (CT),D3 New England Small College Athletic Conference
+1,548794592,Eagles,Benedictine (IL),Benedictine University (Illinois),Benedictine (IL),BIL,BBC,,548794592,BBC,Eagles,BIL,Benedictine (IL),D3 Northern Athletics Conference
+1,509620441,Royals,Bethel (MN),Bethel University (Minnesota),Bethel (MN),BMN,BBC,,509620441,BBC,Royals,BMN,Bethel (MN),D3 Minnesota Intercollegiate Athletic Conference
+1,781733874,Greyhounds,Grove City College,Grove City College,Grove City College,GCC,BBC,,781733874,BBC,Greyhounds,GCC,Grove City College,D3 Presidents' Athletic Conference
+1,650374217,Pride,Greensboro College (NC),Greensboro College,Greensboro College (NC),GCNC,BBC,,650374217,BBC,Pride,GCNC,Greensboro College (NC),D3 USA South Athletic Conference
+1,575341133,Leopards,Wentworth Institute of Technology,Wentworth Institute of Technology,Wentworth Institute of Technology,WIT,BBC,,575341133,BBC,Leopards,WIT,Wentworth Institute of Technology,D3 Commonwealth Coast Conference
+1,749282839,Eagles,Bridgewater College (VA),Bridgewater College (Virginia),Bridgewater College (VA),BCVA,BBC,,749282839,BBC,Eagles,BCVA,Bridgewater College (VA),D3 Old Dominion Athletic Conf.
+1,733125529,Chargers,Lancaster Bible College,Lancaster Bible College,Lancaster Bible College,LBC,BBC,,733125529,BBC,Chargers,LBC,Lancaster Bible College,D3 United East Conference
+1,659749395,Cyclones,Centenary College,Centenary College (New Jersey),Centenary College,CENT,BBC,,659749395,BBC,Cyclones,CENT,Centenary College,D3 Atlantic East Conference
+1,567353879,Ravens,Rosemont College,Rosemont College,Rosemont College,ROSE,BBC,,567353879,BBC,Ravens,ROSE,Rosemont College,D3 United East Conference
+1,693770159,Crusaders,Capital,Capital University,Capital,CAPI,BBC,,693770159,BBC,Crusaders,CAPI,Capital,D3 Ohio Athletic Conference
+1,536689920,Spartans,Vermont State Castleton,Castleton State College,Vermont State Castleton,VSC,BBC,,536689920,BBC,Spartans,VSC,Vermont State Castleton,D3 Little East Conference
+1,666218733,Cadets,Norwich University,Norwich University,Norwich University,NORW,BBC,,666218733,BBC,Cadets,NORW,Norwich University,D3 Great Northeast Athletic Conference
+1,730346752,Millsaps,Millsaps,Millsaps College,Millsaps,MC,BBC,,730346752,BBC,Millsaps,MC,Millsaps,D3 Southern Athletic Association
+1,669768443,Dutch,Central College (Iowa),Central College (Iowa),Central College (Iowa),CCI,BBC,,669768443,BBC,Dutch,CCI,Central College (Iowa),D3 American Rivers Conference
+1,535519823,Cougars,Chatham,Chatham,Chatham,CHAT,BBC,,535519823,BBC,Cougars,CHAT,Chatham,D3 Presidents' Athletic Conference
+1,596815716,Yellow Jackets,Waynesburg University,Waynesburg University,Waynesburg University,WAYN,BBC,,596815716,BBC,Yellow Jackets,WAYN,Waynesburg University,D3 Presidents' Athletic Conference
+1,706502245,Storm,Crown College (MN),Crown College (MN),Crown College (MN),CCMN,BBC,,706502245,BBC,Storm,CCMN,Crown College (MN),D3 Upper Midwest Athletic
+1,608625962,Scarlet Hawks,Illinois Tech,Illinois Tech,Illinois Tech,ILLI,BBC,,608625962,BBC,Scarlet Hawks,ILLI,Illinois Tech,D3 Northern Athletics Conference
+1,779342271,Scots,Covenant College,Covenant College,Covenant College,COVE,BBC,,779342271,BBC,Scots,COVE,Covenant College,D3 Collegiate Conference of the South
+1,548389904,Knights,Martin Luther College,Martin Luther College,Martin Luther College,MLC,BBC,,548389904,BBC,Knights,MLC,Martin Luther College,D3 Upper Midwest Athletic
+1,781656511,Colonels,Curry College,Curry College,Curry College,CURR,BBC,,781656511,BBC,Colonels,CURR,Curry College,D3 Commonwealth Coast Conference
+1,540191349,Blazers,Belhaven,Belhaven,Belhaven,BELH,BBC,,540191349,BBC,Blazers,BELH,Belhaven,D3 Collegiate Conference of the South
+1,717407305,Crusaders,Dallas,University of Dallas,Dallas,DALL,BBC,,717407305,BBC,Crusaders,DALL,Dallas,D3 Southern Collegiate Athletic Conference
+1,709595488,Bulldogs,Dean College,Dean College,Dean College,DEAN,BBC,,709595488,BBC,Bulldogs,DEAN,Dean College,D3 Great Northeast Athletic Conference
+1,683496902,Aggies,Delaware Valley College,Delaware Valley College,Delaware Valley College,DVC,BBC,,683496902,BBC,Aggies,DVC,Delaware Valley College,D3 Middle Atlantic Freedom Conference
+1,594231732,Devils,Fairleigh Dickinson Florham,Fairleigh Dickinson University  Florham,Fairleigh Dickinson Florham,FDF,BBC,,594231732,BBC,Devils,FDF,Fairleigh Dickinson Florham,D3 Middle Atlantic Freedom Conference
+1,525469690,Spartans,University of Dubuque,University of Dubuque,University of Dubuque,UNIV,BBC,,525469690,BBC,Spartans,UNIV,University of Dubuque,D3 American Rivers Conference
+1,682655006,Beavers,Buena Vista University,Buena Vista University,Buena Vista University,BVU,BBC,,682655006,BBC,Beavers,BVU,Buena Vista University,D3 American Rivers Conference
+1,703669609,Hornets,Shenandoah,Shenandoah University,Shenandoah,SHEN,BBC,,703669609,BBC,Hornets,SHEN,Shenandoah,D3 Old Dominion Athletic Conf.
+1,795808534,Eagles,Edgewood College,Edgewood College,Edgewood College,EDGE,BBC,,795808534,BBC,Eagles,EDGE,Edgewood College,D3 Northern Athletics Conference
+1,617822899,Highlanders,Houghton College,Houghton College,Houghton College,HOUG,BBC,,617822899,BBC,Highlanders,HOUG,Houghton College,D3 Empire 8
+1,736786179,Generals,Washington and Lee,Washington and Lee University,Washington and Lee,WASH,BBC,,736786179,BBC,Generals,WASH,Washington and Lee,D3 Old Dominion Athletic Conf.
+1,543372354,Blue Jays,Westminster College (Missouri),Westminster College (Missouri),Westminster College (Missouri),WCM,BBC,,543372354,BBC,Blue Jays,WCM,Westminster College (Missouri),D3 St. Louis Intercollegiate Athletic Conference
+1,536071854,Diplomats,Franklin and Marshall,Franklin & Marshall College,Franklin and Marshall,FRAN,BBC,,536071854,BBC,Diplomats,FRAN,Franklin and Marshall,D3 Centennial Conference
+1,625624818,Mules,Muhlenberg,Muhlenberg College,Muhlenberg,MUHL,BBC,,625624818,BBC,Mules,MUHL,Muhlenberg,D3 Centennial Conference
+1,632548022,Barons,Franciscan University of Steubenville,Franciscan University of Steubenville,Franciscan University of Steubenville,FUS,BBC,,632548022,BBC,Barons,FUS,Franciscan University of Steubenville,D3 Presidents' Athletic Conference
+1,563851884,Yellow Jackets,Randolph Macon,RandolphMacon College,Randolph Macon,RAND,BBC,,563851884,BBC,Yellow Jackets,RAND,Randolph Macon,D3 Old Dominion Athletic Conf.
+1,634703603,Quakers,Guilford College,Guilford College,Guilford College,GUIL,BBC,,634703603,BBC,Quakers,GUIL,Guilford College,D3 Old Dominion Athletic Conf.
+1,658675715,Griffins,GwyneddMercy College,Gwynedd-Mercy College,GwyneddMercy College,GMC,BBC,,658675715,BBC,Griffins,GMC,GwyneddMercy College,D3 Atlantic East Conference
+1,603635670,Mighty Macs,Immaculata,Immaculata University,Immaculata,IMMA,BBC,,603635670,BBC,Mighty Macs,IMMA,Immaculata,D3 Atlantic East Conference
+1,742527545,Yellow Jackets,Howard Payne University,Howard Payne University,Howard Payne University,HPU,BBC,,742527545,BBC,Yellow Jackets,HPU,Howard Payne University,D3 American Southwest Conference
+1,759941094,Cowboys,Hardin-Simmons,Hardin-Simmons University,Hardin-Simmons,HARD,BBC,,759941094,BBC,Cowboys,HARD,Hardin-Simmons,D3 American Southwest Conference
+1,551148623,Warriors,Hendrix,Hendrix College,Hendrix,HEND,BBC,,551148623,BBC,Warriors,HEND,Hendrix,D3 Southern Collegiate Athletic Conference
+1,732487431,Cougars,Concordia (IL),Concordia University Chicago,Concordia (IL),CIL,BBC,,732487431,BBC,Cougars,CIL,Concordia (IL),D3 Northern Athletics Conference
+1,709907469,Red Dragons,Cortland State,State University College at Cortland,Cortland State,CORT,BBC,,709907469,BBC,Red Dragons,CORT,Cortland State,D3 State University of New York Athletic Conference
+1,598844146,Wildcats,Johnson and Wales University,Johnson and Wales University,Johnson and Wales University,JWU,BBC,,598844146,BBC,Wildcats,JWU,Johnson and Wales University,D3 Commonwealth Coast Conference
+1,788512627,Owls,Keene State,Keene State College,Keene State,KEEN,BBC,,788512627,BBC,Owls,KEEN,Keene State,D3 Little East Conference
+1,689574746,Storm,Keuka College,Keuka College,Keuka College,KEUK,BBC,,689574746,BBC,Storm,KEUK,Keuka College,D3 Empire 8
+1,749692828,Pioneers,Utica College,Utica College,Utica College,UTIC,BBC,,749692828,BBC,Pioneers,UTIC,Utica College,D3 Empire 8
+1,586508319,Panthers,LaGrange College (GA),La Grange College,LaGrange College (GA),LGCG,BBC,,586508319,BBC,Panthers,LGCG,LaGrange College (GA),D3 Collegiate Conference of the South
+1,615693366,Hawks,Huntingdon,Huntingdon College,Huntingdon,HUNT,BBC,,615693366,BBC,Hawks,HUNT,Huntingdon,D3 Collegiate Conference of the South
+1,516506906,Lightning,Lehman College City University of New York,Lehman College  City University of New York,Lehman College City University of New York,LCCU,BBC,,516506906,BBC,Lightning,LCCU,Lehman College City University of New York,D3 City University of New York Athletic Conference
+1,701799299,Bloodhounds,John Jay College of Criminal Justice,John Jay College of Criminal Justice,John Jay College of Criminal Justice,JJCC,BBC,,701799299,BBC,Bloodhounds,JJCC,John Jay College of Criminal Justice,D3 City University of New York Athletic Conference
+1,747434427,Pioneers,Lewis and Clark,Lewis & Clark College,Lewis and Clark,LEWI,BBC,,747434427,BBC,Pioneers,LEWI,Lewis and Clark,D3 Northwest Conference
+1,793224612,Hornets,Northern Vermont Lyndon,Lyndon State College,Northern Vermont Lyndon,NVL,BBC,,793224612,BBC,Hornets,NVL,Northern Vermont Lyndon,D3 North Atlantic Conference
+1,528691639,Scots,Lyon,Lyon,Lyon,LYON,BBC,,528691639,BBC,Scots,LYON,Lyon,D3 St. Louis Intercollegiate Athletic Conference
+1,564460895,Owls,Mississippi Women,Mississippi Women,Mississippi Women,MISS,BBC,,564460895,BBC,Owls,MISS,Mississippi Women,D3 St. Louis Intercollegiate Athletic Conference
+1,534286718,Sabres,Marian,Marian College (Wisconsin),Marian,MARI,BBC,,534286718,BBC,Sabres,MARI,Marian,D3 Northern Athletics Conference
+1,552281146,Student Princes,Heidelberg,Heidelberg College,Heidelberg,HEID,BBC,,552281146,BBC,Student Princes,HEID,Heidelberg,D3 Ohio Athletic Conference
+1,694879601,Tigers,East Texas Baptist,East Texas Baptist University,East Texas Baptist,ETB,BBC,,694879601,BBC,Tigers,ETB,East Texas Baptist,D3 American Southwest Conference
+1,793646040,Crusaders,Mary Hardin-Baylor,University of Mary Hardin-Baylor,Mary Hardin-Baylor,MHB,BBC,,793646040,BBC,Crusaders,MHB,Mary Hardin-Baylor,D3 American Southwest Conference
+1,510732452,Saints,Marymount,Marymount,Marymount,MARY,BBC,,510732452,BBC,Saints,MARY,Marymount,D3 Atlantic East Conference
+1,651012631,Corsairs,Massachusetts Dartmouth,University of Massachusetts  Dartmouth,Massachusetts Dartmouth,MASS,BBC,,651012631,BBC,Corsairs,MASS,Massachusetts Dartmouth,D3 Little East Conference
+1,537365668,Falcons,Messiah,Messiah College,Messiah,MESS,BBC,,537365668,BBC,Falcons,MESS,Messiah,D3 Middle Atlantic Commonwealth Conference
+1,724160555,Pride,Widener,Widener University,Widener,WIDE,BBC,,724160555,BBC,Pride,WIDE,Widener,D3 Middle Atlantic Commonwealth Conference
+1,628220150,Vikings,Bethany Lutheran,Bethany Lutheran College,Bethany Lutheran,BETH,BBC,,628220150,BBC,Vikings,BETH,Bethany Lutheran,D3 Upper Midwest Athletic
+1,788237944,Cougars,Minnesota Morris,University of Minnesota  Morris,Minnesota Morris,MINN,BBC,,788237944,BBC,Cougars,MINN,Minnesota Morris,D3 Upper Midwest Athletic
+1,571015756,Scarlet Raptors,Rutgers Camden,Rutgers  The State Univ. of New Jersey  Camden,Rutgers Camden,RUTG,BBC,,571015756,BBC,Scarlet Raptors,RUTG,Rutgers Camden,D3 New Jersey Athletic Conference
+1,534400618,Cardinals,Otterbein College,Otterbein College,Otterbein College,OTTE,BBC,,534400618,BBC,Cardinals,OTTE,Otterbein College,D3 Ohio Athletic Conference
+1,775751514,Fighting Muskies,Muskingum,Muskingum College,Muskingum,MUSK,BBC,,775751514,BBC,Fighting Muskies,MUSK,Muskingum,D3 Ohio Athletic Conference
+1,731821191,Prairie Wolves,Nebraska Wesleyan University,Nebraska Wesleyan University,Nebraska Wesleyan University,NWU,BBC,,731821191,BBC,Prairie Wolves,NWU,Nebraska Wesleyan University,D3 American Rivers Conference
+1,732355642,Knights,Wartburg College,Wartburg College,Wartburg College,WART,BBC,,732355642,BBC,Knights,WART,Wartburg College,D3 American Rivers Conference
+1,681453418,Pioneers,William Paterson,William Paterson University of New Jersey,William Paterson,WILL,BBC,,681453418,BBC,Pioneers,WILL,William Paterson,D3 New Jersey Athletic Conference
+1,503247880,Bison,Nichols College,Nichols College,Nichols College,NICH,BBC,,503247880,BBC,Bison,NICH,Nichols College,D3 Commonwealth Coast Conference
+1,673098016,Cougars,Clark (MA),Clark University (Massachusetts),Clark (MA),CMA,BBC,,673098016,BBC,Cougars,CMA,Clark (MA),D3 New England Women's & Men's Athletic Conference
+1,674608014,Bishops,North Carolina Wesleyan,North Carolina Wesleyan College,North Carolina Wesleyan,NCW,BBC,,674608014,BBC,Bishops,NCW,North Carolina Wesleyan,D3 USA South Athletic Conference
+1,611331556,Eagles,Northwestern College,Northwestern College,Northwestern College,NORT,BBC,,611331556,BBC,Eagles,NORT,Northwestern College,D3 Upper Midwest Athletic
+1,750118589,Rams,North Central,North Central University,North Central,NORT,BBC,,750118589,BBC,Rams,NORT,North Central,D3 Upper Midwest Athletic
+1,718081507,Wildcats,Penn College,Pennsylvania College of Technology,Penn College,PENN,BBC,,718081507,BBC,Wildcats,PENN,Penn College,D3 United East Conference
+1,710430520,Yeomen,Oberlin,Oberlin College,Oberlin,OBER,BBC,,710430520,BBC,Yeomen,OBER,Oberlin,D3 North Coast Athletic Conference
+1,547034330,Lords,Kenyon,Kenyon College,Kenyon,KENY,BBC,,547034330,BBC,Lords,KENY,Kenyon,D3 North Coast Athletic Conference
+1,670134159,Poets,Whittier,Whittier College,Whittier,WHIT,BBC,,670134159,BBC,Poets,WHIT,Whittier,D3 Southern California Intercollegiate Athletic Conf.
+1,739404224,Tigers,Occidental,Occidental College,Occidental,OCCI,BBC,,739404224,BBC,Tigers,OCCI,Occidental,D3 Southern California Intercollegiate Athletic Conf.
+1,685830073,Red Dragons,Oneonta,State University College at Oneonta,Oneonta,ONEO,BBC,,685830073,BBC,Red Dragons,ONEO,Oneonta,D3 State University of New York Athletic Conference
+1,685650710,Lakers,Oswego,State University of New York at Oswego,Oswego,OSWE,BBC,,685650710,BBC,Lakers,OSWE,Oswego,D3 State University of New York Athletic Conference
+1,541476369,Eagles,Saint Elizabeth,Saint Elizabeth,Saint Elizabeth,SAIN,BBC,,541476369,BBC,Eagles,SAIN,Saint Elizabeth,D3 Atlantic East Conference
+1,721197005,Nittany Lions,Penn State Brandywine,Penn State Brandywine,Penn State Brandywine,PSB,BBC,,721197005,BBC,Nittany Lions,PSB,Penn State Brandywine,D3 United East Conference
+1,548226374,Cardinals,Plattsburgh State,Plattsburgh State University of New York,Plattsburgh State,PLAT,BBC,,548226374,BBC,Cardinals,PLAT,Plattsburgh State,D3 State University of New York Athletic Conference
+1,605897651,Colonials,Western Connecticut State,Western Connecticut State University,Western Connecticut State,WCS,BBC,,605897651,BBC,Colonials,WCS,Western Connecticut State,D3 Little East Conference
+1,571081578,Raiders,Rivier College,Rivier College,Rivier College,RIVI,BBC,,571081578,BBC,Raiders,RIVI,Rivier College,D3 Great Northeast Athletic Conference
+1,662196183,Wildcats,SUNY Poly,State University of New York Institute of Technolo,SUNY Poly,SUNY,BBC,,662196183,BBC,Wildcats,SUNY,SUNY Poly,D3 Empire 8
+1,627666402,Blue Jays,Saint Joseph,Saint Joseph,Saint Joseph,SAIN,BBC,,627666402,BBC,Blue Jays,SAIN,Saint Joseph,D3 Great Northeast Athletic Conference
+1,701721511,Chargers,Colby Sawyer College,Colby-Sawyer College,Colby Sawyer College,CSC,BBC,,701721511,BBC,Chargers,CSC,Colby Sawyer College,D3 Great Northeast Athletic Conference
+1,556683045,Vikings,Salem State College,Salem State College,Salem State College,SSC,BBC,,556683045,BBC,Vikings,SSC,Salem State College,D3 Massachusetts State College Athletic Conference
+1,753162370,Lancers,Worcester State,Worcester State College,Worcester State,WORC,BBC,,753162370,BBC,Lancers,WORC,Worcester State,D3 Massachusetts State College Athletic Conference
+1,544274011,Mountaineers,Schreiner,Schreiner University,Schreiner,SCHR,BBC,,544274011,BBC,Mountaineers,SCHR,Schreiner,D3 Southern Collegiate Athletic Conference
+1,664822330,Huskies,Southern Maine,University of Southern Maine,Southern Maine,SOUT,BBC,,664822330,BBC,Huskies,SOUT,Southern Maine,D3 Little East Conference
+1,686232871,Knights,Southern Virginia,Southern Virginia,Southern Virginia,SOUT,BBC,,686232871,BBC,Knights,SOUT,Southern Virginia,D3 USA South Athletic Conference
+1,730230528,Methodist,Methodist,Methodist University,Methodist,MU,BBC,,730230528,BBC,Methodist,MU,Methodist,D3 USA South Athletic Conference
+1,640929182,Panthers,Greenville,Greenville College,Greenville,GREE,BBC,,640929182,BBC,Panthers,GREE,Greenville,D3 St. Louis Intercollegiate Athletic Conference
+1,750327339,Eagles,Spalding,Spalding University,Spalding,SPAL,BBC,,750327339,BBC,Eagles,SPAL,Spalding,D3 St. Louis Intercollegiate Athletic Conference
+1,599724490,Scots,Macalester College,Macalester College,Macalester College,MACA,BBC,,599724490,BBC,Scots,MACA,Macalester College,D3 Minnesota Intercollegiate Athletic Conference
+1,649677062,Johnnies,St. John's (MN),St. John's University (Minnesota),St. John's (MN),SJMN,BBC,,649677062,BBC,Johnnies,SJMN,St. John's (MN),D3 Minnesota Intercollegiate Athletic Conference
+1,546422130,Knights,Mount Saint Mary College (New York),Mount Saint Mary College (New York),Mount Saint Mary College (New York),MSMC,BBC,,546422130,BBC,Knights,MSMC,Mount Saint Mary College (New York),D3 Skyline Conference
+1,676070462,Phoenix,Wilson College,Wilson College,Wilson College,WILS,BBC,,676070462,BBC,Phoenix,WILS,Wilson College,D3 United East Conference
+1,688942812,Golden Tornadoes,Geneva College,Geneva College,Geneva College,GENE,BBC,,688942812,BBC,Golden Tornadoes,GENE,Geneva College,D3 Presidents' Athletic Conference
+1,730176256,Principia,Principia,Principia College,Principia,PC,BBC,,730176256,BBC,Principia,PC,Principia,D3 St. Louis Intercollegiate Athletic Conference
+1,501313607,Bearcats,Willamette University,Willamette University,Willamette University,WILL,BBC,,501313607,BBC,Bearcats,WILL,Willamette University,D3 Northwest Conference
+1,506433859,Warriors,Wisconsin Lutheran College,Wisconsin Lutheran College,Wisconsin Lutheran College,WLC,BBC,,506433859,BBC,Warriors,WLC,Wisconsin Lutheran College,D3 Northern Athletics Conference
+1,628218352,Little Giants,Wabash,Wabash College,Wabash,WABA,BBC,,628218352,BBC,Little Giants,WABA,Wabash,D3 North Coast Athletic Conference
+1,546337953,Falcons,Albertus Magnus College,Albertus Magnus College,Albertus Magnus College,AMC,BBC,,546337953,BBC,Falcons,AMC,Albertus Magnus College,D3 Great Northeast Athletic Conference
+1,630535078,Kangaroos,Canton,SUNY Canton,Canton,CANT,BBC,,630535078,BBC,Kangaroos,CANT,Canton,D3 State University of New York Athletic Conference
+1,563003640,Tornados,Concordia (TX),Concordia University Texas,Concordia (TX),CTX,BBC,,563003640,BBC,Tornados,CTX,Concordia (TX),D3 Southern Collegiate Athletic Conference
+1,768445056,Bulldogs,Texas Lutheran University,Texas Lutheran University,Texas Lutheran University,TLU,BBC,,768445056,BBC,Bulldogs,TLU,Texas Lutheran University,D3 Southern Collegiate Athletic Conference
+1,679158751,Owls,Maine Presque Isle,University of Maine at Presque Isle,Maine Presque Isle,MPI,BBC,,679158751,BBC,Owls,MPI,Maine Presque Isle,D3 North Atlantic Conference
+1,730307840,McMurry,McMurry,McMurry University,McMurry,MU,BBC,,730307840,BBC,McMurry,MU,McMurry,D3 Southern Collegiate Athletic Conference
+1,768106547,Royals,Regent,Regent,Regent,REGE,BBC,,768106547,BBC,Royals,REGE,Regent,D3 Coast to Coast Athletic Conference
