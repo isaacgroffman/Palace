@@ -247,6 +247,12 @@ tp_skeleton_table <- function(rows = 6) {
 
 app_ui <- fluidPage(
   tags$script(HTML("Shiny.setInputValue('app_ui_ready', Date.now(), {priority: 'event'});")),
+  # fires after this UI has been inserted AND bound (next tick), so the
+  # search choices pushed in response never land on an unbound input
+  tags$script(HTML("
+    setTimeout(function(){ Shiny.setInputValue('search_ready', Date.now(), {priority: 'event'}); }, 50);
+    $(document).on('shiny:sessioninitialized', function(){ setTimeout(function(){ Shiny.setInputValue('search_ready', Date.now(), {priority: 'event'}); }, 300); });
+  ")),
   mobile_head(),
   tags$head(
     tags$link(rel = "icon", type = "image/svg+xml", href = PALACE_FAVICON_URI),

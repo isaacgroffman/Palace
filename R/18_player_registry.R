@@ -43,12 +43,13 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
   }
   # 2) Coastal: spring game data + 2027 roster + bullpens, merged by name
   ccu <- list()
-  add_ccu <- function(nm, season, tm_id = NA_character_, class = NA_character_, head = NA_character_) {
-    nm <- as.character(nm); nm <- nm[!is.na(nm) & nzchar(nm)]
-    if (!length(nm)) return()
-    ccu[[length(ccu) + 1]] <<- data.frame(name = nm, key = .reg_key(nm), season = season,
-                                          tm_id = rep_len(.reg_id(tm_id), length(nm)), class = rep_len(as.character(class), length(nm)),
-                                          head = rep_len(as.character(head), length(nm)), stringsAsFactors = FALSE)
+  add_ccu <- function(nm, season, tm_id = NA_character_, class = NA_character_, head = NA_character_, src = "bio") {
+    nm <- as.character(nm); keep <- !is.na(nm) & nzchar(nm)
+    if (!any(keep)) return()
+    tm_id <- rep_len(.reg_id(tm_id), length(nm))[keep]; class <- rep_len(as.character(class), length(nm))[keep]
+    head <- rep_len(as.character(head), length(nm))[keep]; nm <- nm[keep]
+    ccu[[length(ccu) + 1]] <<- data.frame(name = nm, key = .reg_key(nm), season = season, tm_id = tm_id, class = class,
+                                          head = head, src = src, stringsAsFactors = FALSE)
   }
   if (exists("spring26") && is.data.frame(spring26) && nrow(spring26) && "Pitcher" %in% names(spring26)) {
     s <- spring26
@@ -56,7 +57,12 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
     s <- s[!is.na(s$Pitcher) & nzchar(s$Pitcher), , drop = FALSE]
     ids <- if ("PitcherId" %in% names(s)) tapply(.reg_id(s$PitcherId), s$Pitcher, function(x) { x <- x[!is.na(x)]; if (length(x)) names(sort(table(x), decreasing = TRUE))[1] else NA_character_ }) else NULL
     nms <- unique(s$Pitcher)
-    add_ccu(nms, "Spring26", tm_id = if (is.null(ids)) NA_character_ else unname(ids[nms]))
+    add_ccu(nms, "Spring26", tm_id = if (is.null(ids)) NA_character_ else unname(ids[nms]), src = "games")
+  }
+  # Coastal arms with 2026 games in the Supabase directory (their spelling there)
+  if (!is.null(pr) && any(!is.na(pr$PitcherTeam) & pr$PitcherTeam == "COA_CHA")) {
+    cc <- pr[!is.na(pr$PitcherTeam) & pr$PitcherTeam == "COA_CHA", , drop = FALSE]
+    add_ccu(cc$display, "Spring26", tm_id = cc$PitcherId, src = "games")
   }
   if (exists("bio") && is.data.frame(bio) && "Pitcher_FL" %in% names(bio)) {
     b <- bio[toupper(trimws(as.character(bio$Roster_2026 %||% "Yes"))) %in% c("YES", "Y", "TRUE", "1"), , drop = FALSE]
@@ -64,7 +70,7 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
   }
   if (exists("roster27") && is.data.frame(roster27) && nrow(roster27)) {
     r <- roster27[roster27$IsPitcher, , drop = FALSE]
-    add_ccu(r$Name, "Fall26", class = r$Class, head = if ("Headshot" %in% names(r)) r$Headshot else NA)
+    add_ccu(r$Name, "Fall26", class = r$Class, head = if ("Headshot" %in% names(r)) r$Headshot else NA, src = "roster")
   }
   bp_ids <- NULL
   if (exists("bullpen_pitchers_fl") && length(bullpen_pitchers_fl)) {
@@ -73,14 +79,17 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
       nm <- sub("^\\s*([^,]+),\\s*(.+)\\s*$", "\\2 \\1", bp_fix_names(as.character(bp$Pitcher)))
       bp_ids <- tapply(.reg_id(bp$PitcherId), .reg_key(nm), function(x) { x <- x[!is.na(x)]; if (length(x)) names(sort(table(x), decreasing = TRUE))[1] else NA_character_ })
     }
-    add_ccu(bullpen_pitchers_fl, "Fall26")
+    add_ccu(bullpen_pitchers_fl, "Fall26", src = "bullpen")
   }
   if (length(ccu)) {
     c0 <- dplyr::bind_rows(ccu)
     if (!is.null(bp_ids)) c0$tm_id <- ifelse(is.na(c0$tm_id), unname(bp_ids[c0$key]), c0$tm_id)
     first_nonna <- function(x) { x <- x[!is.na(x) & nzchar(as.character(x))]; if (length(x)) x[1] else NA_character_ }
+    # the GAME-data spelling is the name every page filters on
+    # (filtered_data: Pitcher == name); roster / bullpen spellings only when
+    # the player has no spring games (bullpen matching is normalised anyway)
     cg <- c0 %>% dplyr::group_by(key) %>% dplyr::summarise(
-      name = { n <- name; f <- n[season == "Fall26"]; if (length(f)) f[1] else n[1] },   # roster spelling wins
+      name = { n <- name; g <- n[src == "games"]; if (length(g)) g[1] else { f <- n[season == "Fall26"]; if (length(f)) f[1] else n[1] } },
       tm_id = first_nonna(tm_id), class = first_nonna(class), head = first_nonna(head),
       seasons = paste(unique(season[order(match(season, names(REG_SEASON_LABELS)))]), collapse = "|"),
       .groups = "drop") %>% as.data.frame()
@@ -118,7 +127,7 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
     pairs$BatterId <- .reg_id(pairs$BatterId); pairs$key <- .reg_key(pairs$display)
     isc <- !is.na(pairs$BatterTeam) & pairs$BatterTeam == "COA_CHA"
     ccu_ids <- tapply(pairs$BatterId[isc], pairs$key[isc], function(x) { x <- x[!is.na(x)]; if (length(x)) x[1] else NA_character_ })
-    if (any(isc)) ccu$games <- data.frame(name = unique(pairs$display[isc]), season = "Spring26", class = NA_character_, head = NA_character_, stringsAsFactors = FALSE)
+    if (any(isc)) ccu$games <- data.frame(name = unique(pairs$display[isc]), season = "Spring26", class = NA_character_, head = NA_character_, src = "games", stringsAsFactors = FALSE)
     nc <- pairs[!isc, , drop = FALSE]
     nc$grp <- ifelse(is.na(nc$BatterId), paste0("hn:", nc$key, "|", nc$BatterTeam), paste0("ht:", nc$BatterId))
     g <- nc %>% dplyr::group_by(grp) %>% dplyr::summarise(
@@ -131,9 +140,10 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
   }
   if (length(ccu)) {
     c0 <- dplyr::bind_rows(ccu); c0 <- c0[!is.na(c0$name) & nzchar(c0$name), , drop = FALSE]; c0$key <- .reg_key(c0$name)
+    if (!"src" %in% names(c0)) c0$src <- "bio"; c0$src[is.na(c0$src)] <- "bio"
     first_nonna <- function(x) { x <- x[!is.na(x) & nzchar(as.character(x))]; if (length(x)) x[1] else NA_character_ }
     cg <- c0 %>% dplyr::group_by(key) %>% dplyr::summarise(
-      name = { n <- name; f <- n[season == "Fall26"]; if (length(f)) f[1] else n[1] },
+      name = { n <- name; g <- n[src == "games"]; if (length(g)) g[1] else { f <- n[season == "Fall26"]; if (length(f)) f[1] else n[1] } },
       class = first_nonna(class), head = first_nonna(head),
       seasons = paste(unique(season[order(match(season, names(REG_SEASON_LABELS)))]), collapse = "|"), .groups = "drop") %>% as.data.frame()
     cg$tm_id <- if (!is.null(ccu_ids)) unname(ccu_ids[cg$key]) else NA_character_
@@ -208,6 +218,20 @@ player_registry <- function(with_hitters = FALSE, refresh = FALSE) {
               sum(d$kind == "bat"), sum(d$coastal), as.numeric(difftime(Sys.time(), t0, units = "secs"))))
   d
 }
+# ---- boot: index every player before the first session -----------------------------
+# Pitchers come from tables already in memory; NCAA hitters join when their
+# directory is in Storage (lb/<season>/batter_dir.parquet, written by
+# scripts/build_leaderboards.R). Without that file the slow database index
+# runs once, in the background, after the first session opens.
+local({
+  t0 <- Sys.time()
+  if (exists(".hb_env")) .hb_env$storage_only <- TRUE
+  reg <- tryCatch(player_registry(with_hitters = TRUE), error = function(e) { cat("[registry] boot index failed:", conditionMessage(e), "\n"); NULL })
+  if (exists(".hb_env")) .hb_env$storage_only <- FALSE
+  cat("[registry] boot index:", NROW(reg), "players in", round(as.numeric(difftime(Sys.time(), t0, units = "secs")), 1), "s |",
+      if (isTRUE(.reg_env$has_ncaa_hitters)) "NCAA hitters included" else "NCAA hitters pending (no batter_dir in Storage)", "\n")
+})
+
 registry_row <- function(token) {
   if (is.null(token) || !length(token) || is.na(token[1]) || !nzchar(token[1])) return(NULL)
   d <- player_registry()

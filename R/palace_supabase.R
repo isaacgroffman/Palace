@@ -522,6 +522,20 @@ pp_pool_xstats <- function(pool, by = c("Pitcher", "PitcherPitchType")) {
 
 # Batter/team directory for the hitter search (one row per batter-team).
 pp_batter_directory <- function() {
+  # lb/<season>/batter_dir.parquet (scripts/build_leaderboards.R) is the same
+  # distinct, precomputed; the database scan is the fallback and is skipped
+  # while the boot index runs (.hb_env$storage_only)
+  if (exists("storage_read_parquet", mode = "function") && sb_storage_enabled()) {
+    season <- if (exists("TM_SEASON")) TM_SEASON else 2026L
+    d <- tryCatch(storage_read_parquet(sprintf("lb/%s/batter_dir.parquet", season)), error = function(e) NULL)
+    if (is.data.frame(d) && nrow(d) && all(c("Batter", "BatterTeam") %in% names(d))) {
+      if (!"BatterId" %in% names(d)) d$BatterId <- NA_character_
+      d$BatterId <- as.character(d$BatterId); d$src <- "2026"
+      cat("[pitchprofiler] batter directory from Storage:", nrow(d), "rows\n")
+      return(d)
+    }
+  }
+  if (exists(".hb_env") && isTRUE(.hb_env$storage_only)) return(NULL)
   if (!pp_sb_available()) return(NULL)
   d <- .pp_with_retry("batter directory", function() DBI::dbGetQuery(palace_pool(),
     "select distinct batter_name as \"Batter\", batter_team as \"BatterTeam\",

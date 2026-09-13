@@ -335,8 +335,9 @@
     seasons <- strsplit(r$seasons %||% "", "|", fixed = TRUE)[[1]]
     seasons <- seasons[seasons %in% names(REG_SEASON_LABELS)]
     if (!length(seasons)) seasons <- "Spring26"
-    # the season the player most recently played, unless the caller asked
-    pick <- if (!is.null(season) && season %in% seasons) season else seasons[length(seasons)]
+    # the caller's season if the player has it; else Spring 2026 (game stats)
+    # when he has it; else the most recent season (Fall 2026 bullpens)
+    pick <- if (!is.null(season) && season %in% seasons) season else if ("Spring26" %in% seasons) "Spring26" else seasons[length(seasons)]
     if (!identical(sort(isolate(input$season_type) %||% ""), pick))
       shinyWidgets::updatePickerInput(session, "season_type", selected = pick)
     if (identical(r$kind, "bat")) {
@@ -371,6 +372,10 @@
       }), error = function(e) cat("[registry] hitter index failed:", conditionMessage(e), "\n"))
     }, once = TRUE)
   }, once = TRUE)
+  observeEvent(input$search_ready, {
+    req(logged_in())
+    push_search_choices(isolate(cur_player())$token %||% isolate(input$global_search))
+  })
   # per-player season pills (Players page) drive the hidden season picker
   observeEvent(input$player_season, {
     s <- input$player_season

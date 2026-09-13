@@ -277,6 +277,10 @@ hit_agg <- px %>% mutate(.sw = sw, .whf = whf, .inz = inz, .bip = bip, .ev = ev)
     .groups = "drop") %>% as.data.frame()
 hit_agg$Batter <- ifelse(grepl(",", hit_agg$Batter), normalize_lastfirst(hit_agg$Batter), hit_agg$Batter)
 hit_agg$School <- prettify_team(hit_agg$TeamCode)
+# batter directory (raw spelling x team x id) so the app never has to run
+# the distinct over the per-pitch table itself
+batter_dir <- px %>% filter(!is.na(batter_name), nzchar(batter_name)) %>%
+  distinct(Batter = batter_name, BatterTeam = batter_team, BatterId = idk(batter_id)) %>% as.data.frame()
 rm(px); invisible(gc())
 
 # ---- TrackMan code -> TruMedia team id, from this build's own data ------------------
@@ -543,7 +547,7 @@ up <- function(df, name) {
 }
 up(as.data.frame(teams), "teams"); up(as.data.frame(tm_pitching), "tm_pitching_totals"); up(as.data.frame(tm_batting), "tm_batting_totals")
 up(pitchers, "pitchers"); up(pitches, "pitches"); up(hitters, "hitters")
-up(identity, "identity")
+up(identity, "identity"); up(batter_dir, "batter_dir")
 if (!is.null(team_xwalk) && nrow(team_xwalk)) up(team_xwalk, "team_xwalk")
 if (!is.null(pitcher_day)) up(pitcher_day, "pitcher_day")
 if (!is.null(tm_pitching_team)) up(as.data.frame(tm_pitching_team), "tm_pitching_team")
