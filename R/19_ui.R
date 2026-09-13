@@ -276,13 +276,13 @@ app_ui <- fluidPage(
           var side = item.kind === 'bat'
             ? '<span class=\"gs-side gs-side-bat\">HITTER</span>'
             : '<span class=\"gs-side\">PITCHER</span>';
-          return '<div class=\"gs-opt\">' + head +
+          return '<div class=\"option gs-opt\">' + head +
                  '<div class=\"gs-txt\"><div class=\"gs-name\">' + escape(item.name || '') +
                  (item.team ? ' <span class=\"gs-team\">' + escape(item.team) + '</span>' : '') + side + '</div>' +
                  '<div class=\"gs-meta\">' + escape(item.meta || '') + '</div></div>' + logo + '</div>';
         },
         item: function(item, escape) {
-          return '<div class=\"gs-item\">' + escape(item.name || '') +
+          return '<div class=\"item gs-item\">' + escape(item.name || '') +
                  (item.team ? ' <span class=\"gs-team\">' + escape(item.team) + '</span>' : '') + '</div>';
         }
       };

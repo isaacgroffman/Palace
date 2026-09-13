@@ -263,14 +263,61 @@ player_registry <- function(with_hitters = FALSE, refresh = FALSE) {
 # directory is in Storage (lb/<season>/batter_dir.parquet, written by
 # scripts/build_leaderboards.R). Without that file the slow database index
 # runs once, in the background, after the first session opens.
+.reg_env$version <- 0L
 local({
   t0 <- Sys.time()
   if (exists(".hb_env")) .hb_env$storage_only <- TRUE
   reg <- tryCatch(player_registry(with_hitters = TRUE), error = function(e) { cat("[registry] boot index failed:", conditionMessage(e), "\n"); NULL })
   if (exists(".hb_env")) .hb_env$storage_only <- FALSE
+  .reg_env$version <- 1L
   cat("[registry] boot index:", NROW(reg), "players in", round(as.numeric(difftime(Sys.time(), t0, units = "secs")), 1), "s |",
       if (isTRUE(.reg_env$has_ncaa_hitters)) "NCAA hitters included" else "NCAA hitters pending (no batter_dir in Storage)", "\n")
 })
+
+# ---- NCAA hitters without batter_dir: index in a BACKGROUND process --------------
+# The distinct over the per-pitch table takes ~45 s. Running it inside a
+# session used to freeze the whole R process (search requests went
+# unanswered), so it runs in a child R process; the parent polls, installs
+# the directory, rebuilds the registry and bumps .reg_env$version, which
+# every open session watches to re-push its search choices.
+.reg_bg_hitters_start <- function() {
+  if (isTRUE(.reg_env$has_ncaa_hitters) || !is.null(.reg_env$bg)) return(invisible(FALSE))
+  host <- Sys.getenv("SB_DB_HOST"); user <- Sys.getenv("SB_DB_USER"); pass <- Sys.getenv("SB_DB_PASS")
+  if (!nzchar(host) || !nzchar(user) || !nzchar(pass) || !requireNamespace("callr", quietly = TRUE)) return(invisible(FALSE))
+  port <- as.integer(Sys.getenv("SB_DB_PORT", "5432"))
+  .reg_env$bg <- tryCatch(callr::r_bg(function(host, user, pass, port) {
+    con <- DBI::dbConnect(RPostgres::Postgres(), host = host, port = port, dbname = "postgres", user = user, password = pass, sslmode = "require")
+    on.exit(try(DBI::dbDisconnect(con), silent = TRUE))
+    DBI::dbGetQuery(con, "select distinct batter_name as \"Batter\", batter_team as \"BatterTeam\", batter_id::text as \"BatterId\"
+                            from pitchprofiler.pitches where batter_name is not null and batter_name <> ''")
+  }, args = list(host = host, user = user, pass = pass, port = port), supervise = TRUE), error = function(e) { cat("[registry] background hitter index failed to start:", conditionMessage(e), "\n"); NULL })
+  if (is.null(.reg_env$bg)) return(invisible(FALSE))
+  .reg_env$bg_started <- Sys.time()
+  cat("[registry] NCAA hitter index running in a background process\n")
+  later::later(.reg_bg_hitters_poll, 10)
+  invisible(TRUE)
+}
+.reg_bg_hitters_poll <- function() {
+  bg <- .reg_env$bg
+  if (is.null(bg)) return(invisible())
+  if (bg$is_alive()) {
+    if (difftime(Sys.time(), .reg_env$bg_started, units = "mins") > 20) { cat("[registry] background hitter index timed out\n"); try(bg$kill(), silent = TRUE); .reg_env$bg <- NULL; return(invisible()) }
+    later::later(.reg_bg_hitters_poll, 10); return(invisible())
+  }
+  raw <- tryCatch(bg$get_result(), error = function(e) { cat("[registry] background hitter index failed:", conditionMessage(e), "\n"); NULL })
+  .reg_env$bg <- NULL
+  if (!is.data.frame(raw) || !nrow(raw)) return(invisible())
+  t0 <- Sys.time()
+  tryCatch({
+    ncaa_batter_directory(raw = raw)
+    player_registry(with_hitters = TRUE, refresh = TRUE)
+    .reg_env$version <- .reg_env$version + 1L
+    cat("[registry] NCAA hitters installed from the background index:", nrow(raw), "rows in",
+        round(as.numeric(difftime(Sys.time(), t0, units = "secs")), 1), "s | registry version", .reg_env$version, "\n")
+  }, error = function(e) cat("[registry] installing the hitter index failed:", conditionMessage(e), "\n"))
+  invisible()
+}
+if (!isTRUE(.reg_env$has_ncaa_hitters)) .reg_bg_hitters_start()
 
 registry_row <- function(token) {
   if (is.null(token) || !length(token) || is.na(token[1]) || !nzchar(token[1])) return(NULL)

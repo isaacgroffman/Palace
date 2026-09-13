@@ -7,9 +7,12 @@
 # ============================================================================
 .hb_env <- new.env(parent = emptyenv())
 
-ncaa_batter_directory <- function() {
-  if (!is.null(.hb_env$dir)) return(.hb_env$dir)
-  raw <- tryCatch(pp_batter_directory(), error = function(e) NULL)
+# `raw`: a directory frame (Batter, BatterTeam, BatterId) computed elsewhere
+# (the boot-time background index in R/18_player_registry.R) to install
+ncaa_batter_directory <- function(raw = NULL) {
+  if (is.null(raw) && !is.null(.hb_env$dir)) return(.hb_env$dir)
+  if (is.null(raw)) raw <- tryCatch(pp_batter_directory(), error = function(e) NULL)
+  if (is.data.frame(raw) && nrow(raw) && !"src" %in% names(raw)) raw$src <- "2026"
   if (is.null(raw)) raw <- data.frame(Batter = character(0), BatterTeam = character(0), src = character(0))
   if (nrow(raw) == 0) {
     # not cached: an empty answer (Storage file missing during the boot

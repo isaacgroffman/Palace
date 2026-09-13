@@ -327,6 +327,7 @@
     session$userData$global_choice_pool <- unique(ch$name[ch$kind == "pit"])
     sel <- if (!is.null(selected) && nzchar(selected %||% "") && selected %in% ch$value) selected else character(0)
     cat("[search] pushing", nrow(ch), "players (", sum(ch$kind == "pit"), "pitchers,", sum(ch$kind == "bat"), "hitters ) to", session$token, "\n")
+    session$userData$search_version <- .reg_env$version %||% 0L
     updateSelectizeInput(session, "global_search", choices = ch, selected = sel, server = TRUE)
   }
   select_player <- function(token, season = NULL, sub = NULL) {
@@ -361,18 +362,21 @@
     if (!is.null(cp) && identical(cp$token, tok)) return()
     select_player(tok)
   }, priority = 1500)
-  # feed the search once the UI is up; NCAA hitters join after their
-  # directory (a distinct over the per-pitch table) has been indexed once
+  # feed the search once the UI is up (search_ready below is the reliable
+  # signal; this covers older clients). The registry is built at boot and
+  # NCAA hitters arrive from a background process: when its version moves,
+  # every open session re-pushes its choices, keeping the current pick.
   observeEvent(input$app_ui_ready, {
     req(logged_in())
     push_search_choices(isolate(input$global_search))
-    if (!isTRUE(.reg_env$has_ncaa_hitters)) session$onFlushed(function() {
-      tryCatch(withProgress(message = "Indexing college hitters\u2026", value = 0.5, session = session, {
-        player_registry(with_hitters = TRUE)
-        push_search_choices(isolate(input$global_search))
-      }), error = function(e) cat("[registry] hitter index failed:", conditionMessage(e), "\n"))
-    }, once = TRUE)
   }, once = TRUE)
+  observe({
+    invalidateLater(15000)
+    req(logged_in())
+    v <- .reg_env$version %||% 0L
+    if (!identical(session$userData$search_version, v) && !is.null(session$userData$search_version))
+      push_search_choices(isolate(cur_player())$token %||% isolate(input$global_search))
+  })
   observeEvent(input$search_ready, {
     req(logged_in())
     push_search_choices(isolate(cur_player())$token %||% isolate(input$global_search))
