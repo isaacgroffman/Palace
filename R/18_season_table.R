@@ -71,14 +71,25 @@ ps_pitcher_id <- function(name) {
 }
 
 # TruMedia's name spelling for a player -> row(s) of a PlayerTotals frame
-.ps_rows_for <- function(df, name, id = NA_character_) {
+# `id` known: the TrackMan id alone decides (a namesake never matches).
+# `id` unknown but `team_id` known: the name, on that team only.
+# Neither: the name (legacy).
+.ps_rows_for <- function(df, name, id = NA_character_, team_id = NA_character_, strict_id = FALSE) {
   if (is.null(df) || !nrow(df)) return(df[0, , drop = FALSE])
+  id <- if (is.null(id) || !length(id)) NA_character_ else as.character(id[1])
+  team_id <- if (is.null(team_id) || !length(team_id)) NA_character_ else as.character(team_id[1])
   hit <- rep(FALSE, nrow(df))
-  if (!is.na(id) && "trackmanPlayerId" %in% names(df))
-    hit <- hit | (!is.na(df$trackmanPlayerId) & as.character(df$trackmanPlayerId) == id)
+  if (!is.na(id) && "trackmanPlayerId" %in% names(df)) {
+    hit <- !is.na(df$trackmanPlayerId) & .ref_id(df$trackmanPlayerId) == .ref_id(id)
+    if (strict_id) return(df[hit, , drop = FALSE])
+  }
   if (!any(hit)) {
     nc <- .tm_pick_col(df, c("fullName", "playerName", "^player$", "^name$"))
     if (!is.null(nc)) hit <- .tm_norm(df[[nc]]) == .tm_norm(name)
+    if (!is.na(team_id)) {
+      tc <- intersect(c("teamId", "mostRecentTeamId"), names(df))
+      if (length(tc)) hit <- hit & !is.na(df[[tc[1]]]) & .ref_id(df[[tc[1]]]) == .ref_id(team_id)
+    }
   }
   df[hit, , drop = FALSE]
 }
@@ -115,7 +126,7 @@ ps_candidate_teams <- function(name, kind = c("pit", "bat"), id = NA_character_)
 # ---- one season's TruMedia rows ------------------------------------------------
 # returns a data.frame with one row per team the player has a line for, in
 # the API's raw column vocabulary plus Team / TeamId / Source
-ps_tm_rows <- function(name, yr, kind = c("pit", "bat"), id = NA_character_) {
+ps_tm_rows <- function(name, yr, kind = c("pit", "bat"), id = NA_character_, team_id = NA_character_, strict_id = FALSE) {
   kind <- match.arg(kind)
   pre <- tryCatch(lb_precomputed(yr), error = function(e) list())
   team_frame <- if (kind == "pit") pre$tm_pitching_team else pre$tm_batting_team
@@ -127,7 +138,7 @@ ps_tm_rows <- function(name, yr, kind = c("pit", "bat"), id = NA_character_) {
   }
   # 1) team-scoped precomputed rows
   if (is.data.frame(team_frame) && nrow(team_frame)) {
-    rr <- .ps_rows_for(team_frame, name, id)
+    rr <- .ps_rows_for(team_frame, name, id, team_id, strict_id)
     if (nrow(rr)) {
       rr$Team <- team_name_of(rr$teamId); rr$TeamId <- as.character(rr$teamId); rr$Source <- "team"
       return(rr)
@@ -143,7 +154,8 @@ ps_tm_rows <- function(name, yr, kind = c("pit", "bat"), id = NA_character_) {
       t <- unlist(tok$batting %||% list()); if (length(t)) paste0("[", unique(c("PA", t)), "]", collapse = ",") else NULL
     }
     rows <- list()
-    for (team in ps_candidate_teams(name, kind, id)) {
+    cands <- if (!is.na(team_id) && !is.null(REF_TEAMS)) ref_team_name(team_id) else ps_candidate_teams(name, kind, id)
+    for (team in cands[!is.na(cands)]) {
       tid <- tryCatch(tm_with_season(yr, tm_find_team_id(team)), error = function(e) NULL)
       if (is.null(tid)) next
       df <- tryCatch(tm_with_season(yr, .ps_live_totals(tid, cols)), error = function(e) NULL)
@@ -164,7 +176,7 @@ ps_tm_rows <- function(name, yr, kind = c("pit", "bat"), id = NA_character_) {
   }
   # 3) league-wide calendar-year row
   if (is.data.frame(wide_frame) && nrow(wide_frame)) {
-    rr <- .ps_rows_for(wide_frame, name, id)
+    rr <- .ps_rows_for(wide_frame, name, id, team_id, strict_id)
     if (nrow(rr)) {
       rr$Team <- if ("mostRecentTeamName" %in% names(rr)) as.character(rr$mostRecentTeamName) else NA_character_
       rr$TeamId <- if ("mostRecentTeamId" %in% names(rr)) as.character(rr$mostRecentTeamId) else NA_character_
@@ -186,7 +198,13 @@ ps_tm_rows <- function(name, yr, kind = c("pit", "bat"), id = NA_character_) {
 }
 
 # ---- season rows, pitcher ----------------------------------------------------------
-ps_bio_age <- function(name) {
+ps_bio_age <- function(name, ident = NULL) {
+  if (!is.null(ident)) {
+    pb <- tryCatch(player_bio(name, team = if (isTRUE(ident$coastal)) "Coastal Carolina" else ident$team, tm_id = ident$tm_id,
+                              kind = if (identical(ident$kind, "bat")) "bat" else "pit"), error = function(e) NULL)
+    a <- if (!is.null(pb)) pb$age else NA_real_
+    return(if (is.finite(a) && a > 0) a else NA_real_)
+  }
   r <- tryCatch(drs_lookup(name), error = function(e) NULL)
   a <- if (!is.null(r) && "Age" %in% names(r)) .ps_num(r$Age) else NA_real_
   if (!is.finite(a) || a <= 0) {
@@ -200,16 +218,22 @@ ps_rate <- function(num, den, digits = 1) {
   v <- ifelse(is.finite(den) & den > 0 & is.finite(num), 100 * num / den, NA_real_); round(v, digits)
 }
 
-season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), include_bullpens = TRUE) {
+# `ident`: the open player's registry row (R/18_player_registry.R). With it
+# the rows are that identity's only: by TrackMan id when it has one, else by
+# name on its team; without it the legacy name lookup applies.
+season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), include_bullpens = TRUE, ident = NULL) {
   if (is.null(name) || !nzchar(name)) return(NULL)
-  key <- paste("pit", name, paste(seasons, collapse = ","), include_bullpens)
+  has_ident <- !is.null(ident)
+  id <- if (has_ident) (if (is.na(ident$tm_id %||% NA)) NA_character_ else as.character(ident$tm_id)) else ps_pitcher_id(name)
+  team_id <- if (has_ident) (if (isTRUE(ident$coastal)) "4104" else if (is.na(ident$team_id %||% NA)) NA_character_ else as.character(ident$team_id)) else NA_character_
+  if (has_ident && isTRUE(ident$coastal)) include_bullpens <- include_bullpens else if (has_ident) include_bullpens <- FALSE
+  key <- paste("pit", name, id, team_id, paste(seasons, collapse = ","), include_bullpens)
   hit <- .ps_env[[key]]
   if (!is.null(hit) && difftime(Sys.time(), hit$at, units = "mins") < 30) return(hit$rows)
-  id  <- ps_pitcher_id(name)
-  age <- ps_bio_age(name)
+  age <- ps_bio_age(name, ident)
   out <- list()
   for (yr in seasons) {
-    rr <- tryCatch(ps_tm_rows(name, yr, "pit", id), error = function(e) NULL)
+    rr <- tryCatch(ps_tm_rows(name, yr, "pit", id, team_id, strict_id = has_ident && !is.na(id)), error = function(e) NULL)
     if (is.null(rr) || !nrow(rr)) next
     g <- function(ab, i) { v <- tm_stat(rr[i, , drop = FALSE], ab); if (length(v) == 0) NA_real_ else .ps_num(v) }
     for (i in seq_len(nrow(rr))) {
@@ -247,8 +271,12 @@ season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), inc
   pre <- tryCatch(lb_precomputed(TM_SEASON), error = function(e) list())
   tk <- pre$pitchers
   if (is.data.frame(tk) && nrow(tk)) {
-    j <- if (!is.na(id)) which(as.character(tk$tm_id) == id) else integer(0)
-    if (!length(j)) j <- which(.tm_norm(tk$Pitcher) == .tm_norm(name))
+    j <- if (!is.na(id)) which(!is.na(tk$tm_id) & as.character(tk$tm_id) == id) else integer(0)
+    if (!length(j) && !(has_ident && !is.na(id))) {
+      j <- which(.tm_norm(tk$Pitcher) == .tm_norm(name))
+      if (length(j) && !is.na(team_id) && "team_id" %in% names(tk)) j <- j[!is.na(tk$team_id[j]) & as.character(tk$team_id[j]) == team_id]
+      else if (length(j) && has_ident && !is.na(team_id)) j <- integer(0)
+    }
     if (length(j)) {
       j <- j[1]
       tk_team <- as.character(tk$School[j])
@@ -280,6 +308,8 @@ season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), inc
     bp <- tryCatch(bullpen_pitches(), error = function(e) NULL)
     if (is.data.frame(bp) && nrow(bp)) {
       mine <- bp[bp_norm_name(bp$Pitcher) == bp_norm_name(name), , drop = FALSE]
+      if (!is.na(id) && "PitcherId" %in% names(mine) && any(!is.na(mine$PitcherId) & as.character(mine$PitcherId) == id))
+        mine <- mine[!is.na(mine$PitcherId) & as.character(mine$PitcherId) == id, , drop = FALSE]
       if (nrow(mine)) {
         fbv <- mine$RelSpeed[mine$TaggedPitchType %in% LB_FB_TYPES & is.finite(mine$RelSpeed)]
         yr <- as.integer(format(max(mine$Date, na.rm = TRUE), "%Y"))
@@ -302,16 +332,19 @@ season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), inc
 }
 
 # ---- season rows, hitter -----------------------------------------------------------
-season_rows_batter <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON)) {
+season_rows_batter <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), ident = NULL) {
   if (is.null(name) || !nzchar(name)) return(NULL)
-  key <- paste("bat", name, paste(seasons, collapse = ","))
+  has_ident <- !is.null(ident)
+  id <- if (has_ident) (if (is.na(ident$tm_id %||% NA)) NA_character_ else as.character(ident$tm_id)) else
+    if (exists("ncaa_batter_id", mode = "function")) tryCatch(ncaa_batter_id(name), error = function(e) NA_character_) else NA_character_
+  team_id <- if (has_ident) (if (isTRUE(ident$coastal)) "4104" else if (is.na(ident$team_id %||% NA)) NA_character_ else as.character(ident$team_id)) else NA_character_
+  key <- paste("bat", name, id, team_id, paste(seasons, collapse = ","))
   hit <- .ps_env[[key]]
   if (!is.null(hit) && difftime(Sys.time(), hit$at, units = "mins") < 30) return(hit$rows)
-  id  <- if (exists("ncaa_batter_id", mode = "function")) tryCatch(ncaa_batter_id(name), error = function(e) NA_character_) else NA_character_
-  age <- ps_bio_age(name)
+  age <- ps_bio_age(name, ident)
   out <- list()
   for (yr in seasons) {
-    rr <- tryCatch(ps_tm_rows(name, yr, "bat", id), error = function(e) NULL)
+    rr <- tryCatch(ps_tm_rows(name, yr, "bat", id, team_id, strict_id = has_ident && !is.na(id)), error = function(e) NULL)
     if (is.null(rr) || !nrow(rr)) next
     g <- function(ab, i) { v <- tm_stat(rr[i, , drop = FALSE], ab); if (length(v) == 0) NA_real_ else .ps_num(v) }
     for (i in seq_len(nrow(rr))) {
@@ -348,7 +381,11 @@ season_rows_batter <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON)) {
   if (is.data.frame(tk) && nrow(tk)) {
     # TrackMan id first (exact), the name only for hitters the directory has no id for
     j <- if (!is.na(id) && "tm_id" %in% names(tk)) which(!is.na(tk$tm_id) & as.character(tk$tm_id) == id) else integer(0)
-    if (!length(j)) j <- which(.tm_norm(tk$Batter) == .tm_norm(name))
+    if (!length(j) && !(has_ident && !is.na(id))) {
+      j <- which(.tm_norm(tk$Batter) == .tm_norm(name))
+      if (length(j) && !is.na(team_id) && "team_id" %in% names(tk)) j <- j[!is.na(tk$team_id[j]) & as.character(tk$team_id[j]) == team_id]
+      else if (length(j) && has_ident && !is.na(team_id)) j <- integer(0)
+    }
     if (length(j) > 1) {
       teams <- if (!is.null(rows)) .conf_norm(rows$Team) else character(0)
       tids <- if (!is.null(rows)) rows$TeamId[!is.na(rows$TeamId)] else character(0)

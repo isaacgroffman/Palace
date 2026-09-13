@@ -248,17 +248,23 @@ pp_query_pitches <- function(where, cols = names(.PP_COLMAP), context = "pitchpr
 }
 
 # Every pitch thrown by these raw TrackMan pitcher names ("Last, First").
-pp_pitcher_rows <- function(raw_names) {
+# `tm_id` narrows the name match to one TrackMan id (the name index still
+# drives the scan; two arms who share a name never share a frame).
+.pp_id_clause <- function(col, tm_id) {
+  if (is.null(tm_id) || !length(tm_id) || is.na(tm_id[1]) || !nzchar(tm_id[1])) return("")
+  sprintf(" and %s::text = %s", col, DBI::dbQuoteString(DBI::ANSI(), as.character(tm_id[1])))
+}
+pp_pitcher_rows <- function(raw_names, tm_id = NULL) {
   q <- .pp_quote_in(raw_names)
   if (is.null(q)) return(NULL)
-  pp_query_pitches(sprintf("pitcher_name in (%s)", q), context = "pitcher pull")
+  pp_query_pitches(sprintf("pitcher_name in (%s)%s", q, .pp_id_clause("pitcher_id", tm_id)), context = "pitcher pull")
 }
 
 # Every pitch these hitters faced.
-pp_batter_rows <- function(raw_names) {
+pp_batter_rows <- function(raw_names, tm_id = NULL) {
   q <- .pp_quote_in(raw_names)
   if (is.null(q)) return(NULL)
-  pp_query_pitches(sprintf("batter_name in (%s)", q), context = "batter pull")
+  pp_query_pitches(sprintf("batter_name in (%s)%s", q, .pp_id_clause("batter_id", tm_id)), context = "batter pull")
 }
 
 # Both halves of every game a team played (its pitchers AND its batters).

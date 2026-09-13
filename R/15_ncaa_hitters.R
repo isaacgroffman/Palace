@@ -80,10 +80,11 @@ ncaa_batter_id <- function(display_name, team_disp = NULL) {
 }
 
 .hb_cache <- new.env(parent = emptyenv())
-load_ncaa_batter_data <- function(display_name, team_disp = NULL) {
+load_ncaa_batter_data <- function(display_name, team_disp = NULL, tm_id = NULL) {
   team_key <- if (is.null(team_disp) || !nzchar(team_disp %||% "")) "" else as.character(team_disp)
+  tm_id <- if (is.null(tm_id) || !length(tm_id) || is.na(tm_id[1]) || !nzchar(tm_id[1])) NULL else as.character(tm_id[1])
   key <- paste(gsub("[^A-Za-z0-9]", "_", display_name),
-               gsub("[^A-Za-z0-9]", "_", team_key), sep = "__")
+               gsub("[^A-Za-z0-9]", "_", team_key), if (!is.null(tm_id)) tm_id else "", sep = "__")
   cached <- .hb_cache[[key]]
   if (!is.null(cached)) return(cached)
 
@@ -101,7 +102,7 @@ load_ncaa_batter_data <- function(display_name, team_disp = NULL) {
   # which is why opponent bats fell through to parquet.
   # 2026: Supabase pitchprofiler.pitches first (every pitch, already
   # reclassified + scored), then the TruMedia / parquet paths as fallbacks.
-  sb26 <- tryCatch(pp_batter_rows(raws), error = function(e) NULL)
+  sb26 <- tryCatch(pp_batter_rows(raws, tm_id = tm_id), error = function(e) NULL)
   if (!is.null(sb26) && nrow(sb26) > 0) {
     cat("  [Hitter 2026 source] Supabase pitchprofiler:", nrow(sb26), "pitches\n")
     tm26 <- sb26
@@ -195,8 +196,20 @@ ncaa_pitcher_fast_cache <- new.env(parent = emptyenv())  # parquet-only frames
 # Enough for every chart (movement, arm slot, locations, indicators) in a
 # second or two. Supabase rows already carry plus scores; the full loader
 # only adds the TruMedia fallback and the disk cache.
-load_ncaa_pitcher_fast <- function(display_name) {
-  key <- gsub("[^A-Za-z0-9]", "_", display_name)
+# cache key for a pitcher frame: the name, plus the TrackMan id when the
+# caller knows which of two same-named arms it wants
+.scout_key <- function(display_name, tm_id = NULL) {
+  k <- gsub("[^A-Za-z0-9]", "_", display_name)
+  if (!is.null(tm_id) && length(tm_id) && !is.na(tm_id[1]) && nzchar(tm_id[1])) paste0(k, "__", tm_id[1]) else k
+}
+.scout_id_only <- function(df, tm_id) {
+  if (is.null(tm_id) || !length(tm_id) || is.na(tm_id[1]) || !nzchar(tm_id[1]) || !is.data.frame(df) || !nrow(df) ||
+      !"PitcherId" %in% names(df)) return(df)
+  keep <- !is.na(df$PitcherId) & as.character(df$PitcherId) == as.character(tm_id[1])
+  if (any(keep)) df[keep, , drop = FALSE] else df
+}
+load_ncaa_pitcher_fast <- function(display_name, tm_id = NULL) {
+  key <- .scout_key(display_name, tm_id)
   full <- ncaa_pitcher_cache[[key]]
   if (!is.null(full)) return(full)
   cached <- ncaa_pitcher_fast_cache[[key]]
@@ -213,12 +226,13 @@ load_ncaa_pitcher_fast <- function(display_name) {
   raws <- raws[!is.na(raws) & nzchar(raws)]
   if (length(raws) == 0) return(data.frame())
 
-  sb26 <- tryCatch(pp_pitcher_rows(raws), error = function(e) NULL)
+  sb26 <- tryCatch(pp_pitcher_rows(raws, tm_id = tm_id), error = function(e) NULL)
   frames <- Filter(function(d) !is.null(d) && nrow(d) > 0, list(sb26))
   if (length(frames) == 0) return(data.frame())
 
   df <- bind_rows(harmonize_types(frames))
   if ("PitchUID" %in% names(df)) df <- df %>% distinct(PitchUID, .keep_all = TRUE)
+  df <- .scout_id_only(df, tm_id)
   df$Pitcher <- display_name
   if ("Batter" %in% names(df)) {
     df$Batter <- ifelse(grepl(",", df$Batter), normalize_lastfirst(df$Batter), df$Batter)
@@ -231,8 +245,8 @@ load_ncaa_pitcher_fast <- function(display_name) {
   df
 }
 
-load_ncaa_pitcher_data <- function(display_name) {
-  key <- gsub("[^A-Za-z0-9]", "_", display_name)
+load_ncaa_pitcher_data <- function(display_name, tm_id = NULL) {
+  key <- .scout_key(display_name, tm_id)
   cached <- ncaa_pitcher_cache[[key]]
   if (!is.null(cached)) return(cached)
   disk <- .scout_cache_read(key)
@@ -253,7 +267,7 @@ load_ncaa_pitcher_data <- function(display_name) {
   # Supabase pitchprofiler.pitches first: the whole 2026 season, already
   # reclassified and scored by the production bundle. TruMedia (searched
   # on the pitcher's CURRENT team) remains as the fallback.
-  sb26 <- tryCatch(pp_pitcher_rows(raws), error = function(e) NULL)
+  sb26 <- tryCatch(pp_pitcher_rows(raws, tm_id = tm_id), error = function(e) NULL)
   tm26 <- if (!is.null(sb26) && nrow(sb26) > 0) sb26 else {
     team_disp <- tm_current_team(display_name)
     tryCatch(tm_load_pitcher_pitches(display_name, team_disp),
@@ -278,6 +292,7 @@ load_ncaa_pitcher_data <- function(display_name) {
 
   df <- bind_rows(harmonize_types(frames))
   if ("PitchUID" %in% names(df)) df <- df %>% distinct(PitchUID, .keep_all = TRUE)
+  df <- .scout_id_only(df, tm_id)
 
   # unify naming so Pitcher == the selected display name everywhere
   df$Pitcher <- display_name

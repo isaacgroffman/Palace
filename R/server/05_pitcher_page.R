@@ -190,12 +190,14 @@
     } else {
       # Identity by TrackMan id (directory, else the loaded pitches), so the
       # bio, crest and conference are this arm's and not a namesake's.
-      pid <- tryCatch(ps_pitcher_id(nm), error = function(e) NA_character_)
-      if (is.na(pid)) pid <- tryCatch({
+      cp <- player_ident_for(nm, "pit")
+      pid <- if (!is.null(cp)) cp$tm_id else tryCatch(ps_pitcher_id(nm), error = function(e) NA_character_)
+      if (is.null(cp) && is.na(pid)) pid <- tryCatch({
         d <- filtered_data(); v <- unique(stats::na.omit(as.character(d$PitcherId)))
         v <- v[nzchar(v) & !v %in% c("NA", "0")]; if (length(v)) v[1] else NA_character_
       }, error = function(e) NA_character_)
-      tk_team <- tryCatch(tm_current_team(nm), error = function(e) NULL)
+      tk_team <- if (!is.null(cp)) (if (!is.na(cp$team_code) && nzchar(cp$team_code)) cp$team_code else cp$team)
+                 else tryCatch(tm_current_team(nm), error = function(e) NULL)
       pb <- tryCatch(player_bio(nm, team = tk_team, tm_id = pid, kind = "pit"), error = function(e) NULL)
       disp <- nm
       num  <- if (!is.null(pb)) vv(pb$jersey, "") else ""

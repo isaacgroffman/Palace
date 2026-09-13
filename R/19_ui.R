@@ -544,7 +544,7 @@ app_ui <- fluidPage(
           if (el && el.style.display !== 'none') {
             el.style.opacity = '0'; setTimeout(function(){ el.style.display='none'; }, 400);
           }
-        }, 120000);
+        }, 45000);
       });
     ")),
     tags$style(HTML("
@@ -644,7 +644,30 @@ app_ui <- fluidPage(
       box-shadow: 0 1px 3px rgba(0,0,0,.15);
     }
     #header-player-search .selectize-input input::placeholder { color:#9CA3AF; }
-    #header-player-search .selectize-dropdown { font-size: 13px; }
+    #header-player-search .selectize-dropdown { font-size: 13px; width: 380px !important; max-width: 92vw; border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(16,24,40,.16); border: 1px solid #E5EAEE; overflow: hidden; }
+    #header-player-search .selectize-dropdown-content { max-height: 420px; }
+    #header-player-search .selectize-dropdown .option { padding: 6px 10px; border-bottom: 1px solid #F0F3F5; }
+    #header-player-search .selectize-dropdown .option.active { background: #E6F2F2; color: inherit; }
+    .gs-opt { display: flex; align-items: center; gap: 10px; }
+    .gs-head { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; object-position: center top; flex: 0 0 34px;
+               background: #F2F5F7; border: 1.5px solid #D8E3E6; }
+    .gs-head-blank { display: inline-block; }
+    .gs-logo { width: 26px; height: 26px; object-fit: contain; flex: 0 0 26px; margin-left: auto; }
+    .gs-txt { min-width: 0; flex: 1 1 auto; }
+    .gs-name { font-weight: 700; color: #152535; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gs-team { font-weight: 500; color: #5B6875; font-size: 12.5px; }
+    .gs-meta { color: #8A93A0; font-size: 11.5px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gs-side { font-size: 9px; font-weight: 800; letter-spacing: .08em; color: #0E6E70; background: #E6F2F2; border-radius: 10px;
+               padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+    .gs-side-bat { color: #7A5A2A; background: #F4EBDD; }
+    .gs-item .gs-team { color: #6B7280; }
+    .player-season-pills { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+    .player-season-pills .psp-lab { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: #8A93A0; }
+    .player-season-pills .btn-group .btn { background: #F2F5F7; border: 1px solid #E1E7EB; color: #3B4754; font-weight: 600; font-size: 12.5px;
+                                           padding: 4px 12px; box-shadow: none; border-radius: 8px; }
+    .player-season-pills .btn-group .btn + .btn { margin-left: 4px; }
+    .player-season-pills .btn-group .btn.active { background: #0E6E70; color: #fff; border-color: #0E6E70; }
     /* Search stays visible on every page, including Roster. */
 
     /* Clickable player names (leaderboards, matchup matrix, etc.) —
@@ -1614,14 +1637,38 @@ app_ui <- fluidPage(
           div(class = "header-controls",
               div(id = "header-player-search",
                   selectizeInput(
-                    inputId = "global_pitcher",
+                    inputId = "global_search",
                     label   = NULL,
                     choices = NULL,
                     selected = NULL,
                     width = "100%",
-                    options = list(placeholder = "Search players\u2026")
+                    options = list(
+                      placeholder = "Search players\u2026",
+                      searchField = c("name", "team", "meta"),
+                      valueField = "value", labelField = "label",
+                      maxOptions = 40, openOnFocus = FALSE, closeAfterSelect = TRUE,
+                      render = I("{
+                        option: function(item, escape) {
+                          var head = item.head ? '<img class=\"gs-head\" src=\"' + escape(item.head) + '\" loading=\"lazy\" onerror=\"this.className=\'gs-head gs-head-blank\';this.removeAttribute(\'src\')\">' : '<span class=\"gs-head gs-head-blank\"></span>';
+                          var logo = item.logo ? '<img class=\"gs-logo\" src=\"' + escape(item.logo) + '\" loading=\"lazy\" onerror=\"this.style.visibility=\'hidden\'\">' : '';
+                          var side = item.kind === 'bat' ? '<span class=\"gs-side gs-side-bat\">HITTER</span>' : '<span class=\"gs-side\">PITCHER</span>';
+                          return '<div class=\"gs-opt\">' + head + '<div class=\"gs-txt\"><div class=\"gs-name\">' + escape(item.name) +
+                                 (item.team ? ' <span class=\"gs-team\">' + escape(item.team) + '</span>' : '') + side + '</div>' +
+                                 '<div class=\"gs-meta\">' + escape(item.meta || '') + '</div></div>' + logo + '</div>';
+                        },
+                        item: function(item, escape) {
+                          return '<div class=\"gs-item\">' + escape(item.name) + (item.team ? ' <span class=\"gs-team\">' + escape(item.team) + '</span>' : '') + '</div>';
+                        }
+                      }")
+                    )
                   )),
-              div(id = "header-season-select",
+              # legacy name-keyed driver every pitcher page reads; the search
+              # above sets it (hidden: users pick identities, not names)
+              div(id = "header-player-legacy", style = "display:none;",
+                  selectizeInput(inputId = "global_pitcher", label = NULL, choices = NULL, selected = NULL)),
+              # season context: set per player from the pills on the player
+              # page (hidden here; the input is still what every page reads)
+              div(id = "header-season-select", style = "display:none;",
                   pickerInput(
                     inputId = "season_type",
                     label   = NULL,

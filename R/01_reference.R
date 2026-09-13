@@ -330,7 +330,9 @@ ref_player_lookup <- function(name, team_id = NULL, team = NULL, level = NULL) {
   tk <- if (!is.null(team) && length(team) == 1 && !is.na(team)) .ref_norm(team) else NA_character_
   narrow <- function(r) {
     if (!nrow(r)) return(r)
-    if (!is.na(tid) && any(r$team_id %in% tid)) return(r[r$team_id %in% tid, , drop = FALSE])
+    # a known team id is decisive: a same-named player on another team is
+    # another player, not a fallback
+    if (!is.na(tid)) return(r[r$team_id %in% tid, , drop = FALSE])
     if (!is.na(tk) && nzchar(tk)) {
       hit <- !is.na(r$key_team) & (r$key_team == tk | (nchar(tk) > 3 & grepl(tk, r$key_team, fixed = TRUE)))
       if (any(hit)) return(r[hit, , drop = FALSE])
@@ -339,16 +341,21 @@ ref_player_lookup <- function(name, team_id = NULL, team = NULL, level = NULL) {
     r
   }
   r <- REF_PLAYERS[REF_PLAYERS$key == k, , drop = FALSE]
-  if (nrow(r) > 1) r <- narrow(r)
+  n_exact <- nrow(r)
+  if (nrow(r) >= 1) r <- narrow(r)
   if (nrow(r) > 1) r <- r[order(match(r$level, REF_LEVELS)), , drop = FALSE]
+  if (!nrow(r) && n_exact > 0 && !is.na(tid)) return(NULL)   # the name exists, but not on this team
   if (!nrow(r)) {
     parts <- strsplit(k, " ", fixed = TRUE)[[1]]
     if (length(parts) >= 2 && nchar(parts[1]) > 0) {
       last <- parts[length(parts)]
       cand <- REF_PLAYERS[endsWith(REF_PLAYERS$key, paste0(" ", last)) & substr(REF_PLAYERS$key, 1, 1) == substr(parts[1], 1, 1), , drop = FALSE]
       nn <- narrow(cand)
+      # a last-name + initial guess needs the team to confirm it whenever a
+      # team is known; "nationally unique" only applies with no team hint
       if (nrow(nn) && nrow(nn) < nrow(cand)) r <- nn
-      else if (nrow(cand) == 1 || (nrow(cand) > 0 && length(unique(cand$key)) == 1)) r <- cand
+      else if (is.na(tid) && (is.na(tk) || !nzchar(tk)) &&
+               (nrow(cand) == 1 || (nrow(cand) > 0 && length(unique(cand$key)) == 1))) r <- cand
     }
   }
   if (!nrow(r)) return(NULL)

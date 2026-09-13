@@ -208,7 +208,10 @@ headshot_lookup <- function(name, team = NULL) {
     headshot = if ("trumedia_headshot_url" %in% names(r))
       vurl(r$trumedia_headshot_url) else NULL,
     logo     = if ("trumedia_team_logo_url" %in% names(r))
-      vurl(r$trumedia_team_logo_url) else NULL
+      vurl(r$trumedia_team_logo_url) else NULL,
+    team_id   = if ("team_id" %in% names(r)) vurl(r$team_id) else NULL,
+    team_name = if ("team_name" %in% names(r)) vurl(r$team_name) else NULL,
+    player_id = if ("trumedia_player_id" %in% names(r)) vurl(r$trumedia_player_id) else NULL
   )
 }
 
@@ -407,6 +410,14 @@ player_bio <- function(name, team = NULL, tm_id = NULL, kind = c("pit", "bat"), 
   need <- is.na(out$jersey) || is.na(out$pos) || is.na(out$class) || is.na(out$height) || is.na(out$hometown) || is.na(out$logo) || is.na(out$headshot)
   if (need && nzchar(nm)) {
     r <- tryCatch(drs_lookup(nm, team %||% out$team), error = function(e) NULL)
+    # a name-matched DRS row is only trusted when it agrees with the team
+    # we already know (the roster file lists every same-named player)
+    if (!is.null(r) && !is.na(out$team_id)) {
+      rt <- .ref_norm(c(r$team_name %||% NA, r$newestTeamName %||% NA, r$newestTeamLocation %||% NA))
+      want <- .ref_norm(c(out$team, ref_team_full(out$team_id), ref_team_name(out$team_id)))
+      want <- want[!is.na(want) & nzchar(want)]
+      if (!any(rt %in% want)) r <- NULL
+    }
     if (!is.null(r)) {
       if (is.na(out$jersey)) out$jersey <- chr1(r$Jersey)
       if (is.na(out$pos)) out$pos <- chr1(r$Position)
@@ -420,6 +431,9 @@ player_bio <- function(name, team = NULL, tm_id = NULL, kind = c("pit", "bat"), 
       out$source <- c(out$source, "drs")
     }
     hs <- tryCatch(headshot_lookup(nm, team %||% out$team), error = function(e) NULL)
+    # same rule for the headshot table: a known team id must agree
+    if (!is.null(hs) && !is.na(out$team_id) && !is.null(hs$team_id) && !identical(.ref_id(hs$team_id), .ref_id(out$team_id))) hs <- NULL
+    if (!is.null(hs) && !is.na(out$player_id) && !is.null(hs$player_id) && !identical(.ref_id(hs$player_id), out$player_id)) hs <- NULL
     if (!is.null(hs)) {
       if (is.na(out$headshot)) out$headshot <- chr1(hs$headshot)
       if (is.na(out$logo)) out$logo <- chr1(hs$logo)

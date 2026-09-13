@@ -191,37 +191,21 @@
     nm <- pl$name %||% ""
     side <- pl$side %||% "pitcher"
     req(nzchar(nm))
-    if (identical(side, "hitter")) {
-      open_hitter_page(nm)
-    } else {
-      # Resolve to a name the picker actually holds: TrackMan id first (the
-      # leaderboard / matrix carry it), then a spelling-tolerant name match.
-      # Pushing an unknown spelling used to leave the picker on a name no
-      # frame contains, which made the pitcher filter fall through and the
-      # page show every Coastal arm at once.
-      pool <- c(session$userData$global_choice_pool, roster27_pitcher_fl, bullpen_pitchers_fl)
-      target <- tryCatch(ncaa_display_for_id(pl$id %||% ""), error = function(e) NULL)
-      if (is.null(target)) target <- resolve_pitcher_name(nm, pool)
-      if (is.null(target)) {
-        showNotification(paste0("No pitch data for ", nm, " in the selected season."),
-                         type = "warning", duration = 6)
-        return()
-      }
-      # server-side selectize only honours `selected` for a loaded option:
-      # re-register the choices with it (cheap, ~11k names)
-      ch <- session$userData$global_choices
-      if (is.null(ch)) updateSelectizeInput(session, "global_pitcher", selected = target)
-      else updateSelectizeInput(session, "global_pitcher", choices = ch, selected = target, server = TRUE)
-      if (identical(side, "bullpen")) {
-        # a bullpen name lives in the Fall 2026 context; the season switch
-        # rebuilds the picker, so pin the pick through that rebuild
-        session$userData$restore_player <- target
-        shinyWidgets::updatePickerInput(session, "season_type", selected = "Fall26")
-      }
-      player_mode("pitcher")
-      updateTabsetPanel(session, "main_tabs", selected = "Players")
-      updateTabsetPanel(session, "player_subtabs", selected = "Overview")
+    # Resolve to a registry IDENTITY: the TrackMan id the link carries wins,
+    # then the name (Coastal first in a Fall 2026 / bullpen context).
+    kind <- if (identical(side, "hitter")) "bat" else "pit"
+    tok <- tryCatch(registry_token_for(nm, tm_id = pl$id %||% NULL, kind = kind,
+                                       prefer_coastal = identical(side, "bullpen") ||
+                                         "Fall26" %in% (input$season_type %||% character(0))),
+                    error = function(e) NULL)
+    if (is.null(tok)) {
+      # a hitter the index has not listed yet (matrix links can name opponents
+      # before the NCAA batter directory is built): open by name as before
+      if (kind == "bat") { session$userData$hitter_ident <- NULL; open_hitter_page(nm); return() }
+      showNotification(paste0("No pitch data for ", nm, " in the player index."), type = "warning", duration = 6)
+      return()
     }
+    select_player(tok, season = if (identical(side, "bullpen")) "Fall26" else NULL)
   })
 
   hp_data <- reactive({
@@ -230,8 +214,9 @@
     # hp_tm_team() is the page's own resolver (Coastal short-circuit +
     # tm_current_batter_team); handing it over means the loader never has
     # to guess the team a second time.
+    hid <- hitter_ident_for(bt)
     df <- withProgress(message = paste("Loading", bt, "..."), value = 0.4,
-                       load_ncaa_batter_data(bt, hp_tm_team(bt)))
+                       load_ncaa_batter_data(bt, hp_tm_team(bt), tm_id = if (!is.null(hid)) hid$tm_id else NULL))
     validate(need(is.data.frame(df) && nrow(df) > 0,
                   "No tracked pitches found for this hitter."))
     # honor the header season picker: Spring 2026 selected = only
@@ -321,8 +306,15 @@
   })
 
   # ---- Traditional stats strip (TruMedia API), mirrors the pitcher one ----
+  # the open hitter's identity (registry row) when it is this name
+  hitter_ident_for <- function(nm) {
+    h <- session$userData$hitter_ident
+    if (!is.null(h) && identical(h$name, nm %||% "")) h else NULL
+  }
   hp_tm_team <- function(nm) {
     if (is.null(nm) || !nzchar(nm)) return(NULL)
+    h <- hitter_ident_for(nm)
+    if (!is.null(h)) return(if (isTRUE(h$coastal)) "Coastal Carolina" else if (nzchar(h$team %||% "")) h$team else NULL)
     if (is_coastal_hitter(nm)) return("Coastal Carolina")
     tm_current_batter_team(nm)
   }
@@ -339,7 +331,7 @@
   hs_rows <- reactive({
     nm <- input$hp_batter
     req(nm, nzchar(nm))
-    tryCatch(season_rows_batter(nm), error = function(e) {
+    tryCatch(season_rows_batter(nm, ident = hitter_ident_for(nm)), error = function(e) {
       cat("[season table]", conditionMessage(e), "\n"); NULL })
   })
   output$hs_table <- renderUI({
@@ -521,8 +513,10 @@
 
     # identity by TrackMan id: the directory's id for this name / team,
     # else the id on the loaded pitches
-    bid <- tryCatch(ncaa_batter_id(bt, team), error = function(e) NA_character_)
-    if (is.na(bid) && !is.null(df) && "BatterId" %in% names(df)) {
+    hid <- hitter_ident_for(bt)
+    bid <- if (!is.null(hid)) hid$tm_id else tryCatch(ncaa_batter_id(bt, team), error = function(e) NA_character_)
+    if (!is.null(hid) && isTRUE(hid$coastal)) team <- "Coastal Carolina"
+    if (is.na(bid) && is.null(hid) && !is.null(df) && "BatterId" %in% names(df)) {
       v <- as.character(df$BatterId); v <- v[!is.na(v) & nzchar(v) & !v %in% c("NA", "0")]
       if (length(v)) bid <- names(sort(table(v), decreasing = TRUE))[1]
     }

@@ -33,7 +33,7 @@
   ps_rows <- reactive({
     gp <- input$global_pitcher
     req(gp, nzchar(gp), !is_hitter_pick(gp))
-    tryCatch(season_rows_pitcher(gp), error = function(e) {
+    tryCatch(season_rows_pitcher(gp, ident = player_ident_for(gp, "pit")), error = function(e) {
       cat("[season table]", conditionMessage(e), "\n"); NULL })
   })
   output$ps_table <- renderUI({

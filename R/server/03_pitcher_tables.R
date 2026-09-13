@@ -45,41 +45,15 @@
       available_pitchers <- union(available_pitchers,
                                   c(roster27_pitcher_fl, bullpen_pitchers_fl))
       
-      # Coastal roster first, then NCAA pitchers that exist in the
-      # currently selected season(s), labeled "Name — Team".
-      # server = TRUE keeps the client light with ~10k names.
-      season_years <- season_src_years(input$season_type)
-      global_choices <- build_global_pitcher_choices(available_pitchers,
-                                                     src_years = season_years)
-      # Unified search: hitters ride along after the pitcher block,
-      # labeled "Name — Team (Hitter)" with HB::-prefixed values,
-      # restricted to the selected season's source years.
-      global_choices <- c(global_choices,
-                          tryCatch(build_global_hitter_choices(season_years),
-                                   error = function(e) character(0)))
-
-      # Preserve a valid global selection across data refreshes, but drop it
-      # if the current pick isn't in the newly selected season's dataset.
-      # Hitter picks never stick here — the search snaps back to an arm.
-      keep_global <- {
-        cur <- input$global_pitcher
-        # a player named in the URL (refresh / reconnect / shared link) wins
-        # the first time the choices are built
-        rp <- session$userData$restore_player
-        if (!is.null(rp) && !is_hitter_pick(rp)) {
-          cur <- rp; session$userData$restore_player <- NULL
-        }
-        res <- if (!is.null(cur) && nzchar(cur) && !is_hitter_pick(cur))
-                 resolve_pitcher_name(cur, unname(global_choices)) else NULL
-        if (!is.null(res)) res else available_pitchers[1]
-      }
-      # Expose the live choice pool so roster clicks can resolve against it.
-      session$userData$global_choice_pool <- unname(global_choices)
-      session$userData$global_choices     <- global_choices   # named, for programmatic picks
-
-      updateSelectizeInput(session, "global_pitcher",
-                           choices = global_choices,
-                           selected = keep_global, server = TRUE)
+      # The identity search (R/18_player_registry.R) owns the pick. The
+      # hidden name input only ever holds the open player and never snaps
+      # to a default arm when the season data refreshes.
+      cp <- session$userData$cur_player
+      keep_global <- if (!is.null(cp) && identical(cp$kind, "pit")) cp$name else NULL
+      session$userData$global_choices <- NULL
+      if (!is.null(keep_global) && !identical(input$global_pitcher, keep_global))
+        updateSelectizeInput(session, "global_pitcher", choices = setNames(keep_global, keep_global),
+                             selected = keep_global, server = FALSE)
 
       updateSelectInput(session, "pitcher",        choices = available_pitchers)
       updateSelectInput(session, "selectedPitcher",choices = available_pitchers)

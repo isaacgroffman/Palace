@@ -155,33 +155,22 @@
   observeEvent(input$roster_pick, {
     pick <- input$roster_pick
     req(pick, nzchar(pick))
-    # Resolve the roster spelling to whatever name the data actually uses
-    # ("Chris Billingsley" -> the jr. variant), so the selectize pick sticks
-    # instead of snapping to another pitcher after the next data refresh.
-    pool <- c(session$userData$global_choice_pool,
-              roster27_pitcher_fl, bullpen_pitchers_fl)
-    resolved <- resolve_pitcher_name(pick, pool)
-    if (is.null(resolved)) resolved <- pick
-    # the season switch below rebuilds the picker choices; make sure that
-    # rebuild keeps THIS pick instead of snapping to the first roster name
-    session$userData$restore_player <- resolved
-    ch <- session$userData$global_choices
-    if (is.null(ch)) updateSelectizeInput(session, "global_pitcher", selected = resolved)
-    else updateSelectizeInput(session, "global_pitcher", choices = ch, selected = resolved, server = TRUE)
-    # The roster IS the 2027 (Fall 2026) roster: entering a player from it
-    # sets the season context to Fall 2026. Remove this one line to keep the
-    # previously selected season instead.
-    shinyWidgets::updatePickerInput(session, "season_type", selected = "Fall26")
-    player_mode("pitcher")
-    updateTabsetPanel(session, "main_tabs", selected = "Players")
-    updateTabsetPanel(session, "player_subtabs", selected = "Overview")
+    # The roster IS the 2027 (Fall 2026) roster: open the Coastal identity
+    # of that name in its Fall 2026 context, never a same-named NCAA arm.
+    tok <- tryCatch(registry_token_for(pick, kind = "pit", prefer_coastal = TRUE, team = "Coastal Carolina"),
+                    error = function(e) NULL)
+    if (is.null(tok)) { showNotification(paste0("No data for ", pick, " yet."), type = "warning", duration = 5); return() }
+    select_player(tok, season = "Fall26")
   })
 
   # Clicking a hitter card opens that hitter's Overview page.
   observeEvent(input$roster_pick_hitter, {
     pick <- input$roster_pick_hitter
     req(pick, nzchar(pick))
-    open_hitter_page(pick)
+    tok <- tryCatch(registry_token_for(pick, kind = "bat", prefer_coastal = TRUE, team = "Coastal Carolina"),
+                    error = function(e) NULL)
+    if (is.null(tok)) { session$userData$hitter_ident <- NULL; open_hitter_page(pick); return() }
+    select_player(tok, season = "Fall26")
   })
 
   output$player_header <- renderPlot({

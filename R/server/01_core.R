@@ -125,15 +125,24 @@
           if (Date.now() < quietUntil) history.replaceState(null, '', u);
           else history.pushState(null, '', u);
         }
-        try { localStorage.setItem('palace_last_url', qs || ''); } catch(e) {}
+        try { localStorage.setItem('palace_last_url', JSON.stringify({qs: qs || '', t: Date.now()})); } catch(e) {}
       });
       window.addEventListener('popstate', function(){
         quietUntil = Date.now() + 1500;
         Shiny.setInputValue('palace_nav', location.search.replace(/^\\?/, ''), {priority: 'event'});
       });
       var m = document.cookie.match(/(?:^|; )palace_session=([^;]*)/);
+      // the remembered page is only restored within 30 minutes of leaving it;
+      // after that a plain URL opens the Roster like a fresh visit
       var last = '';
-      try { last = localStorage.getItem('palace_last_url') || ''; } catch(e) {}
+      try {
+        var raw = localStorage.getItem('palace_last_url') || '';
+        if (raw) {
+          var rec = null; try { rec = JSON.parse(raw); } catch(e) { rec = null; }
+          if (rec && typeof rec === 'object') { if (Date.now() - (rec.t || 0) < 30 * 60 * 1000) last = rec.qs || ''; }
+          else last = '';
+        }
+      } catch(e) {}
       Shiny.setInputValue('auth_last_url', last, {priority: 'event'});
       Shiny.setInputValue('auth_cookie', m ? decodeURIComponent(m[1]) : '', {priority: 'event'});
     })();
@@ -276,17 +285,18 @@
   # to the selected pitcher and ready to display (covers the ~30s where all
   # team pitchers are still combined in the charts).
   loading_done <- reactiveVal(FALSE)
-  observeEvent(filtered_data(), {
-    if (isTRUE(loading_done())) return()
-    gp <- input$global_pitcher
-    fd <- filtered_data()
-    if (!is.null(gp) && nzchar(gp) &&
-        !is.null(fd) && is.data.frame(fd) && nrow(fd) > 0 &&
-        all(fd$Pitcher == gp, na.rm = TRUE)) {
-      loading_done(TRUE)
-      session$sendCustomMessage("hideLoading", TRUE)
-    }
-  }, ignoreNULL = TRUE)
+  hide_loading <- function() {
+    if (isTRUE(isolate(loading_done()))) return(invisible())
+    loading_done(TRUE)
+    session$sendCustomMessage("hideLoading", TRUE)
+  }
+  # The overlay used to wait for a pitcher's filtered frame, which never
+  # arrived for a Fall 2026 (bullpens-only) page or an empty search, so a
+  # restored ?sub=Bullpens link sat on "loading" until the JS timeout.
+  observeEvent(coastal_selected_data(), hide_loading(), once = TRUE, ignoreNULL = FALSE)
+  observeEvent(input$app_ui_ready, {
+    later::later(function() hide_loading(), 10)
+  }, once = TRUE)
   
   # ===== UNIFIED SEARCH: hitter picks route to the hitter Overview =====
   # The header search now lists pitchers AND hitters. Hitter values carry
@@ -299,6 +309,75 @@
   # Which flavour of the Players page is live. Everything that used to key
   # off input$main_tabs == "Hitters" now keys off this instead.
   player_mode <- reactiveVal("pitcher")
+
+  # ===== IDENTITY: the open player is a registry row, never a bare name =====
+  # R/18_player_registry.R lists every player by identity (TrackMan id +
+  # team + seasons). The header search picks a token; select_player() turns
+  # it into the legacy name inputs the pages read plus the identity the
+  # loaders, bio card and season table resolve on.
+  cur_player <- reactiveVal(NULL)
+  session$userData$cur_player <- NULL
+  player_ident_for <- function(nm, kind = "pit") {
+    cp <- session$userData$cur_player
+    if (!is.null(cp) && identical(cp$kind, kind) && identical(cp$name, nm %||% "")) cp else NULL
+  }
+  push_search_choices <- function(selected = NULL) {
+    ch <- tryCatch(registry_choices(), error = function(e) { cat("[registry] choices failed:", conditionMessage(e), "\n"); NULL })
+    if (is.null(ch) || !nrow(ch)) return(invisible())
+    session$userData$global_choice_pool <- unique(ch$name[ch$kind == "pit"])
+    sel <- if (!is.null(selected) && nzchar(selected %||% "") && selected %in% ch$value) selected else character(0)
+    updateSelectizeInput(session, "global_search", choices = ch, selected = sel, server = TRUE)
+  }
+  select_player <- function(token, season = NULL, sub = NULL) {
+    r <- tryCatch(registry_row(token), error = function(e) NULL)
+    if (is.null(r)) return(invisible(FALSE))
+    cur_player(r); session$userData$cur_player <- r
+    seasons <- strsplit(r$seasons %||% "", "|", fixed = TRUE)[[1]]
+    seasons <- seasons[seasons %in% names(REG_SEASON_LABELS)]
+    if (!length(seasons)) seasons <- "Spring26"
+    # the season the player most recently played, unless the caller asked
+    pick <- if (!is.null(season) && season %in% seasons) season else seasons[length(seasons)]
+    if (!identical(sort(isolate(input$season_type) %||% ""), pick))
+      shinyWidgets::updatePickerInput(session, "season_type", selected = pick)
+    if (identical(r$kind, "bat")) {
+      session$userData$hitter_ident <- r
+      open_hitter_page(r$name)
+    } else {
+      player_mode("pitcher")
+      .tp_last_pitcher(r$name)
+      updateSelectizeInput(session, "global_pitcher", choices = setNames(r$name, r$name), selected = r$name, server = FALSE)
+      updateTabsetPanel(session, "main_tabs", selected = "Players")
+      updateTabsetPanel(session, "player_subtabs", selected = if (!is.null(sub) && nzchar(sub)) sub else "Overview")
+    }
+    if (!identical(isolate(input$global_search), r$token)) push_search_choices(r$token)
+    invisible(TRUE)
+  }
+  observeEvent(input$global_search, {
+    tok <- input$global_search
+    if (is.null(tok) || !nzchar(tok)) return()
+    cp <- cur_player()
+    if (!is.null(cp) && identical(cp$token, tok)) return()
+    select_player(tok)
+  }, priority = 1500)
+  # feed the search once the UI is up; NCAA hitters join after their
+  # directory (a distinct over the per-pitch table) has been indexed once
+  observeEvent(input$app_ui_ready, {
+    req(logged_in())
+    push_search_choices(isolate(input$global_search))
+    if (!isTRUE(.reg_env$has_ncaa_hitters)) session$onFlushed(function() {
+      tryCatch(withProgress(message = "Indexing college hitters\u2026", value = 0.5, session = session, {
+        player_registry(with_hitters = TRUE)
+        push_search_choices(isolate(input$global_search))
+      }), error = function(e) cat("[registry] hitter index failed:", conditionMessage(e), "\n"))
+    }, once = TRUE)
+  }, once = TRUE)
+  # per-player season pills (Players page) drive the hidden season picker
+  observeEvent(input$player_season, {
+    s <- input$player_season
+    req(!is.null(s), nzchar(s))
+    if (!identical(sort(input$season_type %||% ""), s))
+      shinyWidgets::updatePickerInput(session, "season_type", selected = s)
+  })
 
   observeEvent(input$global_pitcher, {
     gp <- input$global_pitcher
@@ -363,21 +442,23 @@
   .ncaa_upgrade_pending <- new.env(parent = emptyenv())
 
   # Best frame available RIGHT NOW: fully scored if cached, else fast.
+  # the open identity's TrackMan id, so a namesake's pitches never load
+  .ncaa_tm_id <- function(gp) { cp <- player_ident_for(gp, "pit"); if (!is.null(cp) && !is.na(cp$tm_id)) cp$tm_id else NULL }
   ncaa_best_data <- function(gp) {
-    key <- gsub("[^A-Za-z0-9]", "_", gp)
+    key <- .scout_key(gp, .ncaa_tm_id(gp))
     full <- ncaa_pitcher_cache[[key]]
     if (!is.null(full)) return(full)
-    load_ncaa_pitcher_fast(gp)
+    load_ncaa_pitcher_fast(gp, tm_id = .ncaa_tm_id(gp))
   }
 
   ncaa_schedule_full_load <- function(gp) {
-    key <- gsub("[^A-Za-z0-9]", "_", gp)
+    key <- .scout_key(gp, .ncaa_tm_id(gp))
     if (!is.null(ncaa_pitcher_cache[[key]])) return(invisible())
     if (isTRUE(.ncaa_upgrade_pending[[key]])) return(invisible())
     .ncaa_upgrade_pending[[key]] <- TRUE
     session$onFlushed(function() {
       tryCatch({
-        df <- load_ncaa_pitcher_data(gp)
+        df <- load_ncaa_pitcher_data(gp, tm_id = .ncaa_tm_id(gp))
         # widen the date filter to any games the API has that the
         # parquet frame didn't (the newest outing, typically) — but only
         # if this arm is still the selected one
@@ -521,17 +602,29 @@
     }
     badge <- if (hitter) "HITTER" else "PITCHER"
     bg    <- if (hitter) "#B08D57" else "#006F71"
+    cp <- cur_player()
+    seasons <- if (!is.null(cp)) strsplit(cp$seasons %||% "", "|", fixed = TRUE)[[1]] else character(0)
+    seasons <- seasons[seasons %in% names(REG_SEASON_LABELS)]
+    cur_s <- intersect(isolate(input$season_type) %||% character(0), seasons)
+    pills <- if (length(seasons)) div(class = "player-season-pills",
+      span(class = "psp-lab", "Season"),
+      shinyWidgets::radioGroupButtons("player_season", NULL,
+        choices = setNames(seasons, REG_SEASON_LABELS[seasons]),
+        selected = if (length(cur_s)) cur_s[1] else seasons[length(seasons)], size = "sm")) else NULL
+    sub <- if (!is.null(cp)) paste(c(cp$team, if (nzchar(cp$class %||% "")) cp$class,
+                                     if (!is.na(cp$conf) && nzchar(cp$conf)) cp$conf), collapse = " \u2022 ") else NULL
     div(style = "text-align:center; margin:16px 0 4px;",
       div(style = "display:flex; align-items:center; justify-content:center; gap:10px;",
+        if (!is.null(cp) && nzchar(cp$logo %||% "")) tags$img(src = cp$logo, style = "width:30px;height:30px;object-fit:contain;"),
         tags$span(badge, style = paste0(
           "background:", bg, "; color:#fff; font-size:10.5px; font-weight:800;",
           "letter-spacing:.09em; padding:3px 9px; border-radius:20px;")),
         h3(nm, class = "brand-teal", style = "margin:0;")),
       div(style = "color:#6B7280; font-size:13px; margin-top:2px;",
-          if (hitter)
-            "Hitter profile \u2014 overview, viz, trends and defense."
-          else
-            "Pitcher profile \u2014 overview, viz, trends and reports."))
+          if (!is.null(sub) && nzchar(sub)) sub
+          else if (hitter) "Hitter profile \u2014 overview, viz, trends and defense."
+          else "Pitcher profile \u2014 overview, viz, trends and reports."),
+      pills)
   })
 
 
@@ -569,18 +662,22 @@
   # Back / Forward press go through here.
   apply_url_state <- function(q, restore = FALSE) {
     if (!length(q)) { updateTabsetPanel(session, "main_tabs", selected = "Roster"); return(invisible()) }
-    if (nzchar(q$s %||% "")) shinyWidgets::updatePickerInput(session, "season_type",
-                                                             selected = strsplit(q$s, ",")[[1]])
+    s1 <- if (nzchar(q$s %||% "")) strsplit(q$s, ",")[[1]] else character(0)
     if (nzchar(q$tab %||% "")) updateTabsetPanel(session, "main_tabs", selected = q$tab)
     if (nzchar(q$sub %||% "")) updateTabsetPanel(session, "player_subtabs", selected = q$sub)
     p <- q$p %||% ""
-    if (is_hitter_pick(p)) { player_mode("hitter"); open_hitter_page(sub(paste0("^", HB_PREFIX), "", p)) }
-    else if (nzchar(p) && !restore) {
-      player_mode("pitcher")
-      ch <- session$userData$global_choices
-      if (!is.null(ch) && p %in% ch) updateSelectizeInput(session, "global_pitcher", choices = ch, selected = p, server = TRUE)
-      else session$userData$restore_player <- p
+    if (nzchar(p)) {
+      # p is a registry token; older links carried a name (HB:: for hitters)
+      tok <- if (!is.null(registry_row(p))) p else
+        tryCatch(registry_token_for(p, kind = if (is_hitter_pick(p)) "bat" else "pit",
+                                    prefer_coastal = "Fall26" %in% s1), error = function(e) NULL)
+      if (!is.null(tok)) {
+        select_player(tok, season = if (length(s1)) s1[1] else NULL, sub = q$sub %||% NULL)
+        return(invisible())
+      }
+      showNotification(paste0("Could not find ", sub(paste0("^", HB_PREFIX), "", p), " in the player index."), type = "warning", duration = 6)
     }
+    if (length(s1)) shinyWidgets::updatePickerInput(session, "season_type", selected = s1)
     invisible()
   }
   observeEvent(input$palace_nav, {
@@ -589,12 +686,13 @@
   })
   observe({
     req(logged_in())
-    gp  <- input$global_pitcher %||% ""; tab <- input$main_tabs %||% ""
+    cp <- cur_player(); tab <- input$main_tabs %||% ""
+    gp  <- if (!is.null(cp)) cp$token else ""
     sub <- input$player_subtabs %||% ""; s <- paste(input$season_type %||% character(0), collapse = ",")
     enc <- function(x) URLencode(x, reserved = TRUE)
     parts <- character(0)
     if (identical(tab, "Players")) {
-      # only a player page carries a player; the Roster stays a clean URL
+      # only a player page carries a player (its identity token); the Roster stays a clean URL
       if (nzchar(gp)) parts <- c(parts, paste0("p=", enc(gp)))
       parts <- c(parts, "tab=Players")
       if (nzchar(sub)) parts <- c(parts, paste0("sub=", enc(sub)))
@@ -607,7 +705,7 @@
   observeEvent(input$app_ui_ready, {
     req(logged_in())
     q <- .url_restore(); if (!length(q)) return()
-    apply_url_state(q, restore = TRUE)   # the pitcher pick itself lands via restore_player
+    apply_url_state(q, restore = TRUE)
     .url_restore(list())
   }, once = TRUE)
 
@@ -622,7 +720,7 @@
     if (is_hitter_pick(gp)) {
       prev <- .tp_last_pitcher()
       if (!is.null(prev) && nzchar(prev))
-        updateSelectizeInput(session, "global_pitcher", selected = prev)
+        updateSelectizeInput(session, "global_pitcher", choices = setNames(prev, prev), selected = prev, server = FALSE)
     }
     player_mode("pitcher")
     updateTabsetPanel(session, "main_tabs", selected = "Players")
