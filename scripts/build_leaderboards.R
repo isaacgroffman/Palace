@@ -19,7 +19,13 @@
 # TrackMan player id both sides carry.
 #
 # Outputs: teams, tm_pitching_totals, tm_batting_totals, pitchers (board),
-# pitches (board, by pitch type), hitters, manifest.json.
+# pitches (board, by pitch type), hitters, identity (player x team x season
+# type by id, with collision flags), team_xwalk (TrackMan code -> TruMedia
+# team id votes), pitcher_day, manifest.json.
+#
+# Level / conference / logo on every row come from the id-keyed reference
+# (reference/d1_teams.csv, lower_levels_teams.csv, ...; see R/01_reference.R)
+# through the TruMedia team id or the TrackMan team code, never the name.
 # Needs TM_USERNAME / TM_SITENAME / TM_MASTER_TOKEN and SUPABASE_URL /
 # SUPABASE_SECRET_KEY; SB_DB_* only without --pipeline-dir.
 # =============================================================================
@@ -82,6 +88,30 @@ team_level <- function(school) {
 }
 team_conf <- function(school) .team_level_map$conf[match(.conf_norm(school), .team_level_map$key)]
 code_conf <- function(code) .team_level_map$conf[match(as.character(code), .team_level_map$abbr)]
+
+# Row identity from the id-keyed reference (R/01_reference.R): the TruMedia
+# team id first, the TrackMan code through the crosswalk second, the name
+# last, the TrackMan level tag as the final fallback for Level. Summer clubs
+# sit under the boards' "Summer/Other" pill; their league still fills Conf.
+LB_LEVELS <- c("D1", "D2", "D3", "NAIA", "JUCO")
+team_ident <- function(team_id = NULL, code = NULL, name = NULL, tk_level = NULL) {
+  n <- max(length(team_id), length(code), length(name), 1L)
+  ti <- ref_team_info(team_id = team_id, code = code, name = name,
+                      level = if (!is.null(tk_level)) rep_len(as.character(tk_level), n) else NULL, by_name = TRUE)
+  tk <- if (!is.null(tk_level)) rep_len(as.character(tk_level), n) else rep(NA_character_, n)
+  lvl <- ti$level
+  lvl <- ifelse(is.na(lvl) & tk %in% LB_LEVELS, tk, lvl)
+  if (!is.null(name)) { nm <- rep_len(as.character(name), n); lvl <- ifelse(is.na(lvl), team_level(nm), lvl) }
+  lvl[is.na(lvl) | !lvl %in% LB_LEVELS] <- "Other"
+  logo <- ti$logo
+  if (!is.null(name) && exists("team_name_map") && "logo_url" %in% names(team_name_map)) {
+    nm <- rep_len(as.character(name), n)
+    fb <- as.character(team_name_map$logo_url)[match(.conf_norm(nm), .conf_norm(team_name_map$team_name))]
+    logo <- ifelse(is.na(logo) | !nzchar(logo), fb, logo)
+  }
+  data.frame(team_id = ti$team_id, level = lvl, conf = ti$conf, conf_id = ti$conf_id, conf_name = ti$conf_name,
+             logo = logo, team = ti$team, stringsAsFactors = FALSE)
+}
 
 # =============================================================================
 # 1) TruMedia: league-wide raw frames (+ team-scoped lines)
@@ -182,13 +212,11 @@ if (tm_live) {
 # team list with level + conference for the app's pickers
 teams <- as.data.frame(teams)
 tn <- intersect(c("location", "fullName", "teamName"), names(teams))
-teams$level <- "Other"; teams$conference <- NA_character_
-for (cc in tn) {
-  lv <- team_level(teams[[cc]]); cf <- team_conf(teams[[cc]])
-  teams$level <- ifelse(teams$level == "Other", lv, teams$level)
-  teams$conference <- ifelse(is.na(teams$conference), cf, teams$conference)
-}
-cat("[lb build] teams by level:", paste(names(table(teams$level)), table(teams$level), collapse = ", "), "\n")
+tmi <- team_ident(team_id = teams$teamId, name = if (length(tn)) teams[[tn[1]]] else NULL)
+teams$level <- tmi$level; teams$conference <- tmi$conf; teams$conf_id <- tmi$conf_id; teams$logo_url <- tmi$logo
+teams$ref_level <- ref_team_level(teams$teamId)
+cat("[lb build] teams by level:", paste(names(table(teams$level)), table(teams$level), collapse = ", "),
+    "| in reference:", sum(!is.na(teams$ref_level)), "of", nrow(teams), "\n")
 
 # =============================================================================
 # 2) TrackMan: pipeline aggregates + per-pitch RV and hitter aggregates
@@ -251,6 +279,27 @@ hit_agg$Batter <- ifelse(grepl(",", hit_agg$Batter), normalize_lastfirst(hit_agg
 hit_agg$School <- prettify_team(hit_agg$TeamCode)
 rm(px); invisible(gc())
 
+# ---- TrackMan code -> TruMedia team id, from this build's own data ------------------
+# Players both systems id vote a TrackMan team code onto a TruMedia team id;
+# the votes outrank the shipped reference/trackman_teams.csv for this run and
+# go to Storage (lb/<season>/team_xwalk.parquet) for the app.
+xw_pairs <- bind_rows(
+  data.frame(tm_id = idk(ps$pitcher_id), trackman_code = ps$pitcher_team, stringsAsFactors = FALSE),
+  data.frame(tm_id = idk(hit_agg$batter_id), trackman_code = hit_agg$TeamCode, stringsAsFactors = FALSE))
+xw_ids <- bind_rows(
+  if (!is.null(tm_pitching_team)) data.frame(tm_id = idk(tm_pitching_team$trackmanPlayerId), team_id = as.character(tm_pitching_team$teamId)) else NULL,
+  if (!is.null(tm_batting_team))  data.frame(tm_id = idk(tm_batting_team$trackmanPlayerId),  team_id = as.character(tm_batting_team$teamId))  else NULL,
+  data.frame(tm_id = idk(tm_pitching$trackmanPlayerId), team_id = as.character(tm_pitching$mostRecentTeamId)),
+  data.frame(tm_id = idk(tm_batting$trackmanPlayerId),  team_id = as.character(tm_batting$mostRecentTeamId)))
+team_xwalk <- ref_team_votes(xw_pairs, xw_ids)
+if (!is.null(team_xwalk) && nrow(team_xwalk)) {
+  ti0 <- ref_team_info(team_id = team_xwalk$team_id)
+  team_xwalk$team <- ti0$team; team_xwalk$level <- ti0$level; team_xwalk$conf <- ti0$conf
+  ref_add_team_xwalk(team_xwalk)
+}
+cat("[lb build] TrackMan team crosswalk:", NROW(team_xwalk), "codes from data votes |",
+    length(unique(xw_pairs$trackman_code)), "codes in the pitch data\n")
+
 # ---- pitcher x game-date x pitch-type sums (date-range boards) --------------------
 # Every board column is a COUNT or a SUM here; the app divides after it has
 # filtered the rows to a date range, so a "Mar 1 - Apr 15" board is exact.
@@ -300,10 +349,12 @@ if (!is.null(pipeline_dir)) {
   # no plate-appearance outcomes: a pitcher-day with zero PA is not a game
   pa_day <- pitcher_day %>% group_by(pitcher_id, game_date) %>% summarise(.pa = sum(pa), .groups = "drop")
   pitcher_day <- pitcher_day %>% inner_join(filter(pa_day, .pa > 0), by = c("pitcher_id", "game_date")) %>% select(-.pa)
-  pitcher_day$conference <- code_conf(pitcher_day$pitcher_team)
-  # level belongs to the TEAM, not the game (a D1 arm at a JUCO field is still D1)
+  # level / conference belong to the TEAM the code names (a D1 arm at a JUCO
+  # field is still D1); the TrackMan level tag only backstops unknown codes
   tk_lv <- ps$level[match(pitcher_day$pitcher_id, idk(ps$pitcher_id))]
-  pitcher_day$level <- ifelse(tk_lv %in% c("D1", "D2", "D3", "NAIA", "JUCO"), tk_lv, team_level(prettify_team(pitcher_day$pitcher_team)))
+  pdi <- team_ident(code = pitcher_day$pitcher_team, name = prettify_team(pitcher_day$pitcher_team), tk_level = tk_lv)
+  pitcher_day$team_id <- pdi$team_id; pitcher_day$conference <- pdi$conf; pitcher_day$conf_id <- pdi$conf_id
+  pitcher_day$level <- pdi$level
   rm(dd); invisible(gc())
   cat("[lb build] pitcher_day:", nrow(pitcher_day), "pitcher x date x pitch-type rows\n")
 } else cat("[lb build] pitcher_day skipped (needs --pipeline-dir)\n")
@@ -355,6 +406,7 @@ d <- data.frame(Pitcher = nm,
                 School = if (scoped) team_name_of(tm_src$teamId) else .lb_chr(tm_src, c("mostRecentTeamName", "teamName", "^team$")) %||% NA_character_,
                 tm_id = idk(tm_src$trackmanPlayerId),
                 tm_team_id = as.character(if (scoped) tm_src$teamId else tm_src$mostRecentTeamId),
+                tm_player_id = if ("playerId" %in% names(tm_src)) idk(tm_src$playerId) else NA_character_,
                 stringsAsFactors = FALSE)
 grab <- function(w) { v <- .lb_col(tm_src, w); if (is.null(v)) rep(NA_real_, nrow(d)) else v }
 d$W <- grab("W"); d$L <- grab("L"); d$S <- grab("SV"); d$G <- grab("G"); d$IP <- tm_ip_decimal(grab("IP")); d$ERA <- round(grab("ERA"), 2)
@@ -375,7 +427,8 @@ d$T <- ifelse(is.na(d$T), tk_p$T[i], d$T)
 # TrackMan D1 arms with no TruMedia line (no traditional stats, but graded)
 extra <- tk_p[!tk_p$pitcher_id %in% d$tm_id & tk_p$Level %in% "D1" & tk_p$P >= 50, , drop = FALSE]
 if (nrow(extra)) {
-  e <- data.frame(Pitcher = extra$TkName, School = extra$TkSchool, tm_id = extra$pitcher_id, tm_team_id = NA_character_, stringsAsFactors = FALSE)
+  e <- data.frame(Pitcher = extra$TkName, School = extra$TkSchool, tm_id = extra$pitcher_id, tm_team_id = NA_character_,
+                  tm_player_id = NA_character_, stringsAsFactors = FALSE)
   for (cc in c("W","L","S","G","IP","ERA","PA","K%","BB%","wOBA",".hr",".bb",".k",".hbp","Velo","Spin")) e[[cc]] <- NA_real_
   e$T <- extra$T
   for (cc in tk_cols) e[[cc]] <- extra[[cc]]
@@ -387,9 +440,16 @@ if (nrow(extra)) {
 # anyone who played summer ball. Level / conference belong to that team.
 ti <- match(d$tm_id, tk_p$pitcher_id)
 if (!scoped) d$School <- ifelse(is.na(ti), d$School, tk_p$TkSchool[ti])
-tk_lvl <- tk_p$Level[ti]
-d$Level <- ifelse(tk_lvl %in% c("D1", "D2", "D3", "NAIA", "JUCO"), tk_lvl, team_level(d$School))
-d$Conf  <- ifelse(is.na(team_conf(d$School)), code_conf(tk_p$TkCode[ti]), team_conf(d$School))
+# identity by id: team-scoped rows carry the NCAA team id; on the calendar
+# frame the most-recent team may be a summer club, so a known TrackMan code
+# outranks it there. Level / Conf / Logo come from the reference.
+code <- tk_p$TkCode[ti]
+tid <- d$tm_team_id
+if (!scoped) tid <- ifelse(is.na(ref_team_id_for_code(code)), tid, NA_character_)
+di <- team_ident(team_id = tid, code = code, name = d$School, tk_level = tk_p$Level[ti])
+d$team_id <- di$team_id; d$Level <- di$level; d$Conf <- di$conf; d$conf_id <- di$conf_id; d$Logo <- di$logo
+cat("[lb build] pitchers with a reference team:", sum(!is.na(d$team_id)), "of", nrow(d),
+    "| by level:", paste(names(table(d$Level)), table(d$Level), collapse = ", "), "\n")
 pitchers <- .lb_attach_bio(d)
 pitchers <- .lb_add_fip_rv(pitchers)
 pitchers$`Arm Ang` <- .lb_arm_angle(pitchers$relh %||% NA_real_, pitchers$rels %||% NA_real_, pitchers$.ht)
@@ -406,9 +466,9 @@ pitches <- pitches[!is.na(j) | (pitches$Level %in% "D1" & pitches$P >= 25), , dr
 pitches <- .lb_attach_bio(pitches)
 pitches$`Arm Ang` <- .lb_arm_angle(pitches$relh, pitches$rels, pitches$.ht)
 pitches$`Rel Ht` <- round(pitches$relh, 2); pitches$`Rel Sd` <- round(pitches$rels, 2)
-car <- intersect(c("W","L","S","G","IP","K%","BB%","wOBA","ERA","FIP","Age","Class","Logo","Conf"), names(pitchers))
+car <- intersect(c("W","L","S","G","IP","K%","BB%","wOBA","ERA","FIP","Age","Class","Logo","Conf","conf_id","team_id","tm_player_id"), names(pitchers))
 k <- match(pitches$tm_id, pitchers$tm_id)
-pitches$Level <- ifelse(is.na(pitches$Level) | !nzchar(pitches$Level), pitchers$Level[k], pitches$Level)
+pitches$Level <- ifelse(is.na(k), ifelse(pitches$Level %in% LB_LEVELS, pitches$Level, "Other"), pitchers$Level[k])
 for (cc in car) pitches[[cc]] <- pitchers[[cc]][k]
 for (cc in lb_cols_for("pitches")) if (!cc %in% names(pitches)) pitches[[cc]] <- NA
 pitches <- pitches[order(-ifelse(is.finite(pitches$P), pitches$P, 0)), , drop = FALSE]
@@ -422,6 +482,7 @@ h <- data.frame(Batter = bn,
                 School = if (bscoped) team_name_of(tb_src$teamId) else .lb_chr(tb_src, c("mostRecentTeamName", "teamName", "^team$")) %||% NA_character_,
                 tm_id = idk(tb_src$trackmanPlayerId),
                 tm_team_id = as.character(if (bscoped) tb_src$teamId else tb_src$mostRecentTeamId),
+                tm_player_id = if ("playerId" %in% names(tb_src)) idk(tb_src$playerId) else NA_character_,
                 stringsAsFactors = FALSE)
 gb <- function(w) { v <- .lb_col(tb_src, w); if (is.null(v)) rep(NA_real_, nrow(h)) else v }
 for (cc in c("G","PA","AB","H","2B","3B","HR","BB","HBP","K","SB","BA","OBP","SLG")) h[[cc]] <- gb(cc)
@@ -437,16 +498,38 @@ cat("[lb build] TruMedia hitters with PA:", nrow(h), "| matched to TrackMan by i
 for (cc in setdiff(names(hit_agg), c("batter_id", "Batter", "TeamCode", "School", "Level"))) h[[cc]] <- hit_agg[[cc]][hi]
 hx <- hit_agg[!hit_agg$batter_id %in% h$tm_id & hit_agg$Level %in% "D1" & hit_agg$Pitches >= 100, , drop = FALSE]
 if (nrow(hx)) {
-  e <- data.frame(Batter = hx$Batter, School = hx$School, tm_id = as.character(hx$batter_id), tm_team_id = NA_character_, stringsAsFactors = FALSE)
+  e <- data.frame(Batter = hx$Batter, School = hx$School, tm_id = as.character(hx$batter_id), tm_team_id = NA_character_,
+                  tm_player_id = NA_character_, stringsAsFactors = FALSE)
   for (cc in setdiff(names(h), names(e))) e[[cc]] <- if (cc %in% names(hx)) hx[[cc]] else NA
   h <- dplyr::bind_rows(h, e[, names(h)])
 }
 hi2 <- match(h$tm_id, hit_agg$batter_id)
 if (!bscoped) h$School <- ifelse(is.na(hi2), h$School, hit_agg$School[hi2])
-hl <- hit_agg$Level[hi2]
-h$Level <- ifelse(hl %in% c("D1", "D2", "D3", "NAIA", "JUCO"), hl, team_level(h$School))
-h$Conf  <- ifelse(is.na(team_conf(h$School)), code_conf(hit_agg$TeamCode[match(h$tm_id, hit_agg$batter_id)]), team_conf(h$School))
+hcode <- hit_agg$TeamCode[hi2]
+htid <- h$tm_team_id
+if (!bscoped) htid <- ifelse(is.na(ref_team_id_for_code(hcode)), htid, NA_character_)
+hdi <- team_ident(team_id = htid, code = hcode, name = h$School, tk_level = hit_agg$Level[hi2])
+h$team_id <- hdi$team_id; h$Level <- hdi$level; h$Conf <- hdi$conf; h$conf_id <- hdi$conf_id; h$Logo <- hdi$logo
+h <- .lb_attach_bio(h)
+cat("[lb build] hitters with a reference team:", sum(!is.na(h$team_id)), "of", nrow(h),
+    "| by level:", paste(names(table(h$Level)), table(h$Level), collapse = ", "), "\n")
 hitters <- h[order(-ifelse(is.finite(h$PA), h$PA, 0)), , drop = FALSE]
+
+# ---- identity: who is who, by id, per season type and level ----------------------------
+# One row per player x team x season type from every frame that carries ids,
+# with the collisions flagged (a TrackMan id under two TruMedia ids, a name
+# shared by two ids at the same level). The app resolves player pages from
+# this instead of names.
+identity <- ref_identity_table(
+  list(tm_pitching_team = tm_pitching_team, tm_batting_team = tm_batting_team,
+       tm_pitching_totals = tm_pitching, tm_batting_totals = tm_batting),
+  trackman = bind_rows(
+    data.frame(kind = "pit", tm_id = idk(ps$pitcher_id), name = ifelse(grepl(",", ps$pitcher_name), normalize_lastfirst(ps$pitcher_name), ps$pitcher_name),
+               trackman_code = ps$pitcher_team, tk_level = ps$level, stringsAsFactors = FALSE),
+    data.frame(kind = "bat", tm_id = idk(hit_agg$batter_id), name = hit_agg$Batter, trackman_code = hit_agg$TeamCode,
+               tk_level = hit_agg$Level, stringsAsFactors = FALSE)),
+  season = season)
+ref_identity_report(identity)
 
 # =============================================================================
 # 4) Upload
@@ -460,6 +543,8 @@ up <- function(df, name) {
 }
 up(as.data.frame(teams), "teams"); up(as.data.frame(tm_pitching), "tm_pitching_totals"); up(as.data.frame(tm_batting), "tm_batting_totals")
 up(pitchers, "pitchers"); up(pitches, "pitches"); up(hitters, "hitters")
+up(identity, "identity")
+if (!is.null(team_xwalk) && nrow(team_xwalk)) up(team_xwalk, "team_xwalk")
 if (!is.null(pitcher_day)) up(pitcher_day, "pitcher_day")
 if (!is.null(tm_pitching_team)) up(as.data.frame(tm_pitching_team), "tm_pitching_team")
 if (!is.null(tm_batting_team))  up(as.data.frame(tm_batting_team),  "tm_batting_team")
@@ -468,7 +553,7 @@ man <- list(season = season, built_at = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z
             rows = list(teams = nrow(teams), tm_pitching_totals = nrow(tm_pitching), tm_batting_totals = nrow(tm_batting),
                         tm_pitching_team = NROW(tm_pitching_team), tm_batting_team = NROW(tm_batting_team),
                         pitchers = nrow(pitchers), pitches = nrow(pitches), hitters = nrow(hitters),
-                        pitcher_day = NROW(pitcher_day)),
+                        pitcher_day = NROW(pitcher_day), identity = nrow(identity), team_xwalk = NROW(team_xwalk)),
             tokens = list(pitching = tok[!vapply(tok, is.null, logical(1))], batting = as.list(bt)))
 tmp <- tempfile(fileext = ".json"); writeLines(jsonlite::toJSON(man, auto_unbox = TRUE, pretty = TRUE), tmp)
 sb_storage_upload(tmp, sprintf("lb/%d/manifest.json", season), content_type = "application/json"); unlink(tmp)

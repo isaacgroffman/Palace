@@ -518,7 +518,8 @@ pp_pool_xstats <- function(pool, by = c("Pitcher", "PitcherPitchType")) {
 pp_batter_directory <- function() {
   if (!pp_sb_available()) return(NULL)
   d <- .pp_with_retry("batter directory", function() DBI::dbGetQuery(palace_pool(),
-    "select distinct batter_name as \"Batter\", batter_team as \"BatterTeam\"
+    "select distinct batter_name as \"Batter\", batter_team as \"BatterTeam\",
+            batter_id as \"BatterId\"
        from pitchprofiler.pitches
       where batter_name is not null and batter_name <> ''"))
   if (is.null(d) || nrow(d) == 0) return(NULL)

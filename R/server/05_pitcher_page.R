@@ -188,30 +188,46 @@
       team   <- "Coastal Carolina"
       logo   <- tryCatch(ccu_logo_url, error = function(e) NULL)
     } else {
-      r <- tryCatch(drs_lookup(nm, tm_current_team(nm)), error = function(e) NULL)
+      # Identity by TrackMan id (directory, else the loaded pitches), so the
+      # bio, crest and conference are this arm's and not a namesake's.
+      pid <- tryCatch(ps_pitcher_id(nm), error = function(e) NA_character_)
+      if (is.na(pid)) pid <- tryCatch({
+        d <- filtered_data(); v <- unique(stats::na.omit(as.character(d$PitcherId)))
+        v <- v[nzchar(v) & !v %in% c("NA", "0")]; if (length(v)) v[1] else NA_character_
+      }, error = function(e) NA_character_)
+      tk_team <- tryCatch(tm_current_team(nm), error = function(e) NULL)
+      pb <- tryCatch(player_bio(nm, team = tk_team, tm_id = pid, kind = "pit"), error = function(e) NULL)
       disp <- nm
-      num  <- if (!is.null(r) && "Jersey" %in% names(r)) vv(r$Jersey, "") else ""
-      pos  <- if (!is.null(r)) vv(r$Position, "P") else "P"
-      cls  <- if (!is.null(r)) vv(r$Class) else "\u2014"
-      home <- if (!is.null(r)) vv(r$Hometown) else "\u2014"
-      ht   <- if (!is.null(r)) vv(r$Height) else "\u2014"
-      wt   <- if (!is.null(r) && !is.na(r$Weight) && nzchar(as.character(r$Weight)))
-                paste0(r$Weight, " lbs") else "\u2014"
-      bt   <- if (!is.na(throws_txt)) paste0("T: ", throws_txt) else "\u2014"
-      team <- tryCatch(prettify_team(tm_current_team(nm)), error = function(e) "\u2014")
+      num  <- if (!is.null(pb)) vv(pb$jersey, "") else ""
+      pos  <- if (!is.null(pb)) vv(pb$pos, "P") else "P"
+      cls  <- if (!is.null(pb)) vv(pb$class) else "\u2014"
+      home <- if (!is.null(pb)) vv(pb$hometown) else "\u2014"
+      ht   <- if (!is.null(pb)) vv(pb$height) else "\u2014"
+      wt   <- if (!is.null(pb) && is.finite(pb$weight)) paste0(pb$weight, " lbs") else "\u2014"
+      thr  <- if (!is.na(throws_txt)) throws_txt else if (!is.null(pb)) vv(pb$throws) else "\u2014"
+      bt   <- if (!is.null(pb) && !is.na(pb$bats)) paste0(substr(pb$bats, 1, 1), "-", substr(thr, 1, 1))
+              else if (!is.na(throws_txt)) paste0("T: ", throws_txt) else "\u2014"
+      team <- if (!is.null(pb) && !is.na(pb$team)) pb$team else tryCatch(prettify_team(tk_team), error = function(e) "\u2014")
       if (is.null(team) || is.na(team) || !nzchar(team)) team <- "\u2014"
-      logo <- if (!is.null(r) && "team_logo" %in% names(r)) r$team_logo else NULL
+      logo <- if (!is.null(pb)) pb$logo else NULL
+      conf <- if (!is.null(pb)) pb$conf else NA_character_
+      pb_head <- if (!is.null(pb)) pb$headshot else NULL
     }
+    if (!exists("conf", inherits = FALSE)) conf <- "SBELT"
+    if (!exists("pb_head", inherits = FALSE)) pb_head <- NULL
 
-    sub <- paste0(team, if (nzchar(num)) paste0(" \u2022 #", num) else "")
+    sub <- paste0(team, if (nzchar(num)) paste0(" \u2022 #", num) else "",
+                  if (!is.na(conf) && nzchar(conf)) paste0(" \u2022 ", conf) else "")
 
-    hs <- tryCatch(headshot_lookup(nm, team), error = function(e) NULL)
     logo_bad <- is.null(logo) || length(logo) == 0 ||
                 isTRUE(is.na(logo[1])) || !nzchar(as.character(logo[1]))
+    hs <- if (logo_bad || is.null(pb_head) || is.na(pb_head)) tryCatch(headshot_lookup(nm, team), error = function(e) NULL) else NULL
     if (logo_bad && !is.null(hs)) logo <- hs$logo
-    # Headshot: the 2027 roster CSV wins for roster players.
+    # Headshot: the 2027 roster CSV wins for roster players, then the
+    # id-resolved reference headshot, then the name-matched table.
     head_src <- if (!is.null(r27row) && !is.na(r27row$Headshot) &&
                     nzchar(r27row$Headshot)) r27row$Headshot
+                else if (!is.null(pb_head) && !is.na(pb_head)) pb_head
                 else if (!is.null(hs)) hs$headshot else NULL
 
     div(class = "pp-card",

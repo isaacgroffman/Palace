@@ -15,14 +15,17 @@ ncaa_batter_directory <- function() {
     .hb_env$dir <- data.frame(display = character(0), teams = character(0))
     return(.hb_env$dir)
   }
+  if (!"BatterId" %in% names(raw)) raw$BatterId <- NA_character_
   d <- raw %>%
     dplyr::filter(!is.na(Batter), nzchar(Batter)) %>%
     dplyr::mutate(
       display   = ifelse(grepl(",", Batter), normalize_lastfirst(Batter), Batter),
-      team_disp = prettify_team(BatterTeam))
-  # raw pairs kept for transfer-aware current-team resolution
+      team_disp = prettify_team(BatterTeam),
+      BatterId  = as.character(BatterId))
+  # raw pairs kept for transfer-aware current-team resolution and the
+  # TrackMan id the bio / season table resolve identity from
   .hb_env$pairs <- d %>%
-    dplyr::distinct(display, BatterTeam, team_disp, src)
+    dplyr::distinct(display, BatterTeam, BatterId, team_disp, src)
   d <- d %>%
     dplyr::group_by(display) %>%
     dplyr::summarise(
@@ -58,6 +61,22 @@ tm_current_batter_team <- function(display_name) {
       return(trimws(strsplit(row$teams[1], "/")[[1]][1]))
   }
   NULL
+}
+
+# TrackMan batter id for a display name (the directory's pairs; a team hint
+# picks between two same-named hitters)
+ncaa_batter_id <- function(display_name, team_disp = NULL) {
+  if (is.null(display_name) || !nzchar(display_name %||% "")) return(NA_character_)
+  ncaa_batter_directory()
+  pr <- .hb_env$pairs
+  if (is.null(pr) || !nrow(pr) || !"BatterId" %in% names(pr)) return(NA_character_)
+  r <- pr[pr$display == display_name & !is.na(pr$BatterId) & nzchar(pr$BatterId) & !pr$BatterId %in% c("NA", "0"), , drop = FALSE]
+  if (!nrow(r)) r <- pr[bp_norm_name(pr$display) == bp_norm_name(display_name) & !is.na(pr$BatterId) &
+                          nzchar(pr$BatterId) & !pr$BatterId %in% c("NA", "0"), , drop = FALSE]
+  if (!nrow(r)) return(NA_character_)
+  if (!is.null(team_disp) && nzchar(team_disp %||% "") && any(r$team_disp == team_disp)) r <- r[r$team_disp == team_disp, , drop = FALSE]
+  r <- r[order(r$src != "2026"), , drop = FALSE]
+  r$BatterId[1]
 }
 
 .hb_cache <- new.env(parent = emptyenv())

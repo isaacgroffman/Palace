@@ -339,3 +339,92 @@ bio_heights_ncaa <- if (!is.null(drs_bio)) {
 } else bio_heights
 
 # ============================================================
+
+# ============================================================
+# Unified bio: id first, name last
+# ------------------------------------------------------------
+# One lookup for the bio cards, headers and season tables. Resolution:
+#   1) TrackMan id -> identity table (lb/<season>/identity.parquet) ->
+#      TruMedia player id + team id
+#   2) reference players by TruMedia id, else by name + team
+#   3) legacy DRS26 / headshot tables by name (+ team) for what is left
+# Team fields (level, conference, logo) come from the reference team the
+# player's id resolves to, so two programs sharing a name never swap
+# crests. Every field is a length-1 character/numeric or NA.
+player_bio <- function(name, team = NULL, tm_id = NULL, kind = c("pit", "bat"), player_id = NULL) {
+  kind <- match.arg(kind)
+  nm <- if (is.null(name) || !length(name) || is.na(name[1])) "" else as.character(name[1])
+  tm_id <- if (is.null(tm_id) || !length(tm_id)) NA_character_ else .ref_id(tm_id[1])
+  player_id <- if (is.null(player_id) || !length(player_id)) NA_character_ else .ref_id(player_id[1])
+  team <- if (is.null(team) || !length(team) || is.na(team[1]) || !nzchar(team[1])) NULL else as.character(team[1])
+  chr1 <- function(x) { if (is.null(x) || !length(x)) return(NA_character_); x <- as.character(x[1]); if (is.na(x) || !nzchar(trimws(x))) NA_character_ else x }
+  num1 <- function(x) { v <- suppressWarnings(as.numeric(chr1(x))); if (is.finite(v) && v > 0) v else NA_real_ }
+  out <- list(name = nm, player_id = player_id, tm_id = tm_id, team_id = NA_character_, team = NA_character_,
+              level = NA_character_, conf = NA_character_, conf_name = NA_character_, logo = NA_character_,
+              headshot = NA_character_, jersey = NA_character_, pos = NA_character_, class = NA_character_,
+              height = NA_character_, height_in = NA_real_, weight = NA_real_, hometown = NA_character_,
+              age = NA_real_, bats = NA_character_, throws = NA_character_, source = character(0))
+
+  # 1) identity by id
+  idr <- if (!is.na(tm_id) || !is.na(player_id)) tryCatch(tm_identity(tm_id = tm_id, player_id = player_id, kind = kind), error = function(e) NULL) else NULL
+  if (!is.null(idr)) {
+    if (is.na(out$player_id)) out$player_id <- chr1(idr$player_id)
+    out$team_id <- chr1(idr$team_id)
+    out$source <- c(out$source, "identity")
+  }
+  # 2) reference player
+  rp <- if (!is.na(out$player_id)) ref_player_by_id(out$player_id) else NULL
+  if (is.null(rp) && nzchar(nm)) {
+    rp <- tryCatch(ref_player_lookup(nm, team_id = out$team_id, team = team,
+                                     level = if (!is.null(idr)) chr1(idr$level) else NULL), error = function(e) NULL)
+    # a name match is only trusted when the ids agree or nothing else identified the player
+    if (!is.null(rp) && !is.na(out$player_id) && !identical(chr1(rp$player_id), out$player_id)) rp <- NULL
+  }
+  if (!is.null(rp)) {
+    out$player_id <- chr1(rp$player_id)
+    if (is.na(out$team_id)) out$team_id <- chr1(rp$team_id)
+    out$jersey <- chr1(rp$jersey); out$pos <- chr1(rp$pos); out$class <- chr1(rp$class)
+    out$height <- chr1(rp$height); out$height_in <- num1(rp$height_in); out$weight <- num1(rp$weight)
+    out$hometown <- chr1(rp$hometown); out$age <- num1(rp$age); out$bats <- chr1(rp$bats); out$throws <- chr1(rp$throws)
+    out$headshot <- chr1(rp$headshot_url)
+    out$source <- c(out$source, "reference")
+  }
+  # 3) team fields from the reference team (id, else code, else name). The
+  #    caller's team hint is the TrackMan (college) team; when the id only
+  #    resolved a summer club (calendar-year frame), the college team wins.
+  ti <- ref_team_info(team_id = out$team_id, code = team, name = team, by_name = TRUE)
+  if (!is.null(team) && (is.na(ti$level[1]) || ti$level[1] == "Summer")) {
+    hint <- ref_team_info(code = team, name = team, by_name = TRUE)
+    if (!is.na(hint$level[1]) && hint$level[1] != "Summer") ti <- hint
+  }
+  if (!is.na(ti$team_id[1])) {
+    out$team_id <- ti$team_id[1]; out$team <- chr1(ti$team); out$level <- chr1(ti$level)
+    out$conf <- chr1(ti$conf); out$conf_name <- chr1(ti$conf_name); out$logo <- chr1(ti$logo)
+  }
+  if (is.na(out$team) && !is.null(team)) out$team <- prettify_team(team)
+
+  # 4) legacy tables for the gaps
+  need <- is.na(out$jersey) || is.na(out$pos) || is.na(out$class) || is.na(out$height) || is.na(out$hometown) || is.na(out$logo) || is.na(out$headshot)
+  if (need && nzchar(nm)) {
+    r <- tryCatch(drs_lookup(nm, team %||% out$team), error = function(e) NULL)
+    if (!is.null(r)) {
+      if (is.na(out$jersey)) out$jersey <- chr1(r$Jersey)
+      if (is.na(out$pos)) out$pos <- chr1(r$Position)
+      if (is.na(out$class)) out$class <- chr1(r$Class)
+      if (is.na(out$height)) { out$height <- chr1(r$Height); out$height_in <- num1(r$height_in) }
+      if (is.na(out$weight)) out$weight <- num1(r$Weight)
+      if (is.na(out$hometown)) out$hometown <- chr1(r$Hometown)
+      if (is.na(out$age)) out$age <- num1(r$Age)
+      if (is.na(out$logo)) out$logo <- chr1(r$team_logo)
+      if (is.na(out$team)) out$team <- chr1(r$team_name)
+      out$source <- c(out$source, "drs")
+    }
+    hs <- tryCatch(headshot_lookup(nm, team %||% out$team), error = function(e) NULL)
+    if (!is.null(hs)) {
+      if (is.na(out$headshot)) out$headshot <- chr1(hs$headshot)
+      if (is.na(out$logo)) out$logo <- chr1(hs$logo)
+      out$source <- c(out$source, "headshot")
+    }
+  }
+  out
+}

@@ -82,7 +82,7 @@ MOBILE_CSS <- HTML(sprintf("
   .gt_table { font-size: 12px !important; }
 
   /* season table card */
-  .ps-title { font-size: 20px; }
+  .ps-title { font-size: 12px; }
   .ps-head { gap: 8px; }
   .ps-note { margin-left: 0; width: 100%%; }
   table.ps-table { font-size: 13px; }

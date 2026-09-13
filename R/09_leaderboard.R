@@ -533,71 +533,80 @@ lb_tm_team_pitches <- function(team_disp, season) {
 }
 
 # ---- Bio join: hand, class, age, logo -----------------------------------
-# Same DRS26 roster file the rest of the app uses, so the hand colouring
-# and the logo beside a name match the player pages.
+# Reference players by TruMedia id first (exact), then by name + team,
+# then the legacy DRS26 roster by name. Works for pitcher and hitter
+# frames (Pitcher / Batter name column). A Logo already on the row (set
+# from the team id) is kept; the join only fills gaps.
 .lb_attach_bio <- function(d) {
   if (is.null(d) || nrow(d) == 0) return(d)
   n <- nrow(d)
-  d$Logo <- NA_character_
+  name_col <- if ("Pitcher" %in% names(d)) "Pitcher" else if ("Batter" %in% names(d)) "Batter" else NULL
+  if (!"Logo" %in% names(d)) d$Logo <- NA_character_
   if (!"T" %in% names(d)) d$T <- NA_character_   # keep hand if already set
-  d$Class <- NA_character_; d$Age <- NA_real_; d$.ht <- NA_real_
+  if (!"Class" %in% names(d)) d$Class <- NA_character_
+  if (!"Age" %in% names(d)) d$Age <- NA_real_
+  d$.ht <- NA_real_
   if (!"School" %in% names(d)) d$School <- NA_character_
+  if (is.null(name_col)) return(d)
+  fill_chr <- function(cur, new) ifelse(is.na(cur) | !nzchar(as.character(cur)), new, cur)
+  fill_num <- function(cur, new) ifelse(is.finite(cur), cur, new)
+
+  # ---- reference players (id, then name + team) ----
+  if (exists("REF_PLAYERS") && !is.null(REF_PLAYERS)) {
+    ri <- if ("tm_player_id" %in% names(d)) match(.ref_id(d$tm_player_id), REF_PLAYERS$player_id) else rep(NA_integer_, n)
+    key <- .ref_name_key(d[[name_col]])
+    gap <- is.na(ri)
+    if (any(gap) && "team_id" %in% names(d)) {
+      ri[gap] <- match(paste(key, .ref_id(d$team_id))[gap], paste(REF_PLAYERS$key, REF_PLAYERS$team_id))
+      gap <- is.na(ri)
+    }
+    if (any(gap)) {
+      ri[gap] <- match(paste(key, .ref_norm(d$School))[gap], paste(REF_PLAYERS$key, REF_PLAYERS$key_team))
+      gap <- is.na(ri)
+    }
+    if (any(gap)) {
+      uniq <- !(duplicated(REF_PLAYERS$key) | duplicated(REF_PLAYERS$key, fromLast = TRUE))
+      ri[gap] <- match(key[gap], ifelse(uniq, REF_PLAYERS$key, NA_character_))
+    }
+    rp <- function(cc) REF_PLAYERS[[cc]][ri]
+    d$Class <- fill_chr(d$Class, rp("class"))
+    d$Age   <- fill_num(d$Age, rp("age"))
+    d$.ht   <- fill_num(d$.ht, rp("height_in"))
+    d$Logo  <- fill_chr(d$Logo, rp("logo_url"))
+    hand <- toupper(substr(ifelse(is.na(rp("throws")), "", rp("throws")), 1, 1)); hand[!hand %in% c("L", "R")] <- NA_character_
+    d$T <- fill_chr(d$T, hand)
+    if (!"tm_player_id" %in% names(d)) d$tm_player_id <- NA_character_
+    d$tm_player_id <- fill_chr(d$tm_player_id, rp("player_id"))
+  }
   if (is.null(drs_bio)) return(d)
 
-  # Same resolution the rest of the app uses (drs_lookup): match on the
-  # player key, and disambiguate shared keys with the SCHOOL. The old
-  # code did a bare match() on name alone, which is why the startup log
-  # reported ~14k of 28k arms unenriched -- every duplicate name across
-  # two programs collapsed onto whichever row came first.
-  bkey <- norm_player_key(d$Pitcher)
+  # ---- legacy DRS26 roster by name (+ school) for what is still blank ----
+  bkey <- norm_player_key(d[[name_col]])
   tnorm <- function(x) gsub("[^a-z0-9]", "", tolower(as.character(x)))
-
   bio_team <- rep(NA_character_, nrow(drs_bio))
-  for (tc in intersect(c("team_name", "newestTeamName",
-                         "newestTeamAbbrevName", "newestTeamLocation"),
-                       names(drs_bio))) {
+  for (tc in intersect(c("team_name", "newestTeamName", "newestTeamAbbrevName", "newestTeamLocation"), names(drs_bio))) {
     v <- tnorm(drs_bio[[tc]])
-    bio_team[is.na(bio_team) & !is.na(v) & nzchar(v)] <-
-      v[is.na(bio_team) & !is.na(v) & nzchar(v)]
+    bio_team[is.na(bio_team) & !is.na(v) & nzchar(v)] <- v[is.na(bio_team) & !is.na(v) & nzchar(v)]
   }
-
-  # pass 1: key + school (exact pair)
-  idx <- match(paste(bkey, tnorm(d$School)),
-               paste(drs_bio$bio_key, bio_team))
-  # pass 2: key alone, but ONLY where that key is unique in the file --
-  # an ambiguous key with no school match stays unenriched rather than
-  # silently borrowing another player's bio.
-  uniq_key <- !(duplicated(drs_bio$bio_key) |
-                duplicated(drs_bio$bio_key, fromLast = TRUE))
+  idx <- match(paste(bkey, tnorm(d$School)), paste(drs_bio$bio_key, bio_team))
+  uniq_key <- !(duplicated(drs_bio$bio_key) | duplicated(drs_bio$bio_key, fromLast = TRUE))
   solo <- match(bkey, ifelse(uniq_key, drs_bio$bio_key, NA_character_))
   idx[is.na(idx)] <- solo[is.na(idx)]
-
-  pick <- function(cc) if (cc %in% names(drs_bio))
-    as.character(drs_bio[[cc]])[idx] else rep(NA_character_, n)
-  d$Logo  <- pick("team_logo")
-  # Logo fallback: every row knows its School, so fill from the same
-  # merged_teams file the rest of the app prettifies team names with.
-  # A missed player-bio match should never cost a team crest.
-  if (exists("team_name_map") && !is.null(team_name_map) &&
-      "logo_url" %in% names(team_name_map)) {
+  pick <- function(cc) if (cc %in% names(drs_bio)) as.character(drs_bio[[cc]])[idx] else rep(NA_character_, n)
+  d$Logo  <- fill_chr(d$Logo, pick("team_logo"))
+  if (exists("team_name_map") && !is.null(team_name_map) && "logo_url" %in% names(team_name_map)) {
     li <- match(tnorm(d$School), tnorm(team_name_map$team_name))
-    fb <- as.character(team_name_map$logo_url)[li]
-    d$Logo <- ifelse(is.na(d$Logo) | !nzchar(d$Logo), fb, d$Logo)
+    d$Logo <- fill_chr(d$Logo, as.character(team_name_map$logo_url)[li])
   }
-  d$Class <- pick("Class")
-  d$Age   <- suppressWarnings(as.numeric(pick("Age")))
-  d$.ht   <- if ("height_in" %in% names(drs_bio))
-    suppressWarnings(as.numeric(drs_bio$height_in))[idx] else NA_real_
-  # DRS26 carries no throwing-hand column (the app infers a hitter's side
-  # from pitch data for the same reason), so T is filled from the pitch
-  # stream or the API payload instead — see .lb_hand_from_payload and the
-  # PitcherThrows rollup. Anything the file happens to expose is a bonus.
+  d$Class <- fill_chr(d$Class, pick("Class"))
+  d$Age   <- fill_num(d$Age, suppressWarnings(as.numeric(pick("Age"))))
+  d$.ht   <- fill_num(d$.ht, if ("height_in" %in% names(drs_bio)) suppressWarnings(as.numeric(drs_bio$height_in))[idx] else NA_real_)
   thr <- pick("Throws"); if (all(is.na(thr))) thr <- pick("T")
   if (!all(is.na(thr))) {
-    h <- toupper(substr(ifelse(is.na(thr), "", thr), 1, 1))
-    h[!h %in% c("L", "R")] <- NA_character_
-    d$T <- h
+    h <- toupper(substr(ifelse(is.na(thr), "", thr), 1, 1)); h[!h %in% c("L", "R")] <- NA_character_
+    d$T <- fill_chr(d$T, h)
   }
+  d$Age[!is.finite(d$Age) | d$Age <= 0] <- NA_real_
   d
 }
 
@@ -693,8 +702,11 @@ lb_precomputed <- function(season = TM_SEASON) {
   t0 <- Sys.time()
   out <- list(manifest = man)
   for (nm in c("teams", "tm_pitching_totals", "tm_batting_totals", "pitchers", "pitches", "hitters",
-               "tm_pitching_team", "tm_batting_team"))
+               "tm_pitching_team", "tm_batting_team", "identity", "team_xwalk"))
     out[[nm]] <- tryCatch(storage_read_parquet(sprintf("lb/%s/%s.parquet", key, nm)), error = function(e) NULL)
+  # the build's TrackMan code -> team id votes outrank the shipped crosswalk
+  if (is.data.frame(out$team_xwalk) && nrow(out$team_xwalk) && exists("ref_add_team_xwalk", mode = "function"))
+    tryCatch(ref_add_team_xwalk(out$team_xwalk), error = function(e) NULL)
   cat(sprintf("[LB] precomputed %s tables from Storage (built %s) in %.0fs: %s\n", key, man$built_at %||% "?",
               as.numeric(difftime(Sys.time(), t0, units = "secs")),
               paste(names(out)[-1][!vapply(out[-1], is.null, logical(1))], collapse = ", ")))
@@ -746,6 +758,8 @@ lb_day_boards <- function(season, from, to) {
       dplyr::summarise(dplyr::across(dplyr::all_of(sums), ~ sum(.x, na.rm = TRUE)),
                        TkName = dplyr::first(pitcher_name), TkCode = dplyr::first(pitcher_team),
                        T = dplyr::first(pitcher_throws), Level = dplyr::first(level), Conf = dplyr::first(conference),
+                       conf_id = if ("conf_id" %in% names(pd)) dplyr::first(conf_id) else NA_character_,
+                       team_id = if ("team_id" %in% names(pd)) dplyr::first(team_id) else NA_character_,
                        G = dplyr::n_distinct(game_date), .groups = "drop") %>% as.data.frame()
   }
   div0 <- function(n, d) ifelse(is.finite(d) & d > 0, n / d, NA_real_)
@@ -795,9 +809,17 @@ lb_day_boards <- function(season, from, to) {
     pick <- function(cc, alt) if (!is.null(ref) && cc %in% names(ref)) ifelse(is.na(j), alt, ref[[cc]][j]) else alt
     a$Logo <- pick("Logo", NA_character_); a$Class <- pick("Class", NA_character_); a$Age <- pick("Age", NA_real_)
     a$.ht <- pick(".ht", NA_real_)
+    a$tm_player_id <- pick("tm_player_id", NA_character_)
     a$T <- ifelse(is.na(a$T), pick("T", NA_character_), a$T)
-    a$Level <- ifelse(a$Level %in% c("D1", "D2", "D3", "NAIA", "JUCO"), a$Level, pick("Level", "Other"))
-    a$Conf  <- ifelse(is.na(a$Conf), pick("Conf", NA_character_), a$Conf)
+    # team identity: the day table's team id (built from the crosswalk), else
+    # the code through the crosswalk now, else the season board's row
+    ti <- ref_team_info(team_id = a$team_id, code = a$TkCode, by_name = FALSE)
+    a$team_id <- ti$team_id
+    a$Level <- ifelse(!is.na(ti$level), ifelse(ti$level %in% c("D1", "D2", "D3", "NAIA", "JUCO"), ti$level, "Other"),
+                      ifelse(a$Level %in% c("D1", "D2", "D3", "NAIA", "JUCO"), a$Level, pick("Level", "Other")))
+    a$Conf  <- ifelse(!is.na(ti$conf), ti$conf, ifelse(is.na(a$Conf), pick("Conf", NA_character_), a$Conf))
+    a$conf_id <- ifelse(!is.na(ti$conf_id), ti$conf_id, ifelse(is.na(a$conf_id), pick("conf_id", NA_character_), a$conf_id))
+    a$Logo <- ifelse(is.na(a$Logo) | !nzchar(a$Logo), ti$logo, a$Logo)
     a$`Arm Ang` <- .lb_arm_angle(a$relh, a$rels, a$.ht)
     a
   }
@@ -1159,7 +1181,8 @@ lb_render_table <- function(d, level, show_cols, rank_offset = 0, ref = NULL) {
   if ("Pitch" %in% cols) keep$Pitch <- ifelse(is.na(keep$Pitch), "", paste0("<span class='lb-pill'>", keep$Pitch, "</span>"))
 
   if ("Level" %in% cols) keep$Level <- ifelse(is.na(keep$Level), "", paste0("<span class='lb-pill'>", keep$Level, "</span>"))
-  if ("Conf" %in% cols) keep$Conf <- ifelse(is.na(keep$Conf), "", paste0("<span class='lb-pill'>", keep$Conf, "</span>"))
+  if ("Conf" %in% cols) keep$Conf <- ifelse(is.na(keep$Conf), "",
+    paste0("<span class='lb-pill' title=\"", htmltools::htmlEscape(conf_full_name(keep$Conf), attribute = TRUE), "\">", keep$Conf, "</span>"))
   dt$x$data <- keep
 
   # colour the CELL: green = good, white = league-typical, red = bad, scaled
@@ -1267,7 +1290,7 @@ lb_filter_ui <- function(level) {
                 choices = c("All" = "all", "D1" = "D1", "D2" = "D2", "D3" = "D3", "NAIA" = "NAIA", "JUCO" = "JUCO", "Summer/Other" = "Other"),
                 selected = "all", size = "sm")),
       .lb_field("Dates", dateRangeInput(id("dates"), NULL, start = NA, end = NA, format = "M d", separator = " \u2013 "), "w-lg"),
-      .lb_field("Conference", pickerInput(id("conf"), NULL, choices = LB_CONFERENCES, multiple = TRUE,
+      .lb_field("Conference", pickerInput(id("conf"), NULL, choices = LB_CONFERENCE_CHOICES, multiple = TRUE,
                 options = list(`actions-box` = TRUE, `live-search` = TRUE, `selected-text-format` = "count > 2",
                                `none-selected-text` = "All conferences", `count-selected-text` = "{0} conferences")), "w-lg"),
       .lb_field("Team", pickerInput(id("school"), NULL, choices = NULL, multiple = TRUE,
@@ -1526,9 +1549,17 @@ lb_register_board <- function(input, output, session, level) {
     }
     confs <- input[[id("conf")]] %||% character(0)
     if (length(confs)) {
-      want <- .conf_norm(conf_team_names(confs))
-      hit <- (if ("Conf" %in% names(d)) !is.na(d$Conf) & d$Conf %in% confs else FALSE) |
-             (if ("School" %in% names(d)) .conf_norm(d$School) %in% want else FALSE)
+      # conf id (exact, from the reference) first; the short code and the
+      # school name only for rows that predate the id-keyed build
+      hit <- if ("conf_id" %in% names(d)) !is.na(d$conf_id) & d$conf_id %in% confs else rep(FALSE, nrow(d))
+      if ("Conf" %in% names(d)) {
+        no_id <- if ("conf_id" %in% names(d)) is.na(d$conf_id) else rep(TRUE, nrow(d))
+        hit <- hit | (no_id & !is.na(d$Conf) & d$Conf %in% conf_codes_for(confs))
+      }
+      if ("School" %in% names(d) && !"conf_id" %in% names(d)) {
+        want <- .conf_norm(conf_team_names(confs))
+        hit <- hit | .conf_norm(d$School) %in% want
+      }
       d <- d[hit, , drop = FALSE]
     }
 

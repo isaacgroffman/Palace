@@ -519,7 +519,20 @@
       names(sort(table(prettify_team(as.character(df$BatterTeam))),
                  decreasing = TRUE))[1] else NA
 
-    r <- tryCatch(drs_lookup(bt, team), error = function(e) NULL)
+    # identity by TrackMan id: the directory's id for this name / team,
+    # else the id on the loaded pitches
+    bid <- tryCatch(ncaa_batter_id(bt, team), error = function(e) NA_character_)
+    if (is.na(bid) && !is.null(df) && "BatterId" %in% names(df)) {
+      v <- as.character(df$BatterId); v <- v[!is.na(v) & nzchar(v) & !v %in% c("NA", "0")]
+      if (length(v)) bid <- names(sort(table(v), decreasing = TRUE))[1]
+    }
+    pb <- tryCatch(player_bio(bt, team = if (!is.na(team)) team else NULL, tm_id = bid, kind = "bat"), error = function(e) NULL)
+    r <- if (!is.null(pb) && length(pb$source) && any(pb$source %in% c("reference", "identity")))
+      data.frame(Position = pb$pos, Class = pb$class, Height = pb$height,
+                 Weight = if (is.finite(pb$weight)) as.character(pb$weight) else NA_character_,
+                 Hometown = pb$hometown, Jersey = pb$jersey, team_logo = pb$logo, stringsAsFactors = FALSE)
+      else tryCatch(drs_lookup(bt, team), error = function(e) NULL)
+    if (!is.null(pb) && !is.na(pb$team) && (is.na(team) || !nzchar(team))) team <- pb$team
     hb <- NULL
     if (exists("hitter_bio") && is.data.frame(hitter_bio)) {
       nmcol <- intersect(c("Batter_FL", "Batter", "Player", "Name"), names(hitter_bio))
@@ -539,13 +552,17 @@
             else if (!is.null(r) && "Jersey" %in% names(r)) vv(r$Jersey, "") else ""
     bats <- if (!is.na(side) && nzchar(side)) substr(side, 1, 1) else "\u2014"
 
-    hs <- tryCatch(headshot_lookup(bt, team), error = function(e) NULL)
+    pb_head <- if (!is.null(pb) && !is.na(pb$headshot)) pb$headshot else NULL
+    hs <- if (is.null(pb_head) || is.null(logo) || is.na(logo) || !nzchar(as.character(logo)))
+      tryCatch(headshot_lookup(bt, team), error = function(e) NULL) else NULL
     if ((is.null(logo) || is.na(logo) || !nzchar(as.character(logo))) &&
         !is.null(hs)) logo <- hs$logo
-    # headshot: Coastal bio file first, TruMedia headshot table otherwise
+    # headshot: Coastal bio file first, the id-resolved reference headshot,
+    # then the name-matched TruMedia table
     head_src <- if (!is.null(hb) && "Headshot" %in% names(hb) &&
                     !is.na(hb$Headshot[1]) && nzchar(as.character(hb$Headshot[1])))
-      as.character(hb$Headshot[1]) else if (!is.null(hs)) hs$headshot else NULL
+      as.character(hb$Headshot[1]) else if (!is.null(pb_head)) pb_head else if (!is.null(hs)) hs$headshot else NULL
+    conf <- if (!is.null(pb)) pb$conf else NA_character_
 
     div(class = "pp-card",
       div(class = "pp-bio-top",
@@ -556,7 +573,8 @@
           div(class = "pp-bio-name", bt),
           div(class = "pp-bio-sub",
               paste0(if (!is.na(team)) team else "\u2014",
-                     if (nzchar(num)) paste0(" \u2022 #", num) else ""))
+                     if (nzchar(num)) paste0(" \u2022 #", num) else "",
+                     if (!is.na(conf) && nzchar(conf)) paste0(" \u2022 ", conf) else ""))
         ),
         if (!is.null(logo) && !is.na(logo) && nzchar(as.character(logo)))
           tags$img(class = "pp-bio-logo", src = as.character(logo)) else NULL

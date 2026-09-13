@@ -4636,7 +4636,7 @@
       "checksum": "aaa825d3b617f62afeb0c970406eda77"
     },
     "R/01_reference.R": {
-      "checksum": "89e2aaa053ade28ff6383dbfb9481a79"
+      "checksum": "05e6558b8313c5022f8e7cc12649d235"
     },
     "R/02_trumedia_api.R": {
       "checksum": "57348fb9d09a343282c828e8c0c1d12c"
@@ -4660,10 +4660,10 @@
       "checksum": "6242db4d2bea8f5fab70b588fb2f6cee"
     },
     "R/09_leaderboard.R": {
-      "checksum": "47a35a27b373c50021647198cb00f01c"
+      "checksum": "f910f3b4deadcecfa49dc34364afeee3"
     },
     "R/10_ncaa_bio.R": {
-      "checksum": "18823b07ead0f374c25a7300589c5576"
+      "checksum": "15e0000c842ed881c3838b7fe3253e46"
     },
     "R/11_ncaa_pitcher_loader.R": {
       "checksum": "6cee28bfe16334835ad738f12cf147f3"
@@ -4678,7 +4678,7 @@
       "checksum": "d55aa26316e992dcd503b5427f3fe881"
     },
     "R/15_ncaa_hitters.R": {
-      "checksum": "108a5885f14e9ae791d76650d88c4ae3"
+      "checksum": "f97411d51fd486e9876067eef74deea7"
     },
     "R/16_player_headers.R": {
       "checksum": "850b0ee415fc2b087561e8fb1c1931c7"
@@ -4690,10 +4690,10 @@
       "checksum": "41ef8ae29de93bb46fa84e26d9eef0d2"
     },
     "R/18_mobile.R": {
-      "checksum": "795d082c33366c4ef4bd7a35212ef06e"
+      "checksum": "57054577e1e86a33fe65444ddbe52152"
     },
     "R/18_season_table.R": {
-      "checksum": "fe642b8a3f11cce3ce89cb8d7573afc3"
+      "checksum": "6e208e32a6d8feaad2e7dfbda6489a31"
     },
     "R/19_ui.R": {
       "checksum": "897abf51572d798e6e58f269c42452ea"
@@ -4711,7 +4711,7 @@
       "checksum": "6bc4645944d7f488fe077ed34fed6440"
     },
     "R/palace_supabase.R": {
-      "checksum": "b37f5354b90f2d97b2daac5dc28d717d"
+      "checksum": "664bb854298530f2d6397d1946e4da57"
     },
     "R/palace_video.R": {
       "checksum": "fb4ef274c03692d97a9087918d2a0966"
@@ -4732,7 +4732,7 @@
       "checksum": "9c2947279e05ef0e516f9bddd7f7be58"
     },
     "R/server/05_pitcher_page.R": {
-      "checksum": "97b27ac3d2e808ff213b271e5cbe18fd"
+      "checksum": "03e47b13d864c6e90d14eaada2f57f17"
     },
     "R/server/06_bullpen_roster_team.R": {
       "checksum": "f456282b8b3426587853380a1499b3f1"
@@ -4744,7 +4744,7 @@
       "checksum": "947805669a45eb31d38e93915b51127b"
     },
     "R/server/09_hitter_page.R": {
-      "checksum": "5d4e10a93039b0134f24cc7c11325d38"
+      "checksum": "3f29fba6b46177134657d777299ffedb"
     },
     "R/server/10_matchup_matrix.R": {
       "checksum": "a5c78dc16280b55e7639544f88ae6838"
@@ -4807,7 +4807,7 @@
       "checksum": "c741fb4656ab00c5174e80101eceaa4a"
     },
     "scripts/build_leaderboards.R": {
-      "checksum": "3bf4840d155379dd251f0318bb5eb196"
+      "checksum": "d1dc6f1ac3792ac94f2aca414a35df74"
     },
     "scripts/build_reference_pools.R": {
       "checksum": "b217ad66785a5e0d127e7c50d724d122"
@@ -4865,6 +4865,30 @@
     },
     "verify_install.py": {
       "checksum": "5668e3ceef271fbddb7ced8171b608aa"
+    },
+    "reference/d1_teams.csv": {
+      "checksum": "d4a17b2d42da6b80e05899ef484b23a1"
+    },
+    "reference/d1_conferences.csv": {
+      "checksum": "1fae55d53962ba69278a5421e4469ebd"
+    },
+    "reference/lower_levels_teams.csv": {
+      "checksum": "125ba00977e930091c786188055a7686"
+    },
+    "reference/lower_levels_conferences.csv": {
+      "checksum": "7c009d91900beaf19773a71e1c37e11c"
+    },
+    "reference/lower_levels_players.csv": {
+      "checksum": "21965ed64c7bcd3b530d4e5a4c923c8d"
+    },
+    "reference/trackman_teams.csv": {
+      "checksum": "a75da4ad5972b66700de5644c16f5e21"
+    },
+    "scripts/build_trackman_crosswalk.R": {
+      "checksum": "92f4ae3191d52b9cb7187375338895a2"
+    },
+    "scripts/apply_reference_supabase.R": {
+      "checksum": "1a24ad9f7c4dcb2a917137729bc0312f"
     }
   },
   "users": null,

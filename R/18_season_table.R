@@ -46,6 +46,18 @@ ps_team_is_ncaa <- function(team) {
   .conf_norm(team) %in% .conf_norm(team_name_map$team_name) ||
     (!is.null(hs_bio) && "team_name" %in% names(hs_bio) && .conf_norm(team) %in% .conf_norm(hs_bio$team_name))
 }
+# A season row's team through the reference: the TruMedia team id the row
+# carries (exact), else the name. college = D1..JUCO; LG = conference code.
+ps_row_team <- function(team_id = NA, team = NA) {
+  ti <- ref_team_info(team_id = team_id, name = team, by_name = TRUE)
+  lvl <- as.character(ti$level[1]); known <- !is.na(lvl)
+  college <- if (known) lvl %in% c("D1", "D2", "D3", "NAIA", "JUCO") else ps_team_is_ncaa(team)
+  lg <- as.character(ti$conf[1])
+  if (is.na(lg)) lg <- if (college) ps_team_conf(team) else if (known && lvl == "Summer") "Summer" else NA_character_
+  if (is.na(lg) && !college) lg <- "Summer"
+  list(team_id = as.character(ti$team_id[1]), college = college, level = lvl, lg = lg,
+       lg_name = as.character(ti$conf_name[1]), team = if (!is.na(ti$team[1])) as.character(ti$team[1]) else as.character(team))
+}
 
 # TrackMan pitcher id for a display name (any team, Coastal included)
 ps_pitcher_id <- function(name) {
@@ -201,15 +213,17 @@ season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), inc
     if (is.null(rr) || !nrow(rr)) next
     g <- function(ab, i) { v <- tm_stat(rr[i, , drop = FALSE], ab); if (length(v) == 0) NA_real_ else .ps_num(v) }
     for (i in seq_len(nrow(rr))) {
-      team <- as.character(rr$Team[i]); ncaa <- ps_team_is_ncaa(team) || identical(as.character(rr$Source[i]), "calendar")
+      team <- as.character(rr$Team[i])
+      rt <- ps_row_team(if ("TeamId" %in% names(rr)) rr$TeamId[i] else NA, team)
+      ncaa <- rt$college || (is.na(rt$level) && identical(as.character(rr$Source[i]), "calendar"))
       pa <- g("PA", i); k <- g("K", i); bb <- g("BB", i); hbp <- g("HBP", i); hr <- g("HR", i); h <- g("H", i)
       sw <- g("SWING", i); miss <- g("MISS", i); ch <- g("CHASE", i); ooz <- g("OUTOFZONE", i); p <- g("P", i)
       d2 <- g("2B", i); d3 <- g("3B", i); ip_raw <- g("IP", i)
       ip_dec <- tm_ip_decimal(ip_raw)
       h1 <- h - d2 - d3 - hr
       row <- data.frame(
-        Year = yr, Season = if (ncaa) "Spring" else "Summer", Team = team,
-        LG = if (ncaa) ps_team_conf(team) %||% NA_character_ else "Summer",
+        Year = yr, Season = if (ncaa) "Spring" else "Summer", Team = rt$team, TeamId = rt$team_id,
+        LG = if (ncaa) (rt$lg %||% NA_character_) else "Summer", Level = rt$level,
         Age = if (is.finite(age)) age - (TM_SEASON - yr) else NA_real_,
         G = g("G", i), GS = g("GS", i), W = g("W", i), L = g("L", i), SV = g("SV", i),
         IP = tm_ip_display(ip_raw), H = h, R = g("R", i), ER = g("ER", i), BB = bb, K = k, HBP = hbp, HR = hr,
@@ -238,20 +252,23 @@ season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), inc
     if (length(j)) {
       j <- j[1]
       tk_team <- as.character(tk$School[j])
-      tk_conf <- ps_team_conf(tk_team); if (is.na(tk_conf) && "Conf" %in% names(tk)) tk_conf <- as.character(tk$Conf[j])
-      tkrow <- data.frame(Year = TM_SEASON, Season = "Spring", Team = tk_team, LG = tk_conf,
+      tk_rt <- ps_row_team(if ("team_id" %in% names(tk)) tk$team_id[j] else NA, tk_team)
+      tk_conf <- tk_rt$lg; if (is.na(tk_conf) && "Conf" %in% names(tk)) tk_conf <- as.character(tk$Conf[j])
+      tkrow <- data.frame(Year = TM_SEASON, Season = "Spring", Team = tk_team, TeamId = tk_rt$team_id, LG = tk_conf, Level = tk_rt$level,
                           Age = if (is.finite(age)) age else NA_real_, Source = "trackman",
                           check.names = FALSE, stringsAsFactors = FALSE)
       cols <- c("Stuff+", "Pitching+", "Location+", "RV", "FB Velo", "xBA", "xSLG", "xwOBA", "Whiff%", "Chase%", "Zone%", "P")
       for (cc in cols) tkrow[[cc]] <- .ps_num(tk[[cc]][j])
       # attach to the matching spring row when there is one, else own row
+      # attach to the matching spring row (same team id, else same name)
       target <- if (!is.null(rows)) which(rows$Year == TM_SEASON & rows$Season == "Spring" &
-                                           (.conf_norm(rows$Team) == .conf_norm(tk_team) | rows$Source == "calendar")) else integer(0)
+                                           ((!is.na(rows$TeamId) & !is.na(tk_rt$team_id) & rows$TeamId == tk_rt$team_id) |
+                                            .conf_norm(rows$Team) == .conf_norm(tk_team) | rows$Source == "calendar")) else integer(0)
       if (length(target)) {
         t <- target[1]
         for (cc in cols) if (is.finite(tkrow[[cc]]) && (!cc %in% c("Whiff%", "Chase%", "Zone%", "P") || !is.finite(rows[[cc]][t])))
           rows[[cc]][t] <- tkrow[[cc]]
-        if (rows$Source[t] == "calendar" || is.na(rows$LG[t])) { rows$Team[t] <- tk_team; rows$LG[t] <- tk_conf }
+        if (rows$Source[t] == "calendar" || is.na(rows$LG[t])) { rows$Team[t] <- tk_team; rows$LG[t] <- tk_conf; rows$TeamId[t] <- tk_rt$team_id }
       } else {
         rows <- dplyr::bind_rows(rows, tkrow)
       }
@@ -267,7 +284,7 @@ season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), inc
         fbv <- mine$RelSpeed[mine$TaggedPitchType %in% LB_FB_TYPES & is.finite(mine$RelSpeed)]
         yr <- as.integer(format(max(mine$Date, na.rm = TRUE), "%Y"))
         rows <- dplyr::bind_rows(rows, data.frame(
-          Year = yr, Season = "Fall", Team = "Coastal Carolina", LG = "Bullpens",
+          Year = yr, Season = "Fall", Team = "Coastal Carolina", TeamId = "4104", LG = "Bullpens", Level = "D1",
           Age = if (is.finite(age)) age - (TM_SEASON - yr) else NA_real_,
           G = length(unique(mine$session_id)), P = nrow(mine),
           `FB Velo` = if (length(fbv)) round(mean(fbv), 1) else NA_real_,
@@ -290,22 +307,25 @@ season_rows_batter <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON)) {
   key <- paste("bat", name, paste(seasons, collapse = ","))
   hit <- .ps_env[[key]]
   if (!is.null(hit) && difftime(Sys.time(), hit$at, units = "mins") < 30) return(hit$rows)
+  id  <- if (exists("ncaa_batter_id", mode = "function")) tryCatch(ncaa_batter_id(name), error = function(e) NA_character_) else NA_character_
   age <- ps_bio_age(name)
   out <- list()
   for (yr in seasons) {
-    rr <- tryCatch(ps_tm_rows(name, yr, "bat"), error = function(e) NULL)
+    rr <- tryCatch(ps_tm_rows(name, yr, "bat", id), error = function(e) NULL)
     if (is.null(rr) || !nrow(rr)) next
     g <- function(ab, i) { v <- tm_stat(rr[i, , drop = FALSE], ab); if (length(v) == 0) NA_real_ else .ps_num(v) }
     for (i in seq_len(nrow(rr))) {
-      team <- as.character(rr$Team[i]); ncaa <- ps_team_is_ncaa(team) || identical(as.character(rr$Source[i]), "calendar")
+      team <- as.character(rr$Team[i])
+      rt <- ps_row_team(if ("TeamId" %in% names(rr)) rr$TeamId[i] else NA, team)
+      ncaa <- rt$college || (is.na(rt$level) && identical(as.character(rr$Source[i]), "calendar"))
       pa <- g("PA", i); ab <- g("AB", i); h <- g("H", i); d2 <- g("2B", i); d3 <- g("3B", i); hr <- g("HR", i)
       bb <- g("BB", i); hbp <- g("HBP", i); k <- g("K", i)
       sw <- g("SWING", i); con <- g("CONTACT", i); miss <- g("MISS", i); ch <- g("CHASE", i); ooz <- g("OUTOFZONE", i)
       avg <- g("BA", i); obp <- g("OBP", i); slg <- g("SLG", i)
       h1 <- h - d2 - d3 - hr
       row <- data.frame(
-        Year = yr, Season = if (ncaa) "Spring" else "Summer", Team = team,
-        LG = if (ncaa) ps_team_conf(team) %||% NA_character_ else "Summer",
+        Year = yr, Season = if (ncaa) "Spring" else "Summer", Team = rt$team, TeamId = rt$team_id,
+        LG = if (ncaa) (rt$lg %||% NA_character_) else "Summer", Level = rt$level,
         Age = if (is.finite(age)) age - (TM_SEASON - yr) else NA_real_,
         G = g("G", i), PA = pa, AB = ab, H = h, `2B` = d2, `3B` = d3, HR = hr, BB = bb, HBP = hbp, K = k, SB = g("SB", i),
         AVG = round(avg, 3), OBP = round(obp, 3), SLG = round(slg, 3), OPS = round(obp + slg, 3),
@@ -326,25 +346,30 @@ season_rows_batter <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON)) {
   pre <- tryCatch(lb_precomputed(TM_SEASON), error = function(e) list())
   tk <- pre$hitters
   if (is.data.frame(tk) && nrow(tk)) {
-    j <- which(.tm_norm(tk$Batter) == .tm_norm(name))
+    # TrackMan id first (exact), the name only for hitters the directory has no id for
+    j <- if (!is.na(id) && "tm_id" %in% names(tk)) which(!is.na(tk$tm_id) & as.character(tk$tm_id) == id) else integer(0)
+    if (!length(j)) j <- which(.tm_norm(tk$Batter) == .tm_norm(name))
     if (length(j) > 1) {
       teams <- if (!is.null(rows)) .conf_norm(rows$Team) else character(0)
-      pref <- j[.conf_norm(tk$School[j]) %in% teams]; if (length(pref)) j <- pref
+      tids <- if (!is.null(rows)) rows$TeamId[!is.na(rows$TeamId)] else character(0)
+      pref <- j[.conf_norm(tk$School[j]) %in% teams | ("team_id" %in% names(tk) & tk$team_id[j] %in% tids)]; if (length(pref)) j <- pref
     }
     if (length(j)) {
       j <- j[1]; tk_team <- as.character(tk$School[j])
-      tk_conf <- ps_team_conf(tk_team); if (is.na(tk_conf) && "Conf" %in% names(tk)) tk_conf <- as.character(tk$Conf[j])
+      tk_rt <- ps_row_team(if ("team_id" %in% names(tk)) tk$team_id[j] else NA, tk_team)
+      tk_conf <- tk_rt$lg; if (is.na(tk_conf) && "Conf" %in% names(tk)) tk_conf <- as.character(tk$Conf[j])
       cols <- c("EV90", "HardHit%", "xwOBAcon", "Z-Whiff%", "Whiff%", "Chase%", "Contact%")
       vals <- lapply(cols, function(cc) .ps_num(tk[[cc]][j])); names(vals) <- cols
       target <- if (!is.null(rows)) which(rows$Year == TM_SEASON & rows$Season == "Spring" &
-                                           (.conf_norm(rows$Team) == .conf_norm(tk_team) | rows$Source == "calendar")) else integer(0)
+                                           ((!is.na(rows$TeamId) & !is.na(tk_rt$team_id) & rows$TeamId == tk_rt$team_id) |
+                                            .conf_norm(rows$Team) == .conf_norm(tk_team) | rows$Source == "calendar")) else integer(0)
       if (length(target)) {
         t <- target[1]
         for (cc in cols) if (is.finite(vals[[cc]]) && (!cc %in% c("Whiff%", "Chase%", "Contact%") || !is.finite(rows[[cc]][t])))
           rows[[cc]][t] <- vals[[cc]]
-        if (rows$Source[t] == "calendar" || is.na(rows$LG[t])) { rows$Team[t] <- tk_team; rows$LG[t] <- tk_conf }
+        if (rows$Source[t] == "calendar" || is.na(rows$LG[t])) { rows$Team[t] <- tk_team; rows$LG[t] <- tk_conf; rows$TeamId[t] <- tk_rt$team_id }
       } else {
-        tkrow <- data.frame(Year = TM_SEASON, Season = "Spring", Team = tk_team, LG = tk_conf,
+        tkrow <- data.frame(Year = TM_SEASON, Season = "Spring", Team = tk_team, TeamId = tk_rt$team_id, LG = tk_conf, Level = tk_rt$level,
                             Age = if (is.finite(age)) age else NA_real_, Source = "trackman",
                             check.names = FALSE, stringsAsFactors = FALSE)
         for (cc in cols) tkrow[[cc]] <- vals[[cc]]
@@ -415,27 +440,34 @@ ps_fill <- function(p, dir) {
 
 # ---- UI ------------------------------------------------------------------------------------
 PS_CSS <- HTML("
-  .ps-card { background:#132A3A; border-radius:14px; padding:14px 16px 10px; margin:6px 0 14px; color:#fff;
-             box-shadow:0 1px 3px rgba(0,0,0,.18); overflow-x:auto; }
-  .ps-head { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:10px; }
-  .ps-title { font-size:26px; font-weight:800; letter-spacing:-.01em; margin-right:6px; }
-  .ps-head .btn-group .btn { background:#1E3A4C; border:1px solid #3B5A6E; color:#D6E0E6; font-weight:600; font-size:13px;
-                             padding:6px 14px; box-shadow:none; }
-  .ps-head .btn-group .btn.active { background:#3C8D8E; color:#fff; border-color:#3C8D8E; }
-  .ps-head .btn-group .btn:focus { outline:none; }
+  .ps-card { background:#FFFFFF; border:1px solid #ECEFF2; border-radius:16px; padding:16px 18px 12px; margin:6px 0 14px;
+             color:#152535; box-shadow:0 1px 3px rgba(16,24,40,.05); overflow-x:auto; }
+  .ps-head { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+  .ps-title { font-size:13px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#243746; margin-right:6px; }
+  .ps-head .btn-group .btn { background:#F2F5F7; border:1px solid #E1E7EB; color:#3B4754; font-weight:600; font-size:12.5px;
+                             padding:5px 13px; box-shadow:none; border-radius:8px; }
+  .ps-head .btn-group .btn + .btn { margin-left:4px; }
+  .ps-head .btn-group .btn.active { background:#0E6E70; color:#fff; border-color:#0E6E70; }
+  .ps-head .btn-group .btn:focus { outline:none; box-shadow:none; }
   .ps-head .form-group { margin:0; }
-  .ps-note { color:#9FB3BF; font-size:12px; margin-left:auto; }
-  table.ps-table { border-collapse:separate; border-spacing:0; width:100%; font-size:14px; font-variant-numeric:tabular-nums; }
-  table.ps-table th { color:#fff; font-weight:700; text-align:center; padding:9px 8px; border-bottom:1px solid #3B5A6E; white-space:nowrap; }
+  .ps-note { color:#8A93A0; font-size:12px; margin-left:auto; }
+  table.ps-table { border-collapse:separate; border-spacing:0; width:100%; font-size:13.5px; font-variant-numeric:tabular-nums; }
+  table.ps-table th { color:#8A93A0; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; text-align:center;
+                      padding:8px 8px; border-bottom:1px solid #E5EAEE; white-space:nowrap; background:#fff; position:sticky; top:0; }
   table.ps-table th.l, table.ps-table td.l { text-align:left; }
-  table.ps-table td { padding:9px 8px; text-align:center; border-bottom:1px solid #22405280; white-space:nowrap; color:#fff; }
+  table.ps-table td { padding:8px 8px; text-align:center; border-bottom:1px solid #F0F3F5; white-space:nowrap; color:#243746; }
+  table.ps-table tr:last-child td { border-bottom:none; }
   table.ps-table td.stat { color:#111827; font-weight:600; background:#fff; }
-  table.ps-table td.stat.blank { background:#1E3A4C; color:#7C8F9A; font-weight:400; }
-  table.ps-table th.grp, table.ps-table td.grp { border-left:2px solid #8FA8B6; }
+  table.ps-table td.stat.blank { background:#FAFBFC; color:#C3CBD2; font-weight:400; }
+  table.ps-table th.grp, table.ps-table td.grp { border-left:2px solid #E5EAEE; }
   table.ps-table tr.cur td { font-weight:800; }
-  table.ps-table td .ps-lg { display:inline-block; font-size:12px; font-weight:700; letter-spacing:.04em; }
-  table.ps-table td .ps-src { color:#9FB3BF; font-size:11px; margin-left:6px; }
-  .ps-empty { color:#9FB3BF; font-size:13px; padding:8px 2px; }
+  table.ps-table tr.cur td.l { color:#0E6E70; }
+  table.ps-table td .ps-lg { display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em; color:#243746;
+                             background:#EEF3F5; border-radius:6px; padding:2px 7px; cursor:default; }
+  table.ps-table td .ps-lvl { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.05em; color:#0E6E70;
+                              background:#E6F2F2; border-radius:6px; padding:2px 6px; margin-left:6px; }
+  table.ps-table td .ps-src { color:#8A93A0; font-size:11px; margin-left:6px; font-weight:400; }
+  .ps-empty { color:#8A93A0; font-size:13px; padding:8px 2px; }
 ")
 
 season_table_ui <- function(prefix, title) {
@@ -480,8 +512,11 @@ season_table_html <- function(rows, kind = c("pit", "bat"), mode = "Advanced", e
     tags$tr(class = if (r == cur) "cur" else "",
       tags$td(yr_txt, class = "l"),
       tags$td(if (is.finite(rows$Age[r])) as.character(rows$Age[r]) else "—"),
-      tags$td(class = "l", rows$Team[r], if (!is.null(src_txt)) span(class = "ps-src", src_txt)),
-      tags$td(span(class = "ps-lg", rows$LG[r])),
+      tags$td(class = "l", rows$Team[r],
+              if ("Level" %in% names(rows) && !is.na(rows$Level[r]) && rows$Level[r] %in% c("D1", "D2", "D3", "NAIA", "JUCO"))
+                span(class = "ps-lvl", rows$Level[r]),
+              if (!is.null(src_txt)) span(class = "ps-src", src_txt)),
+      tags$td(span(class = "ps-lg", title = conf_full_name(rows$LG[r]), rows$LG[r])),
       lapply(seq_along(spec), function(i) {
         cc <- names(spec)[i]; dir <- spec[[i]][1]; dig <- spec[[i]][2]
         v <- .ps_num(rows[[cc]][r]); txt <- ps_fmt(v, dig)

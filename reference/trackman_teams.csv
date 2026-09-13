@@ -1,0 +1,779 @@
+trackman_code,team_id,team,level,conf,source,n,share
+ABI_WIL,730375936,Abilene Christian,D1,WAC,votes,16,1
+ABR_BAL,765072494,Abraham Baldwin Agricultural College,NAIA,SSAC,votes,8,1
+AIR_FOR,730205440,Air Force,D1,MW,votes,7,1
+AKR_ZIP,540536064,Akron,D1,MAC,votes,16,1
+ALA_ANM,730365440,Alabama A&M,D1,SWAC,votes,17,1
+ALA_CRI,730206976,Alabama,D1,SEC,votes,14,1
+ALA_HOR,4765,Alabama State,D1,SWAC,votes,15,1
+ALA_LIO,730266624,North Alabama,D1,ASUN,votes,18,1
+ALB_GRE,730280448,Albany,D1,AMEAST,votes,11,1
+ALB_STA,730370048,Albany State,D2,SIAC,votes,9,1
+ALC_BRA,5376,Alcorn State,D1,SWAC,votes,15,1
+ALL_ALL5,675142210,Allen County CC,JUCO,R6,votes,8,1
+ALL_HAN,666534577,Allan Hancock (JC),JUCO,WS,votes,7,1
+ALV_CCO,918485456,Alvin CC,JUCO,R14,votes,14,1
+ALV_GOL,602148996,Alvernia College,D3,MACC,votes,7,1
+AND_TRO,730336512,Anderson University (S.C.),D2,SAC,votes,17,0.739
+ANG_COL,933937116,Angelina College,JUCO,R14,votes,14,1
+ANG_STA,730381568,Angelo State,D2,LSC,votes,13,1
+APP_MOU,730240256,Appalachian State,D1,SBELT,votes,15,1
+ARI_SUN,5035,Arizona State,D1,BIG12,votes,10,1
+ARI_WIL,232,Arizona,D1,BIG12,votes,11,1
+ARK_LIO,5377,Arkansas-Pine Bluff,D1,SWAC,votes,16,1
+ARK_RAZ,3375,Arkansas,D1,SEC,votes,11,1
+ARK_TEC,730305536,Arkansas Tech,D2,GAC,votes,5,1
+ARK_WEE,730326016,University of Arkansas-Monticello,D2,GAC,votes,5,1
+ARL_MAV,5324,UT Arlington,D1,WAC,votes,14,1
+ARM_BLA,4744,Army,D1,PAT,votes,14,0.933
+ASH_UNI,730205696,Ashland,D2,GMAC,votes,12,1
+ASU_RED,730290176,Arkansas State,D1,SBELT,votes,12,1
+AUB_TIG,5466,Auburn,D1,SEC,votes,14,1
+AUB_UNI,774756608,Auburn Montgomery,D2,GSC,votes,16,0.941
+AUG_UNI1,730275328,Augusta,D2,PBC,votes,12,1
+AUR_UNI,516556216,Aurora,D3,NAC2,votes,3,1
+AUS_COL,610500417,Austin College,D3,SCAC,votes,14,1
+AUS_GOV,730219520,Austin Peay,D1,ASUN,votes,14,1
+AVE_MAR,774790790,Ave Maria,NAIA,SUN,votes,14,1
+AVE_UNI,630703733,Averett University,D3,ODAC,votes,6,1
+AZU_PAC,730174464,Azusa Pacific,D2,PWC,votes,12,1
+BAK_COL,718131863,Bakersfield (JC),JUCO,WS,votes,4,1
+BAK_WIL,798470237,Baker,NAIA,HAAC,votes,11,1
+BAL_CAR,730195456,Ball State,D1,MAC,votes,12,0.923
+BAL_UNI,730334976,Baldwin Wallace,D3,OAC,votes,9,1
+BAR_COL,730188800,Barton,D2,CC,votes,16,1
+BAR_COL1,603239190,Barton CC,JUCO,R6,votes,9,1
+BAT_ROU,961396562,Baton Rouge CC,JUCO,R23,votes,9,1
+BAY_BEA,3033,Baylor,D1,BIG12,votes,17,1
+BEL_ABB,730285824,Belmont Abbey,D2,CC,votes,9,1
+BEL_BRU,730190336,Belmont,D1,MVC,votes,14,1
+BEL_COL,743493077,Bellevue College,JUCO,NWAC,votes,6,1
+BEL_KNI,730167552,Bellarmine,D1,ASUN,votes,16,1
+BEL_UNI1,540191349,Belhaven,D3,CCS,votes,5,1
+BER_COL,787533932,Berry College,D3,SAA,votes,9,1
+BER_COL1,547512281,Berea College,D3,HCAC,votes,6,0.857
+BET_UNI2,509156021,Bethel (IN),NAIA,CL,votes,13,1
+BET_WIL,730152960,Bethune-Cookman,D1,SWAC,votes,18,1
+BFS_BBS,730242816,Bluefield State,D2,IND,votes,16,1
+BGS_FAL,730189056,Bowling Green,D1,MAC,votes,14,1
+BIN_BEA,730155776,Binghamton,D1,AMEAST,votes,10,1
+BIO_UNI,742533120,Biola,D2,PWC,votes,15,1
+BLI_JC,665087985,Blinn College,JUCO,R14,votes,5,1
+BLO_UNI,702750133,Bloomsburg,D2,PSAC,votes,9,1
+BLU_MOU,741086202,Blue Mountain Christian,NAIA,SSAC,votes,9,1
+BLU_UNI,575651042,Bluefield,NAIA,AAC,votes,7,1
+BOC_EAG,227,Boston College,D1,ACC,votes,14,1
+BOS_PAR,854453282,Bossier Parish CC,JUCO,R14,votes,9,1
+BOW_COL,730149376,Bowdoin,D3,NESCAC,name,,
+BRA_BRA,730253312,Bradley,D1,MVC,votes,16,1
+BRE_COL1,775880442,Brewton Parker,NAIA,SSAC,votes,12,1
+BRE_TOR,730234624,Brevard,D3,USAC,votes,7,0.875
+BRI_EAG,749282839,Bridgewater College (VA),D3,ODAC,votes,8,1
+BRO_BEA,730236160,Brown,D1,IVY,votes,12,1
+BRY_BUL,730266880,Bryant,D1,AMEAST,votes,13,1
+BRY_COL,733955370,Bryan,NAIA,AAC,votes,9,1
+BUC_BIS,730214144,Bucknell,D1,PAT,votes,15,1
+BUE_VIS,682655006,Buena Vista University,D3,ARC,votes,7,1
+BUS_BEA,668923648,Bushnell,NAIA,CCC,name,,
+BUT_BUL,730283520,Butler,D1,BEAST,votes,13,1
+BUT_COL1,925759695,Butler CC,JUCO,R6,votes,11,1
+BYU_COU,730257152,BYU,D1,BIG12,votes,15,1
+CAL_AGO,730153984,UC Davis,D1,BW,votes,10,1
+CAL_ANT,3031,UC Irvine,D1,BW,votes,13,1
+CAL_BEA,730152448,California,D1,ACC,votes,15,1
+CAL_FUL,5414,CSU Fullerton,D1,BW,votes,13,1
+CAL_HIG,730281728,UC Riverside,D1,BW,votes,10,1
+CAL_LAN,5091,California Baptist,D1,WAC,votes,14,1
+CAL_MAT,730380032,CSU Northridge,D1,BW,votes,14,1
+CAL_MUS,5487,Cal Poly,D1,BW,votes,11,1
+CAL_POL1,730329600,Cal Poly-Pomona,D2,CCAA,votes,8,1
+CAL_STA,730239488,Cal State-San Bernardino,D2,CCAA,votes,13,1
+CAL_STA2,730350336,Cal State-Monterey Bay,D2,CCAA,votes,10,1
+CAL_STA6,523800626,Cal State East Bay,D2,CCAA,votes,4,1
+CAL_STA7,730205952,Cal State-Los Angeles,D2,CCAA,votes,5,1
+CAL_TEC,707935036,Cal Tech,D3,SCIAC,votes,7,1
+CAL_UNI,730230784,California University of Pennsylvania,D2,PSAC,votes,2,1
+CAM_CAM,730187776,Campbell,D1,CAA,votes,14,1
+CAM_UNI1,730180352,Cameron,D2,LSC,votes,11,1
+CAN_GRI,730218752,Canisius,D1,MAAC,votes,11,1
+CAR_EAG,730297344,Carson-Newman,D2,SAC,votes,16,0.762
+CAT_IND,730268928,Catawba,D2,SAC,votes,13,1
+CAT_UNI,684763535,Catholic,D3,LAND,name,,
+CCU_BLD,730306816,Central Connecticut State,D1,NEC,votes,6,1
+CED_UNI,730336768,Cedarville,D2,GMAC,votes,6,1
+CEN_BEA,730175232,Central Arkansas,D1,ASUN,votes,15,1
+CEN_COL,762535794,Centre College (KY),D3,SAA,votes,13,1
+CEN_COL1,709458879,Centenary,D3,SCAC,votes,9,1
+CEN_COL4,801216793,Centralia (JC),JUCO,NWAC,votes,6,1
+CEN_MIC,5342,Central Michigan,D1,MAC,votes,10,1
+CEN_MUL,730376704,University of Central Missouri,D2,MAIAA,votes,4,1
+CHA_BUC,730194432,Charleston Southern,D1,BSOU,votes,17,1
+CHA_COL,516926186,Chaffey (JC),JUCO,SC,votes,4,1
+CHA_FOR,730214400,Charlotte,D1,AMER,votes,14,1
+CHA_GOL,730364416,University of Charleston,D2,MEC,votes,16,1
+CHA_UNI,603371503,Chapman,D3,SCIAC,votes,9,1
+CHA_UNI1,718806784,Chaminade,D2,PWC,votes,6,1
+CHE_COM,786557349,Chemeketa CC,JUCO,NWAC,votes,6,1
+CHI_COL,659916264,Chipola College,JUCO,R8,votes,8,1
+CHI_MRN,730184704,Chicago,D3,UAA,votes,21,1
+CHO_UNI,730278912,Chowan,D2,CC,votes,9,1
+CHR_BRO,730330368,Christian Brothers,D2,GSC,votes,12,1
+CIN_BEA,5465,Cincinnati,D1,BIG12,votes,13,1
+CIS_WRA,560371435,Cisco College,JUCO,R5,votes,3,1
+CIT_BUL,730366720,The Citadel,D1,SOCON,votes,18,1
+CLA_COL,793422755,Clark College,JUCO,NWAC,votes,4,1
+CLA_COU,972670388,Clackamas CC,JUCO,NWAC,votes,8,1
+CLA_MUD,523444307,Claremont,D3,SCIAC,votes,14,1
+CLA_PAN,687190241,Claflin,D2,PBC,votes,12,1
+CLE_SCC,863349953,Cleveland State CC,JUCO,R7,votes,8,1
+CLE_TIG,730358784,Clemson,D1,ACC,votes,14,1
+CLO_COU1,860220407,Cloud County CC,JUCO,R6,votes,4,1
+CLU_KIN,555452996,California Lutheran,D3,SCIAC,votes,14,1
+CMU_MAV,730365184,Colorado Mesa,D2,RMAC,votes,9,1
+COA_CHA,4104,Coastal Carolina,D1,SBELT,votes,13,1
+COA_COU,607452407,Coastal Bend College,JUCO,R14,votes,10,1
+COF_COF,657920186,Coffeyville CC,JUCO,R6,votes,7,1
+COK_COB,730255104,Coker,D2,SAC,votes,16,1
+COL_CHA,730177792,College of Charleston,D1,CAA,votes,20,1
+COL_COL10,730250752,Colby,D3,NESCAC,votes,6,1
+COL_COL12,763963017,Columbia College (MO),NAIA,AMC,votes,2,1
+COL_COM,795896140,Colby CC,JUCO,R6,votes,4,1
+COL_CUG,730150912,Columbus State,D2,PBC,votes,15,1
+COL_INT,564257259,Columbia International,NAIA,AAC,votes,3,1
+COL_LION,730319104,Columbia,D1,IVY,votes,7,1
+COL_SCH,730252800,Colorado School of Mines,D2,RMAC,votes,14,1
+COL_SPA,841142599,Colorado Northwestern (JC),JUCO,R18,votes,10,1
+COL_SPR,576632832,University of Colorado(Colorado Springs),D2,RMAC,votes,15,1
+COL_STA2,645227672,Colorado State Pueblo,D2,RMAC,votes,11,1
+COM_COL,630970695,Compton (JC),JUCO,SC,votes,8,1
+CON_CHI,732487431,Concordia (IL),D3,NAC2,votes,11,1
+CON_MOU,730255360,Concord,D2,MEC,votes,10,1
+CON_TOR,563003640,Concordia (TX),D3,SCAC,votes,12,1
+CON_UNI1,782546176,Concordia University Irvine,D2,PWC,votes,14,1
+CON_UNI2,699129085,Concordia (NE),NAIA,GPAC,votes,10,1
+COP_STA,730194176,Coppin State,D1,NEC,votes,10,1
+COR_BRE,730298624,Cornell,D1,IVY,votes,14,1
+COW_COU,899232889,Cowley County CC,JUCO,R6,votes,12,1
+CRE_BLU,730243840,Creighton,D1,BEAST,votes,14,1
+CSD_TRI,730348032,UC San Diego,D1,BW,votes,16,1
+CSI_EAG,937516763,Southern Idaho (JC),JUCO,R18,votes,11,1
+CSU_BAK,730283008,CSU Bakersfield,D1,BW,votes,15,1
+CUE_COL,761173101,Cuesta (JC),JUCO,WS,votes,3,1
+CUM_PAT,690392320,University of the Cumberlands,NAIA,MSC,votes,12,1
+CUM_UNI,663391038,Cumberland,NAIA,MSC,votes,13,1
+CYP_CHR,829041000,Cypress (JC),JUCO,OE,votes,13,0.929
+DAL_COM,714643885,Texas Dallas,D2,LSC,votes,7,1
+DAL_PAT,730198016,Dallas Baptist,D1,CUSA,votes,13,1
+DAR_GRE,730216192,Dartmouth,D1,IVY,votes,11,1
+DAV_UNI,577507072,Davenport,D2,GLIAC,votes,14,1
+DAV_WIL,730363136,Davidson,D1,A10,votes,15,1
+DAY_FLY,730194688,Dayton,D1,A10,votes,15,1
+DEL_BLU,730203136,Delaware,D1,CUSA,votes,16,0.941
+DEL_HOR,730217984,Delaware State,D1,NEC,votes,15,1
+DEL_STA,730183424,Delta State,D2,GSC,votes,9,1
+DEL_VAL,683496902,Delaware Valley College,D3,MAFC,votes,8,1
+DEN_UNI,647371208,Denison,D3,NCAC,votes,4,1
+DEP_UNI,730268672,DePauw,D3,NCAC,votes,9,1
+DES_UNI,636733935,DeSales,D3,MAFC,votes,9,1
+DIL_UNI,774217728,Dillard,NAIA,HAC,votes,4,1
+DIX_STE,730318592,Utah Tech,D1,WAC,votes,14,1
+DOD_CIT1,601251307,Dodge City CC,JUCO,R6,votes,4,1
+DOM_UNI,781887413,Dominican University (Illinois),D3,NAC2,votes,2,1
+DOM_UNI2,730387200,Dominican College (N.Y.),D2,CACC,votes,9,1
+DRU_PAN,730254080,Drury,D2,GLVC,votes,9,1
+DUK_BLU,730336256,Duke,D1,ACC,votes,13,1
+DYE_EAG,616979234,Dyersburg State CC,JUCO,R7,votes,5,1
+EAS_MEN,616347577,Eastern Mennonite University,D3,ODAC,votes,3,1
+EAS_NEW,730182400,Eastern New Mexico,D2,LSC,votes,6,1
+EAS_OKL,793607031,Eastern Oklahoma State College,JUCO,R2,votes,3,1
+EAS_STR,730288128,East Stroudsburg,D2,PSAC,votes,8,1
+EAS_TEX,694879601,East Texas Baptist,D3,ASC,votes,16,1
+EC,730345728,Emmanuel College (Ga.),D2,CC,votes,14,1
+ECK_COL,730259456,Eckerd,D2,SSC,name,,
+ECU_PIR,730270720,East Carolina,D1,AMER,votes,15,1
+EDM_COM,842537552,Edmonds CC,JUCO,NWAC,votes,4,1
+EIU_PAN,730271744,Eastern Illinois,D1,OVC,votes,14,1
+EKU_COL,5417,Eastern Kentucky,D1,ASUN,votes,17,1
+ELI_BLU,587440773,Elizabethtown College,D3,LAND,votes,7,1
+ELM_UNI,672654920,Elmhurst,D3,CCIW,votes,5,1
+ELO_PHO,730252544,Elon,D1,CAA,votes,15,1
+EMO_HEN,730385664,Emory and Henry,D2,SAC,votes,13,1
+EMU_EAG,5385,Eastern Michigan,D1,MAC,votes,14,1
+END_COL,566131870,Endicott College,D3,CCC,votes,4,1
+ERS_COL,730241280,Erskine,D2,CC,votes,25,1
+ETS_BUC,4844,East Tennessee State,D1,SOCON,votes,16,1
+EVA_ACE,730327808,Evansville,D1,MVC,votes,13,1
+EVE_COM,589494650,Everett CC,JUCO,NWAC,votes,2,1
+FAI_STA,730380544,Fairfield,D1,MAAC,votes,7,1
+FAU_OWL,339,Florida Atlantic,D1,AMER,votes,14,1
+FAU_UNI,714554227,Faulkner,NAIA,SSAC,votes,7,1
+FDU_KNI,730355200,Fairleigh Dickinson,D1,NEC,votes,8,1
+FEL_UNI,730282240,Felician,D2,CACC,votes,6,1
+FER_COL,783524464,Ferrum College,D2,CC,votes,14,1
+FGCU,4964,Florida Gulf Coast,D1,ASUN,votes,17,1
+FLA_COL,730184960,Flagler,D2,PBC,votes,13,1
+FLA_GAT,730168320,Florida,D1,SEC,votes,9,1
+FLO_MEM,633083793,Florida Memorial,NAIA,SUN,votes,12,1
+FLO_PAN,4468,Florida International,D1,CUSA,votes,14,1
+FLO_RAT,5416,Florida A&M,D1,SWAC,votes,9,0.9
+FLO_SEM,101,Florida State,D1,ACC,votes,11,1
+FLO_SOU3,730161920,Florida Southern,D2,SSC,name,,
+FNT_COM,991167963,Frontier College,JUCO,R24,votes,2,1
+FOR_RAM,730324992,Fordham,D1,A10,votes,16,1
+FRA_COL,688532626,Franklin,D3,HCAC,votes,9,1
+FRA_MAR1,730185472,Francis Marion,D2,CC,votes,14,1
+FRE_BUL,730384384,Fresno State,D1,MW,votes,10,1
+FRE_PAC,730272000,Fresno Pacific,D2,PWC,votes,21,1
+FRE_UNI,766104048,Freed-Hardeman,NAIA,MSC,votes,9,1
+FRO_STA,730316288,Frostburg State,D2,MEC,votes,6,1
+FUL_COL,872941573,Fullerton (JC),JUCO,OE,votes,15,1
+GAL_WCS,566838711,Galveston College,JUCO,R14,votes,9,1
+GAN_UNI,730295296,Gannon,D2,PSAC,votes,9,1
+GAR_RUN,730222592,Gardner Webb,D1,BSOU,votes,10,1
+GAS_COL,934143574,Gaston College,JUCO,R10,votes,3,1
+GEO_BUL,226,Georgia,D1,SEC,votes,16,0.941
+GEO_COL,730249216,George Washington,D1,A10,votes,13,1
+GEO_COL1,730266112,Georgia,D2,PBC,votes,18,1
+GEO_COL2,637182720,Georgetown College,NAIA,MSC,votes,3,1
+GEO_EAG,730331648,Georgia Southern,D1,SBELT,votes,16,1
+GEO_FOX,730348288,George Fox,D3,NWC,votes,8,0.889
+GEO_GWI,784775888,Georgia Gwinnett,NAIA,CAC,votes,14,0.933
+GEO_HOY,2330,Georgetown,D1,BEAST,votes,13,1
+GEO_PAN,730239744,Georgia State,D1,SBELT,votes,16,1
+GEO_PAT,730265088,George Mason,D1,A10,votes,13,1
+GEO_SOU,730308096,Georgia Southwestern State,D2,PBC,votes,9,1
+GET_COL,657396052,Gettysburg College,D3,CC,votes,5,1
+GIT_YEL,100,Georgia Tech,D1,ACC,votes,13,1
+GLE_COM1,556967750,Glendale JC (CA),JUCO,WS,votes,4,1
+GLE_STA,730273536,Glenville State,D2,MEC,votes,7,1
+GOL_COL,577494016,Goldey-Beacom,D2,CACC,votes,7,1
+GOL_W,675950305,Golden West (JC),JUCO,OE,votes,13,1
+GON_BUL,730200832,Gonzaga,D1,WCC,votes,8,1
+GRA_CAN,5310,Grand Canyon,D1,MW,votes,9,1
+GRA_COL,825353104,Grace College,NAIA,CL,votes,5,1
+GRA_HAR,741689330,Grays Harbor College,JUCO,NWAC,votes,9,1
+GRA_TIG,5378,Grambling State,D1,SWAC,votes,12,1
+GRA_VAL1,730342912,Grand Valley State,D2,GLIAC,votes,3,1
+GRY_COL,630470422,Grayson County College,JUCO,R5,votes,9,1
+GUL_COM,579157367,Gulf Coast State College,JUCO,R8,votes,12,1
+HAM_COL,625202324,Hampden-Sydney College,D3,ODAC,votes,6,1
+HAM_COL2,561461634,Hamilton,D3,NESCAC,votes,12,1
+HAR_CRI,5450,Harvard,D1,IVY,votes,9,1
+HAR_SIM,759941094,Hardin-Simmons,D3,ASC,votes,6,1
+HAW_HIL,730184448,University of Hawaii at Hilo,D2,PWC,votes,11,1
+HAW_PAC,730309632,Hawaii Pacific,D2,PWC,votes,9,1
+HAW_WAR,730158848,Hawaii,D1,BW,votes,10,1
+HBU_HUS,730157824,Houston Christian,D1,SLAND,votes,13,1
+HEN_COL,551148623,Hendrix,D3,SCAC,votes,21,1
+HEN_RED,730286848,Henderson State,D2,GAC,votes,8,1
+HIG_COM3,764419826,Highland CC (KS),JUCO,R6,votes,7,1
+HIG_PAN,730321152,High Point,D1,BSOU,votes,11,1
+HIL_COL,979451195,Hill College,JUCO,R5,votes,4,1
+HIL_COL2,730308608,Hillsdale,D2,GMAC,votes,11,1
+HIL_COL3,709174932,Hilbert College,D3,AMCC,votes,7,1
+HOB_COL,717370784,Hobart and William Smith,D3,LL,votes,11,1
+HOF_PRI,730245120,Hofstra,D1,CAA,votes,13,1
+HOL_CRU,730310656,Holy Cross,D1,PAT,votes,19,1
+HOO_COL,507798810,Hood College,D3,MACC,votes,4,1
+HOU_COU,3030,Houston,D1,BIG12,votes,15,1
+HOW_HAW,578172940,Howard College,JUCO,R5,votes,6,1
+HOW_PAY,742527545,Howard Payne University,D3,ASC,votes,11,1
+HUT_COM,812955429,Hutchinson CC,JUCO,R6,votes,13,1
+ILI_SPR,730380800,University of Illinois-Springfield,D2,GLVC,votes,17,1
+ILL_ILL,730163456,Illinois,D1,BIG10,votes,10,1
+ILL_RED,730258944,Illinois State,D1,MVC,votes,13,1
+ILL_TEC,608625962,Illinois Tech,D3,NAC2,votes,6,1
+ILL_WES,730331392,Illinois Wesleyan,D3,CCIW,votes,21,1
+IMM_UNI,603635670,Immaculata,D3,AEC,votes,3,1
+IND_SYC,730350080,Indiana State,D1,MVC,votes,18,1
+IND_TEC,697176064,Indiana Institute of Technology,NAIA,WHAC,votes,13,1
+IND_UNI1,730314496,Indiana University of Pennsylvania,D2,PSAC,votes,4,1
+IND_UNI2,737261824,Indiana Kokomo,NAIA,RSC,votes,11,1
+IND_WES,787509562,Indiana Wesleyan,NAIA,CL,votes,11,1
+ION_GAE,730242048,Iona,D1,MAAC,votes,16,1
+IOW_HAW,1232,Iowa,D1,BIG10,votes,9,1
+IOW_WES,856030751,Iowa Western CC,JUCO,R11,votes,7,1
+IRV_VAL,541208080,Irvine Valley (JC),JUCO,OE,votes,6,1
+IU,4866,Indiana,D1,BIG10,votes,15,1
+IWC,730225152,Incarnate Word,D1,SLAND,votes,19,1
+JAC_GAM,730225408,Jacksonville State,D1,CUSA,votes,17,1
+JAC_STA,955704654,Jackson State CC,JUCO,R7,votes,8,1
+JAC_TIG,730378240,Jackson State,D1,SWAC,votes,12,1
+JEF_UNI,626284544,Thomas Jefferson,D2,CACC,votes,6,1
+JES_UNI,777752536,Jessup,D2,PWC,votes,17,1
+JMU_DUK,730340096,James Madison,D1,SBELT,votes,16,1
+JOH_AND,598844146,Johnson and Wales University,D3,CCC,votes,7,1
+JOH_LOG,558906292,John A. Logan College,JUCO,R24,votes,15,1
+JOH_UNI,518545061,Johnson,NAIA,AAC,votes,9,1
+JUD,730335488,Jacksonville,D1,ASUN,votes,14,1
+JUN_COL,738205044,Juniata College,D3,LAND,votes,6,1
+KAL_COL,764315275,Kalamazoo College,D3,MIAA,votes,2,1
+KAN_JAY,730360064,Kansas,D1,BIG12,votes,11,1
+KAN_WIL,730270464,Kansas State,D1,BIG12,votes,15,1
+KAS_COL,887418939,Kaskaskia College,JUCO,R24,votes,7,1
+KEI_UNI,691417610,Keiser,NAIA,SUN,votes,9,1
+KEN_OWL,730197504,Kennesaw State,D1,CUSA,votes,11,1
+KEN_STA1,730313472,Kentucky State,D2,SIAC,votes,6,1
+KEN_WIL,5362,Kentucky,D1,SEC,votes,15,1
+KIN_COL,523274783,King's College,D3,MAFC,votes,4,1
+KIN_UNI,730228992,King,D2,CC,votes,14,0.933
+KS_GF,730315008,Kent State,D1,MAC,votes,9,1
+KUT_GOL,730151936,Kutztown,D2,PSAC,votes,9,1
+LAF_LEP,730217728,Lafayette,D1,PAT,votes,15,1
+LAK_ERI21,730332928,Lake Erie,D2,GMAC,votes,9,1
+LAK_LAN,766135541,Lake Land College,JUCO,R24,votes,2,1
+LAM_CAR,730162432,Lamar,D1,SLAND,votes,22,0.957
+LAN_BEA,730165760,Lander,D2,PBC,votes,16,0.941
+LAN_BIB,733125529,Lancaster Bible College,D3,UEC,votes,3,1
+LAN_COL,730268160,Lane,D2,SIAC,votes,2,1
+LAN_COM,826292305,Lane CC,JUCO,NWAC,votes,12,1
+LAS_EXS,730183680,La Salle,D1,A10,votes,22,1
+LEB_VAL,685894005,Lebanon Valley College,D3,MAFC,votes,21,1
+LEE_UNI,730319360,Lee,D2,GSC,votes,15,1
+LEH_MOU,730333184,Lehigh,D1,PAT,votes,13,1
+LEN_BEA,730198528,Lenoir-Rhyne,D2,SAC,votes,17,1
+LET_UNI,730189824,LeTourneau,D3,SCAC,votes,7,1
+LEW_UNI,730147328,Lewis,D2,GLVC,votes,11,1
+LIB_FLA,730156288,Liberty,D1,CUSA,votes,12,1
+LIN_BEN,744516994,Linn-Benton CC,JUCO,NWAC,votes,5,1
+LIN_CCW,730192896,Linfield,D3,NWC,votes,6,1
+LIN_MEM,730339072,Lincoln Memorial,D2,SAC,votes,9,0.818
+LIN_TCO,832622162,Lincoln Trail College,JUCO,R24,votes,9,1
+LIN_UNI,730322176,Lindenwood,D1,OVC,votes,13,0.929
+LIN_UNI2,778445908,Lincoln (MO),D2,GLVC,votes,11,1
+LIN_WIL1,571897722,Lindsey Wilson,NAIA,MSC,votes,11,1
+LIP_BIS,730307072,Lipscomb,D1,ASUN,votes,19,1
+LIT_TRO,730217472,Little Rock,D1,OVC,votes,18,1
+LOC_HAV,730171392,Lock Haven,D2,PSAC,votes,11,1
+LON_BEA,786806611,Long Beach (JC),JUCO,SC,votes,13,1
+LON_DIR,730224128,Long Beach State,D1,BW,votes,15,1
+LON_ISL22,730352896,LIU Brooklyn,D1,NEC,votes,14,1
+LON_LAN,730219264,Longwood,D1,BSOU,votes,14,1
+LOS_ANG,844418161,Los Angeles Mission College,JUCO,WS,votes,6,1
+LOS_ANG3,948523453,Los Angeles Valley College,JUCO,WS,votes,2,1
+LOU_BUL,3374,Louisiana Tech,D1,CUSA,votes,18,1
+LOU_CAJ,5075,Louisiana,D1,SBELT,votes,15,1
+LOU_CAR,5467,Louisville,D1,ACC,votes,7,1
+LOU_CHR,703078641,Louisiana Christian,NAIA,RRAC,votes,8,1
+LOU_STA,586723800,Louisiana State Eunice,JUCO,R23,votes,7,1
+LOU_STA1,802106880,LSU of Alexandria,NAIA,RRAC,votes,2,1
+LOW_COL,948846398,Lower Columbia (JC),JUCO,NWAC,votes,9,1
+LOY_LIO,730149120,Loyola Marymount,D1,WCC,votes,15,1
+LOY_UNI,504231894,Loyola (LA),NAIA,SSAC,votes,12,1
+LSU_ALE,802106880,LSU of Alexandria,NAIA,RRAC,votes,10,1
+LSU_TIG,5323,Louisiana State,D1,SEC,votes,15,0.938
+LUB_CHR,730277888,Lubbock Christian,D2,LSC,votes,6,1
+LUN_COM,674005246,Luna CC,JUCO,R9,votes,4,1
+LYC_COL,730997958,Lycoming College,D3,LAND,votes,13,1
+LYO_COL,528691639,Lyon,D3,SLIAC,votes,11,1
+MAD_UNI,630441472,Madonna,NAIA,WHAC,votes,13,1
+MAI_BLA,730275840,Maine,D1,AMEAST,votes,9,1
+MAL_UNI,730188544,Malone,D2,GMAC,votes,6,1
+MAN_JAS,730363648,Manhattan,D1,MAAC,votes,13,0.929
+MAN_MOU,730224384,Mansfield Univ. of Pennsylvania,D2,PSAC,votes,12,1
+MAR_BAL,619400827,Mary Baldwin,D3,USAC,votes,6,1
+MAR_HAR,793646040,Mary Hardin-Baylor,D3,ASC,votes,11,1
+MAR_HAW,730289152,Maryland Eastern Shore,D1,NEC,votes,13,1
+MAR_LIO,730181120,Mars Hill,D2,SAC,votes,13,1
+MAR_RED,730374656,Marist,D1,MAAC,votes,14,1
+MAR_SAI,730161408,Maryville University of Saint Louis,D2,GLVC,votes,15,1
+MAR_SCT,789721823,Maryville College (TN),D3,CCS,votes,2,1
+MAR_TER,730172928,Maryland,D1,BIG10,votes,14,1
+MAR_THU,730333696,Marshall,D1,SBELT,votes,12,1
+MAR_UNI,510732452,Marymount,D3,AEC,votes,2,1
+MAR_UNI3,576195631,Marian (IN),NAIA,CL,votes,8,1
+MAS_INS,547773069,Massachusetts Institute of Technology,D3,NEWMAC,votes,2,1
+MCK_MCK,730371328,McKendree,D2,GLVC,votes,16,1
+MCL_HIL,675574423,McLennan CC,JUCO,R5,votes,12,1
+MCN_COW,730285056,McNeese State,D1,SLAND,votes,19,1
+MEN_COL,730291968,Menlo,D2,CCAA,votes,18,1
+MER_BEA,730240512,Mercer,D1,SOCON,votes,16,1
+MER_COL1,730295552,Merrimack,D1,MAAC,votes,11,1
+MER_UNI,730196224,Mercyhurst,D1,NEC,votes,13,1
+MES_UNI,537365668,Messiah,D3,MACC,votes,10,1
+MEX_LOB,730153472,New Mexico,D1,MW,votes,13,1
+MIA_HUR,236,Miami,D1,ACC,votes,12,1
+MIA_RED,730379264,Miami (OH),D1,MAC,votes,17,1
+MIC_SPA,1551,Michigan State,D1,BIG10,votes,5,1
+MIC_WOL,2290,Michigan,D1,BIG10,votes,11,1
+MID_CCC,666802356,Midland College,JUCO,R5,votes,4,1
+MID_COL,730226688,Middlebury,D3,NESCAC,name,,
+MID_GEO,803923968,Middle Georgia State,D2,PBC,votes,9,1
+MID_NAZ,778473946,MidAmerica Nazarene,NAIA,HAAC,votes,15,1
+MID_UNI,608976896,Midway,NAIA,RSC,votes,6,1
+MIL_COL,730346752,Millsaps,D3,SAA,name,,
+MIL_UNI,690397440,Milligan,NAIA,AAC,votes,12,1
+MIL_UNI2,730357504,Millersville,D2,PSAC,votes,17,1
+MIL_UNI3,609058451,Milliken,D3,CCIW,votes,4,1
+MIN_GOL,4864,Minnesota,D1,BIG10,votes,8,1
+MIS_BAP,649839364,Missouri Baptist,NAIA,HAAC,votes,9,1
+MIS_BEA,5382,Missouri State,D1,CUSA,votes,13,1
+MIS_COL1,730204160,Mississippi,D2,GSC,votes,15,1
+MIS_DEL,730259200,Mississippi Valley State,D1,SWAC,votes,18,0.947
+MIS_ST.,730279168,University of Missouri-St. Louis,D2,GLVC,votes,16,1
+MIS_UNI,797670397,Misericordia University,D3,MAFC,votes,6,1
+MIZ_TIG,4806,Missouri,D1,SEC,votes,13,1
+MOL_COL,730320128,Molloy,D2,ECC,votes,2,1
+MON_COL,775472576,Montreat,NAIA,AAC,name,,
+MON_HAW,4164,Monmouth,D1,CAA,votes,17,1
+MOO_COL,537898848,Moorpark (JC),JUCO,WS,votes,2,1
+MOR_EAG,730158080,Morehead State,D1,OVC,votes,16,1
+MOR_UNI,568636371,Moravian College,D3,LAND,votes,4,1
+MOU_ALO,755218852,Mount Aloysius,D3,AMCC,votes,5,1
+MOU_MER,805127168,Mount Mercy,NAIA,HAAC,votes,2,1
+MOU_OLV,730179072,University of Mount Olive,D2,CC,votes,15,1
+MOY_MOY,730202880,Le Moyne,D1,NEC,votes,10,1
+MSA_M,700822505,Mt. San Antonio (JC),JUCO,SC,votes,2,1
+MSM_MTN,730291712,Mount St. Mary's,D1,MAAC,votes,13,1
+MSU_BDG,5080,Mississippi State,D1,SEC,votes,11,1
+MSU_DEN,730199552,MSU Denver,D2,RMAC,votes,8,1
+MT,730172160,Memphis,D1,AMER,votes,17,1
+MT._HOO,965088129,Mt. Hood CC,JUCO,NWAC,votes,3,1
+MTSU_BLU,730158336,Middle Tennessee State,D1,CUSA,votes,15,1
+MUH_COL,625624818,Muhlenberg,D3,CC,votes,13,1
+MUR_RAC,730188032,Murray State,D1,MVC,votes,18,1
+NAV_COL,749507945,Navarro College,JUCO,R14,votes,7,1
+NAV_MID,508,Navy,D1,PAT,votes,13,1
+NCA_BUL,1570,UNC Asheville,D1,BSOU,votes,13,1
+NCB,730286592,Northern Colorado,D1,SUM,votes,10,0.909
+NEB,4865,Nebraska,D1,BIG10,votes,14,1
+NEO_NEO,876716605,Neosho County CC,JUCO,R6,votes,8,1
+NEV_WOL,4784,Nevada,D1,MW,votes,15,1
+NEW_COL,713461040,New College of Florida,NAIA,SUN,votes,18,1
+NEW_HAV,730356224,University of New Haven,D1,NEC,votes,10,1
+NEW_MEX,839774744,New Mexico Military Institute,JUCO,R5,votes,10,1
+NEW_PRI,5380,New Orleans,D1,SLAND,votes,19,1
+NEW_WLV,730343680,Newberry,D2,SAC,votes,15,1
+NIA_EAG,730156544,Niagara,D1,MAAC,votes,7,1
+NIC_COL,730284032,Nicholls State,D1,SLAND,votes,19,1
+NIC_COL1,503247880,Nichols College,D3,CCC,votes,12,1
+NIU_HUS,730386176,Northern Illinois,D1,MAC,votes,13,1
+NJI_HIG,730313216,NJIT,D1,AMEAST,votes,13,1
+NMS_AGG,730302720,New Mexico State,D1,CUSA,votes,13,1
+NNU_CRU,730385152,Northwest Nazarene,D2,GNAC,name,,
+NOF_OSP,730296832,North Florida,D1,ASUN,votes,14,1
+NOK_NOR,730230272,Northern Kentucky,D1,HORZ,votes,15,1
+NOR_AGG,730372352,North Carolina A&T,D1,CAA,votes,14,1
+NOR_BIS,730343168,North Dakota State,D1,SUM,votes,17,1
+NOR_CAT,730247680,Northwestern,D1,BIG10,votes,7,1
+NOR_CEN4,636709794,North Central College,D3,CCIW,votes,11,1
+NOR_DEM,730255872,Northwestern State,D1,SLAND,votes,13,1
+NOR_FLO,809582299,Northwest Florida State College,JUCO,R8,votes,9,1
+NOR_GEO3,730327040,University of North Georgia,D2,PBC,votes,13,1
+NOR_GRE,730268416,North Greenville,D2,CC,votes,14,1
+NOR_HUS,343,Northeastern,D1,CAA,votes,10,1
+NOR_JUN,853424952,Northeastern JC,JUCO,R9,votes,9,1
+NOR_PAR,730378752,North Park,D3,CCIW,votes,7,0.875
+NOR_SPA,3904,Norfolk State,D1,NEC,votes,8,1
+NOR_TAR,730181888,North Carolina,D1,ACC,votes,10,1
+NOR_TEX,540604740,Northeast Texas CC,JUCO,R14,votes,8,1
+NOR_UNI,730312960,Northwood,D2,GMAC,votes,6,1
+NOR_WOL,730216448,North Carolina State,D1,ACC,votes,12,1
+NOT_IRI,225,Notre Dame,D1,ACC,votes,12,1
+NOV_SOU,730162944,Nova Southeastern,D2,SSC,votes,8,1
+OAK_CIT,730360832,Oakland City,NAIA,RSC,votes,9,1
+OAK_GOL,5386,Oakland,D1,HORZ,votes,19,1
+OCC_T,739404224,Occidental,D3,SCIAC,votes,8,1
+ODE_COL,680516843,Odessa College,JUCO,R5,votes,14,1
+ODU_MON,3090,Old Dominion,D1,SBELT,name,,
+OGL_UNI,542760493,Oglethorpe (GA),D3,SAA,votes,14,1
+OHI_BOB,730298368,Ohio,D1,MAC,votes,15,0.938
+OHI_DOM,730222848,Ohio Dominican,D2,GMAC,votes,16,1
+OKL_CHR,730301184,Oklahoma Christian,D2,LSC,votes,14,1
+OKL_COW,4245,Oklahoma State,D1,BIG12,votes,14,1
+OKL_SOO,730294528,Oklahoma,D1,SEC,votes,16,0.941
+OLD_MON,3090,Old Dominion,D1,SBELT,votes,16,1
+OLE_REB,5322,Ole Miss,D1,SEC,votes,14,1
+OLN_CEN,587470206,Olney Central College,JUCO,R24,votes,5,1
+ORA_COA,898033583,Orange Coast (JC),JUCO,OE,votes,14,1
+ORA_GOL,730180096,Oral Roberts,D1,SUM,votes,16,1
+ORE_BEA,3111,Oregon State,D1,IND,votes,12,1
+ORE_DUC,4807,Oregon,D1,BIG10,votes,14,1
+OSU_BUC,4144,Ohio State,D1,BIG10,votes,16,1
+OSW_STA,685650710,Oswego,D3,SUNYAC,votes,9,1
+OUA_BAP,730269184,Ouachita Baptist,D2,GAC,votes,6,1
+PAC_BOX,799684915,Pacific (OR),D3,NWC,votes,10,1
+PAC_LUT,730235904,Pacific Lutheran,D3,NWC,votes,6,1
+PAC_TIG,730386944,Pacific,D1,WCC,votes,16,1
+PAN_COL,759622301,Panola College,JUCO,R14,votes,10,1
+PAR_JUN,833598214,Paris Junior College,JUCO,R14,votes,13,1
+PAS_CIT,756268650,Pasadena City (JC),JUCO,SC,votes,3,1
+PAS_COM,869413424,El Paso CC,JUCO,R5,votes,8,1
+PEL_STA,983307452,Pellissippi State,JUCO,R7,votes,6,1
+PEN_HAR,673735220,Penn State Harrisburg,D3,UEC,votes,4,1
+PEN_NIT,5326,Penn State,D1,BIG10,votes,13,1
+PEN_QUA,730292224,Pennsylvania,D1,IVY,votes,12,1
+PEN_STA,722333731,Pensacola State College,JUCO,R8,votes,3,1
+PEN_STA5,542406494,Penn State Abington,D3,UEC,votes,7,1
+PEP_WAV,730338304,Pepperdine,D1,WCC,votes,13,1
+PER_BAS6,730328064,UT Permian Basin,D2,LSC,votes,20,1
+PER_STA,523766192,Peru State,NAIA,HAAC,votes,11,1
+PIE_BUL,697142218,Los Angeles Pierce (JC),JUCO,WS,votes,4,1
+PIE_COL,692225813,Pierce College,JUCO,NWAC,votes,5,0.833
+PIE_LIO,888080019,Piedmont College,D3,CCS,votes,5,1
+PIT_PAN,5424,Pittsburgh,D1,ACC,votes,15,1
+POI_LOM,730367488,Point Loma,D2,PWC,votes,9,0.818
+POI_PAR,609124096,Point Park University (PA),D2,MEC,votes,7,1
+POM_COL,544796882,Pomona Pitzer,D3,SCIAC,votes,14,1
+POR_PIL,730360320,Portland,D1,WCC,votes,12,1
+PRA_PAN,4766,Prairie View A&M,D1,SWAC,votes,12,1
+PRA_PRA1,643205000,Pratt CC,JUCO,R6,votes,8,1
+PRE_BLH,730184192,Presbyterian,D1,BSOU,votes,20,1
+PRI_TIG,730198784,Princeton,D1,IVY,votes,7,1
+PUG_SOU,553875501,University of Puget Sound,D3,NWC,votes,8,1
+PUR_BOI,730353152,Purdue,D1,BIG10,votes,13,1
+QUI_BOB,730386688,Quinnipiac,D1,MAAC,votes,13,1
+QUI_HAW,730305792,Quincy,D2,GLVC,votes,18,1
+QUN_RYL,754315264,Queens University of Charlotte,D1,ASUN,votes,13,1
+RAD_HIG,730267392,Radford,D1,BSOU,votes,14,1
+RAN_COL,783840444,Ranger College,JUCO,R5,votes,10,1
+RAN_MAC,563851884,Randolph Macon,D3,ODAC,votes,6,1
+RED_UNI,692970945,Redlands,D3,SCIAC,votes,14,1
+REG_UNI,730209536,Regis,D2,RMAC,votes,14,1
+REI_UNI,690391552,Reinhardt,NAIA,AAC,votes,13,1
+RHO_COL,730315264,Rhodes,D3,SAA,votes,12,1
+RHO_RAM,730163712,Rhode Island,D1,A10,votes,13,1
+RIC_OWL,2352,Rice,D1,AMER,votes,8,1
+RIC_SPI,730171904,Richmond,D1,A10,votes,15,1
+RICA,732942630,Rhode Island College,D3,LEC,votes,3,1
+RID_BRO,730174976,Rider,D1,MAAC,votes,13,1
+RIV_CIT,944311802,Riverside (JC),JUCO,OE,votes,5,1
+RLC_WRS,697797902,Rend Lake College,JUCO,R24,votes,4,1
+ROA_COL,632983821,Roanoke College,D3,ODAC,votes,6,1
+ROC_CHR,606751256,Rochester Christian,NAIA,WHAC,votes,9,1
+ROG_WIL,623076813,Roger Williams,D3,CCC,votes,4,1
+ROO_UNI,605673472,Roosevelt Lakers,D2,GLIAC,votes,3,1
+RUS_SAG,737063226,Russell Sage College,D3,E8,votes,2,1
+RUT_SCA,730229248,Rutgers,D1,BIG10,votes,12,1
+SAC_DON,782808810,Santa Ana (JC),JUCO,OE,votes,13,1
+SAC_HOR,730293760,Sacramento State,D1,WAC,votes,18,1
+SAC_PIO,730194944,Sacred Heart,D1,MAAC,votes,10,1
+SAD_GAU,879178427,Saddleback (JC),JUCO,OE,votes,5,1
+SAG_VAL,730204416,Saginaw Valley State,D2,GLIAC,votes,3,1
+SAL_JAG,730298880,South Alabama,D1,SBELT,votes,16,1
+SAM_BEA,5363,Sam Houston State,D1,CUSA,votes,16,1
+SAM_BUL,730386432,Samford,D1,SOCON,votes,12,1
+SAN_AZT,730218496,San Diego State,D1,MW,votes,12,1
+SAN_BAR1,535233349,Santa Barbara (JC),JUCO,WS,votes,9,0.9
+SAN_BRO,730297600,Santa Clara,D1,WCC,votes,20,1
+SAN_DON,730365696,San Francisco,D1,WCC,votes,17,1
+SAN_GAU,730364160,UC Santa Barbara,D1,BW,votes,10,1
+SAN_JAC,609140282,San Jacinto College North,JUCO,R14,votes,13,1
+SAN_SPA,730206720,San Jose State,D1,MW,votes,12,1
+SAN_TOR,5320,San Diego,D1,WCC,votes,10,1
+SBU_SEA,730249984,Stony Brook,D1,CAA,votes,11,1
+SCC_C,961268032,St. Charles CC,JUCO,R16,votes,5,1
+SCO_FLO,648404777,State College of Florida Manatee Sarasota,JUCO,R8,votes,7,1
+SEA_RED,4504,Seattle,D1,WCC,votes,8,1
+SET_HIL,730384896,Seton Hill,D2,PSAC,votes,14,1
+SET_PIR,730272512,Seton Hall,D1,BEAST,votes,12,1
+SEW_COU,896669930,Seward County CC,JUCO,R6,votes,6,1
+SEW_TIG,528263855,University of the South,D3,SAA,votes,10,1
+SHA_STA1,577501184,Shawnee State,NAIA,RSC,votes,11,1
+SHE_UNI,703669609,Shenandoah,D3,ODAC,votes,21,1
+SHE_UNI1,730248704,Shepherd,D2,PSAC,votes,16,1
+SHI_UNI,730354944,Shippensburg,D2,PSAC,votes,7,1
+SHO_UNI,730160896,Shorter,D2,CC,votes,17,1
+SIE_HEI,630440960,Siena Heights,NAIA,WHAC,votes,10,1
+SIE_SAI,730382592,Siena,D1,MAAC,votes,14,1
+SIM_UNI,690382531,Simpson (CA),NAIA,,votes,8,1
+SIU_SAL,730349824,Southern Illinois,D1,MVC,votes,14,1
+SLC_CCB,543116703,Salt Lake CC,JUCO,R18,votes,15,1
+SLI_ROC,730276864,Slippery Rock,D2,PSAC,votes,9,1
+SLU_BILL,2291,St. Louis,D1,A10,votes,18,1
+SMU_SAI,730355968,Saint Martin's,D2,GNAC,votes,5,1
+SOU_ARK,730339584,Southern Arkansas,D2,GAC,votes,5,1
+SOU_BAP,730382080,Southwest Baptist,D2,GLVC,votes,11,1
+SOU_COU,730298112,SIU Edwardsville,D1,OVC,votes,14,1
+SOU_GAM,730348544,South Carolina,D1,SEC,votes,15,1
+SOU_GOL,730246656,Southern Miss,D1,SBELT,votes,14,1
+SOU_ILL,615134625,Southeastern Illinois College,JUCO,R24,votes,2,1
+SOU_IND16,730288640,Southern Indiana,D1,OVC,votes,19,1
+SOU_JAC,730323200,South Dakota State,D1,SUM,votes,14,1
+SOU_JAG,4767,Southern,D1,SWAC,votes,12,1
+SOU_LIO,730209280,Southeastern Louisiana,D1,SLAND,votes,16,1
+SOU_ORE,715558423,Southwestern Oregon CC,JUCO,NWAC,votes,13,1
+SOU_RED,730168576,Southeast Missouri State,D1,OVC,votes,16,1
+SOU_SOU8,888116963,Southeast CC,JUCO,R9,votes,8,1
+SOU_TRO,5047,USC,D1,BIG10,votes,15,1
+SOU_UNI,805189376,Southeastern University Fire,NAIA,SUN,votes,16,1
+SOU_UNI1,634226864,Southern New Orleans (SUNO),NAIA,HAC,votes,7,1
+SOU_WES,730171648,Southwestern,D3,SAA,votes,19,1
+SOU_WES1,730313728,Southern Wesleyan,D2,CC,votes,19,1
+SPA_MET,526343249,Spartanburg Methodist,NAIA,AAC,votes,12,1
+SPR_ARB,509664527,Spring Arbor,NAIA,CL,votes,11,1
+SPU_PEA,730149888,Saint Peter's,D1,MAAC,votes,15,1
+ST._EDW,730237696,St. Edward's University Hilltoppers,D2,LSC,votes,11,0.917
+STA_CAR,730251264,Stanford,D1,ACC,votes,7,1
+STB_BON,730375424,St. Bonaventure,D1,A10,votes,16,1
+STE_HAT,730261504,Stetson,D1,ASUN,votes,10,1
+STE_LUM,730227200,Stephen F. Austin State,D1,SLAND,votes,17,1
+STE_MUS,550106018,Stevenson University,D3,MACC,votes,5,1
+STJ_HAW,730332416,Saint Joseph's,D1,A10,votes,16,0.941
+STJ_RED,4285,St. John's,D1,BEAST,votes,12,1
+STM_GAE,730288896,Saint Mary's,D1,WCC,votes,11,1
+STM_RAT,730191104,St. Mary's University (TX),D2,LSC,votes,13,1
+STO_COL,730238464,Stonehill,D1,NEC,votes,14,1
+STU_BOB,568184576,St. Thomas (FL),NAIA,SUN,votes,17,1
+SUF_UNI,595016608,Suffolk,D3,CCC,votes,6,1
+SUL_ROS,730276096,Sul Ross State,D2,LSC,votes,11,1
+SUN_POL,662196183,SUNY Poly,D3,E8,votes,14,1
+SUS_UNI,691254315,Susquehanna,D3,LAND,votes,10,1
+SWI_BSM,911936799,Southwestern Illinois College,JUCO,R24,votes,3,1
+TAC_TAC,750655685,Tacoma (JC),JUCO,NWAC,votes,4,1
+TAL_COL,690395648,Talladega,NAIA,HAC,votes,4,1
+TAL_STA,921959181,Tallahassee CC,JUCO,R8,votes,8,1
+TAM_SPA,730247168,University of Tampa,D2,SSC,votes,4,1
+TAR_TEX,730236416,Tarleton State,D1,WAC,votes,19,1
+TCU_HFG,5045,TCU,D1,BIG12,votes,13,1
+TEM_LEO,944723485,Temple College,JUCO,R5,votes,13,1
+TEN_SOU,682150371,Tennessee Southern,NAIA,SSAC,votes,2,1
+TEN_TEC,730166272,Tennessee Tech,D1,OVC,votes,19,1
+TEN_VOL,730153728,Tennessee,D1,SEC,votes,13,1
+TEN_WES,776873101,Tennessee Wesleyan,NAIA,AAC,votes,11,1
+TEX_A&M,730260480,Texas A&M International,D2,LSC,votes,16,1
+TEX_A&M1,730350848,Texas A&M-Kingsville,D2,LSC,votes,11,1
+TEX_AGG,3032,Texas A&M,D1,SEC,votes,13,1
+TEX_BOB,5420,Texas State,D1,SBELT,votes,17,1
+TEX_ISL,4764,Texas A&M-Corpus Christi,D1,SLAND,votes,16,1
+TEX_LON,245,Texas,D1,SEC,votes,15,1
+TEX_LUT,768445056,Texas Lutheran University,D3,SCAC,votes,11,1
+TEX_RAI,2350,Texas Tech,D1,BIG12,votes,9,1
+TEX_TIG,4768,Texas Southern,D1,SWAC,votes,13,1
+THE_MAS,602730223,The Master's,NAIA,GSAC,name,,
+THO_C,630445824,University of St. Thomas,D3,SCAC,votes,11,1
+THO_M,730200320,University of St. Thomas (Minn.),D1,SUM,votes,13,1
+THO_MOR,730226176,Thomas More,D2,GMAC,votes,3,1
+TIF_UNI,730358272,Tiffin,D2,GMAC,votes,14,1
+TJC_APA,782742825,Tyler JC,JUCO,R14,votes,12,1
+TNU,730340864,Trevecca Nazarene,D2,GSC,votes,16,1
+TOL_ROC,5388,Toledo,D1,MAC,votes,13,1
+TOW_TIG,730318336,Towson,D1,CAA,votes,16,1
+TRA_UNI,684897841,Transylvania (KY),D3,HCAC,votes,9,1
+TRE_VAL,897731851,Treasure Valley CC,JUCO,NWAC,votes,9,1
+TRI_COL1,626671273,Trinity College (CT),D3,NESCAC,votes,4,0.8
+TRI_TIG,625211752,Trinity (TX),D3,SAA,votes,12,1
+TRI_UNI,716004597,Trine,D3,MIAA,votes,12,1
+TRO_T,577499136,Taylor,NAIA,CL,votes,12,1
+TRO_TRJ,730378496,Troy,D1,SBELT,votes,16,1
+TRU_MCC,686153980,Truett-McConnell,NAIA,AAC,votes,6,1
+TUF_UNI,772232009,Tufts,D3,NESCAC,votes,11,1
+TUL_GRE,730354176,Tulane,D1,AMER,votes,16,1
+TUS_PIO,730175488,Tusculum,D2,SAC,votes,15,1
+TUS_TUS,761442356,Tuskegee,D2,SIAC,votes,2,1
+UAB_BLA,730345984,UAB,D1,AMER,votes,12,1
+UCF_KNI,730256640,Central Florida,D1,BIG12,votes,15,1
+UCLA,5048,UCLA,D1,BIG10,votes,13,1
+UCO_HUS,5486,Connecticut,D1,BEAST,votes,10,1
+UIC_FLA,5379,Illinois-Chicago,D1,MVC,votes,14,1
+ULM_WAR,730362880,UL Monroe,D1,SBELT,votes,17,1
+UMA_AMH,5451,UMass,D1,MAC,votes,9,1
+UMA_BOS,633230237,Massachusetts Boston,D3,LEC,votes,4,1
+UMASS_RIV,730371584,UMass Lowell,D1,AMEAST,votes,12,1
+UMBC_RET,730210304,UMBC,D1,AMEAST,votes,14,1
+UMP_COM,803155440,Umpqua CC,JUCO,NWAC,votes,5,1
+UMW_EAG,659681757,Mary Washington,D3,CTCAC,votes,7,1
+UNC_PEM,730326528,UNC Pembroke,D2,CC,votes,10,1
+UNC_SEA,730229504,UNC Wilmington,D1,CAA,votes,12,1
+UNC_SPA,730238720,UNC Greensboro,D1,SOCON,votes,15,1
+UNI_ALA,730160384,University of Alabama-Huntsville,D2,GSC,votes,12,1
+UNI_BRI,552833024,University of British Columbia,NAIA,CCC,votes,7,0.875
+UNI_COL,730266368,Union (TN),D2,GSC,votes,8,1
+UNI_COM,652589883,Union Commonwealth,NAIA,AAC,votes,7,1
+UNI_FIN,730162176,University of Findlay,D2,GMAC,votes,15,1
+UNI_IND,730222080,University of Indianapolis,D2,GLVC,votes,5,1
+UNI_MON,730370816,University of Montevallo,D2,GSC,votes,16,1
+UNI_NOR1,538383968,Northwestern Ohio,NAIA,WHAC,votes,12,1
+UNI_PIK,509518464,Pikeville,NAIA,AAC,votes,12,1
+UNI_PIT,730208000,University of Pittsburgh-Johnstown,D2,PSAC,votes,9,1
+UNI_SAI1,727881441,St. Francis (IN),NAIA,CL,votes,7,1
+UNI_SCR,666763567,Scranton,D3,LAND,votes,12,1
+UNI_TEX,730241536,University of Texas-Tyler,D2,LSC,votes,17,1
+UNI_THE1,578767855,Ozarks,D3,SCAC,votes,18,1
+UNI_THE2,642665293,University Of The Southwest,NAIA,RRAC,votes,10,1
+UNI_WES,730308864,West Georgia,D1,ASUN,votes,14,1
+UNI_WES1,730360576,University of West Alabama,D2,GSC,votes,16,1
+UNI_WIS,786720799,Wisconsin Platteville,D3,WIAC,votes,9,1
+UNL_REB,730161664,UNLV,D1,MW,votes,14,1
+UNO_MAV,730235648,Omaha,D1,SUM,votes,15,1
+USC_BEA,550573312,USC Beaufort,D2,PBC,votes,21,1
+USC_PAC,730234112,University of South Carolina Aiken,D2,PBC,votes,7,1
+USC_UPS,730317312,South Carolina Upstate,D1,BSOU,votes,14,1
+USF_BUL,2292,South Florida,D1,AMER,votes,8,1
+UTA_UTE,730328320,Utah,D1,BIG12,votes,18,1
+UTA_WOL,730263552,Utah Valley,D1,WAC,votes,17,1
+UTM_SKY,730238976,UT Martin,D1,OVC,votes,15,1
+UTR_VAQ,730192128,UT Rio Grande Valley,D1,SLAND,votes,20,1
+UTS_EAG,683300462,Utah State Eastern,JUCO,R18,votes,12,0.923
+UTS_ROA,730373120,UTSA,D1,AMER,votes,13,1
+UW-_TIT,620447604,Wisconsin Oshkosh,D3,WIAC,votes,4,1
+UWM_PAN,5036,Milwaukee,D1,HORZ,votes,13,1
+VAL_BLA,730219008,Valdosta State,D2,GSC,votes,17,1
+VAL_CRU,730369536,Valparaiso,D1,MVC,votes,13,1
+VAN_COM,5046,Vanderbilt,D1,SEC,votes,11,1
+VAN_UNI,746499607,Vanguard,D2,PWC,votes,16,1
+VCU_RAM,730179328,VCU,D1,A10,votes,14,1
+VEN_COL,572572472,Ventura (JC),JUCO,WS,votes,9,1
+VER_CHA,514426685,Vernon College,JUCO,R5,votes,4,1
+VER_VER,727165325,La Verne,D3,SCIAC,votes,14,1
+VIL_WIL,730278400,Villanova,D1,BEAST,votes,10,1
+VIR_CAV,5415,Virginia,D1,ACC,votes,16,1
+VIR_KEY,730173440,VMI,D1,SOCON,votes,8,1
+VIR_STA1,730358528,Virginia State,D2,IND,votes,4,1
+VIR_TEC,2293,Virginia Tech,D1,ACC,votes,14,1
+VIR_WIS,730251776,Virginia's College at Wise,D2,SAC,votes,20,1
+VOL_STA2,744525395,Volunteer State CC,JUCO,R7,votes,9,1
+WAB_COL,628218352,Wabash,D3,NCAC,votes,14,1
+WAB_VAL,673137861,Wabash Valley College,JUCO,R24,votes,11,1
+WAG_SEA,730192640,Wagner,D1,NEC,votes,20,1
+WAK_DEA,730373376,Wake Forest,D1,ACC,votes,12,1
+WAL_SEN,681549524,Walters State CC,JUCO,R7,votes,14,1
+WAL_WAL4,670092373,Walla Walla CC,JUCO,NWAC,votes,6,1
+WAR_COL,732355642,Wartburg College,D3,ARC,votes,5,1
+WAR_UNI1,663069873,Warner,NAIA,SUN,votes,14,1
+WAS_COU,4505,Washington State,D1,MW,votes,12,1
+WAS_GEN,736786179,Washington and Lee,D3,ODAC,votes,3,1
+WAS_HUS,3110,Washington,D1,BIG10,votes,12,1
+WAS_UNI,730384128,Washburn University of Topeka,D2,MAIAA,votes,6,1
+WAY_STA,730351104,Wayne State,D2,GLIAC,votes,12,1
+WCC,730278144,Western Carolina,D1,SOCON,votes,14,1
+WEA_WEA,688155361,Weatherford College,JUCO,R5,votes,6,1
+WES_CHE14,730162688,West Chester Univ. of Pennsylvania,D2,PSAC,votes,11,1
+WES_COL,650031616,Westmont College,D2,PWC,votes,16,1
+WES_FLO5,730338048,University of West Florida,D2,GSC,votes,10,1
+WES_HIL,730212096,Western Kentucky,D1,CUSA,votes,18,1
+WES_MOU,5327,West Virginia,D1,BIG12,votes,12,1
+WES_TEX,690388992,West Texas A&M,D2,LSC,votes,10,1
+WES_TEX1,527005055,Western Texas College,JUCO,R5,votes,6,1
+WES_UNI,611554601,Westcliff,NAIA,,votes,11,1
+WES_VIR4,730316800,West Virginia Wesleyan,D2,MEC,votes,5,1
+WES_VIR7,654294919,West Virginia Tech,NAIA,RSC,votes,4,1
+WHA_JUC,772133462,Wharton County JC,JUCO,R14,votes,3,1
+WHE_COL,730300160,Wheaton College (IL),D3,CCIW,votes,7,1
+WHI_COL1,670134159,Whittier,D3,SCIAC,votes,10,1
+WHI_PIR,673453101,Whitworth,D3,NWC,votes,12,1
+WIC_SHO,730203904,Wichita State,D1,AMER,votes,14,1
+WIL_BAP,744323072,Williams Baptist,NAIA,AMC,votes,13,1
+WIL_CAR,761151232,William Carey,NAIA,SSAC,votes,15,1
+WIL_JEW,730175744,William Jewell,D2,GLVC,votes,12,1
+WIL_QUA,726363161,Wilmington College,D3,OAC,votes,7,1
+WIL_UNI,730193152,Wilmington,D2,CACC,votes,4,1
+WIL_UNI1,635541563,Wilkes University,D3,LAND,votes,3,1
+WIL_WOO,678871742,William Woods,NAIA,AMC,votes,7,1
+WIN_BUL,730197248,Wingate,D2,SAC,votes,16,0.941
+WIN_EAG,730294784,Winthrop,D1,BSOU,votes,10,1
+WIU_LEA,730370560,Western Illinois,D1,OVC,votes,14,1
+WM_TRI,730232064,William & Mary,D1,CAA,votes,12,1
+WMI_BRO,730165248,Western Michigan,D1,MAC,votes,14,1
+WNT_VCK,906650776,Wenatchee Valley College (JC),JUCO,NWAC,votes,6,1
+WOF_TER,730176512,Wofford,D1,SOCON,votes,13,0.929
+WOO_FIG,627016626,Wooster,D3,NCAC,votes,8,1
+WOR_POL,508225353,Worcester Polytechnic Institute,D3,NEWMAC,votes,4,1
+WOU_WOL,730149632,Western Oregon,D2,GNAC,votes,5,1
+WRI_RAI,5390,Wright State,D1,HORZ,votes,16,1
+XAV_LOU,739162368,Xavier (LA),NAIA,RRAC,votes,4,1
+XAV_MUS,5464,Xavier,D1,BEAST,votes,18,1
+YAL_BUL,730334464,Yale,D1,IVY,votes,8,1
+YOR_COL,641830231,York,D3,MACC,votes,6,1
+YOU_HAR,730244608,Young Harris,D2,CC,votes,15,1
+YSU_PEN,730284544,Youngstown State,D1,HORZ,votes,17,1
