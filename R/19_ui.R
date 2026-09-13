@@ -72,6 +72,7 @@ PALACE_FAVICON_URI <- paste0(
 
 
 login_ui <- fluidPage(
+  mobile_head(),
   tags$head(
     tags$link(rel = "icon", type = "image/svg+xml", href = PALACE_FAVICON_URI),
     tags$title("Palace \u2014 Coastal Carolina Baseball"),
@@ -246,6 +247,7 @@ tp_skeleton_table <- function(rows = 6) {
 
 app_ui <- fluidPage(
   tags$script(HTML("Shiny.setInputValue('app_ui_ready', Date.now(), {priority: 'event'});")),
+  mobile_head(),
   tags$head(
     tags$link(rel = "icon", type = "image/svg+xml", href = PALACE_FAVICON_URI),
     tags$title("Palace \u2014 Coastal Carolina Baseball"),

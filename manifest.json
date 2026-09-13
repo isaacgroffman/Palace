@@ -4689,11 +4689,14 @@
     "R/18_matchup.R": {
       "checksum": "41ef8ae29de93bb46fa84e26d9eef0d2"
     },
+    "R/18_mobile.R": {
+      "checksum": "795d082c33366c4ef4bd7a35212ef06e"
+    },
     "R/18_season_table.R": {
       "checksum": "fe642b8a3f11cce3ce89cb8d7573afc3"
     },
     "R/19_ui.R": {
-      "checksum": "e66e263408ee1dd41c91519c4fab3596"
+      "checksum": "897abf51572d798e6e58f269c42452ea"
     },
     "R/20_pitch_arsenal.R": {
       "checksum": "70a978a61bb4c9b8c5d9ac7f3c23037c"
@@ -4717,7 +4720,7 @@
       "checksum": "2618281c3aeb71ab7251c67467d32ba1"
     },
     "R/server/01_core.R": {
-      "checksum": "5567bb86e81d6bc190802eabae42b514"
+      "checksum": "2137d420b7d7678a0af73665d0e07341"
     },
     "R/server/02_pitcher_data.R": {
       "checksum": "db51afd8314c70dd722db6144a3dd3a7"
