@@ -1,0 +1,31 @@
+conf_id,conf_name,conf_short,association,level_group,division,n_teams,n_players
+d1-america-east-conference,D1 America East Conference,America East Conference,NCAA,D1,NCAA D1,7,0
+d1-american-athletic-conference,D1 American Athletic Conference,American Athletic Conference,NCAA,D1,NCAA D1,10,0
+d1-atlantic-10-conference,D1 Atlantic 10 Conference,Atlantic 10 Conference,NCAA,D1,NCAA D1,12,0
+d1-atlantic-coast-conference,D1 Atlantic Coast Conference,Atlantic Coast Conference,NCAA,D1,NCAA D1,16,0
+d1-atlantic-sun-conference,D1 Atlantic Sun Conference,Atlantic Sun Conference,NCAA,D1,NCAA D1,12,0
+d1-big-12-conference,D1 Big 12 Conference,Big 12 Conference,NCAA,D1,NCAA D1,14,0
+d1-big-east-conference,D1 Big East Conference,Big East Conference,NCAA,D1,NCAA D1,8,0
+d1-big-south-conference,D1 Big South Conference,Big South Conference,NCAA,D1,NCAA D1,9,0
+d1-big-ten-conference,D1 Big Ten Conference,Big Ten Conference,NCAA,D1,NCAA D1,17,0
+d1-big-west-conference,D1 Big West Conference,Big West Conference,NCAA,D1,NCAA D1,11,0
+d1-coastal-athletic-association,D1 Coastal Athletic Association,Coastal Athletic Association,NCAA,D1,NCAA D1,11,0
+d1-conference-usa,D1 Conference USA,Conference USA,NCAA,D1,NCAA D1,12,0
+d1-horizon-league,D1 Horizon League,Horizon League,NCAA,D1,NCAA D1,5,0
+d1-independent,D1 Independent,Independent,NCAA,D1,NCAA D1,1,0
+d1-ivy-group,D1 Ivy Group,Ivy Group,NCAA,D1,NCAA D1,8,0
+d1-metro-atlantic-athletic-conference,D1 Metro Atlantic Athletic Conference,Metro Atlantic Athletic Conference,NCAA,D1,NCAA D1,13,0
+d1-mid-american-conference,D1 Mid-American Conference,Mid-American Conference,NCAA,D1,NCAA D1,12,0
+d1-missouri-valley-conference,D1 Missouri Valley Conference,Missouri Valley Conference,NCAA,D1,NCAA D1,9,0
+d1-mountain-west,D1 Mountain West,Mountain West,NCAA,D1,NCAA D1,9,0
+d1-northeast-conference,D1 Northeast Conference,Northeast Conference,NCAA,D1,NCAA D1,12,0
+d1-ohio-valley-conference,D1 Ohio Valley Conference,Ohio Valley Conference,NCAA,D1,NCAA D1,10,0
+d1-patriot-league,D1 Patriot League,Patriot League,NCAA,D1,NCAA D1,6,0
+d1-southeastern-conference,D1 Southeastern Conference,Southeastern Conference,NCAA,D1,NCAA D1,16,0
+d1-southern-conference,D1 Southern Conference,Southern Conference,NCAA,D1,NCAA D1,8,0
+d1-southland-conference,D1 Southland Conference,Southland Conference,NCAA,D1,NCAA D1,11,0
+d1-southwestern-athletic-conf,D1 Southwestern Athletic Conf.,Southwestern Athletic Conf.,NCAA,D1,NCAA D1,12,0
+d1-sun-belt-conference,D1 Sun Belt Conference,Sun Belt Conference,NCAA,D1,NCAA D1,14,0
+d1-the-summit-league,D1 The Summit League,The Summit League,NCAA,D1,NCAA D1,6,0
+d1-west-coast-conference,D1 West Coast Conference,West Coast Conference,NCAA,D1,NCAA D1,10,0
+d1-western-athletic-conference,D1 Western Athletic Conference,Western Athletic Conference,NCAA,D1,NCAA D1,7,0
