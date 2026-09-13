@@ -4889,6 +4889,9 @@
     },
     "scripts/apply_reference_supabase.R": {
       "checksum": "1a24ad9f7c4dcb2a917137729bc0312f"
+    },
+    "scripts/refresh_leaderboard_identity.R": {
+      "checksum": "19cf20690528b09981ab8695ac93d0d6"
     }
   },
   "users": null,
