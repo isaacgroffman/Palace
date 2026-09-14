@@ -2973,7 +2973,8 @@ tabPanel('Pitching Leaderboard',
                fluidRow(
                  column(12, plotOutput('spraychart_main', width = '100%', height = '800px'))
                )
-             ),
+             )
+    ),
     # ---- Practice: team bullpen + batting-practice views and ZIP report downloads ----
     # Per-player views stay on the player pages (pitcher Bullpens pill, hitter BP pill).
     tabPanel("Bullpens", value = "rp_bullpens",
@@ -2988,7 +2989,6 @@ tabPanel('Pitching Leaderboard',
         tabPanel("Leaderboard", value = "rp_hit_lb", palace_bp_leaderboard_ui("bplbh")),
         tabPanel("Reports", value = "rp_hit_reports", palace_bp_reports_ui("bphrep")),
         tabPanel("Hitter", value = "rp_hit_hitter", palace_bp_hitter_ui("bph"))))
-    )
       )
     )
   )
