@@ -553,7 +553,7 @@
   #   the position observer further down, which only reveals the ones the
   #   hitter actually plays.
   TP_PITCHER_PILLS <- c("Overview", "Bullpens", "Scouting")
-  TP_HITTER_PILLS  <- c("hp_overview", "hit_inf", "hit_of", "hit_c")
+  TP_HITTER_PILLS  <- c("hp_overview", "hp_bp", "hit_inf", "hit_of", "hit_c")
 
   observe({
     req(logged_in())

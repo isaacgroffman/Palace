@@ -1,7 +1,16 @@
   palace_bullpen_server(input, output, session)                     # Fall 2026 pill
   palace_bullpen_leaderboard_server(input, output, session, "bplb") # Leaderboards
   palace_bullpen_history_server(input, output, session, "sched")    # Schedule
-  palace_bp_server(input, output, session, "bph")                    # Batting Practice pill
+  palace_bp_hitter_server(input, output, session, "bph")             # Bullpens > Batting Practice > Hitter
+  palace_bp_leaderboard_server(input, output, session, "bplbh")      # Bullpens > Batting Practice > Leaderboard
+  palace_bp_hitter_server(input, output, session, "hpbp",            # player page BP pill, driven by the open hitter
+                          hitter = reactive(input$hp_batter))
+  # the BP pill shows only for hitters with batting practice in the store
+  observe({
+    req(logged_in())
+    if (identical(player_mode(), "hitter") && bp_hitter_has_data(input$hp_batter)) showTab("player_subtabs", "hp_bp")
+    else hideTab("player_subtabs", "hp_bp")
+  })
  
   # ===================== ROSTER LANDING =====================
   # Grid of clickable CCU pitcher cards (2026 roster).

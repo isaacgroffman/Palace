@@ -2202,7 +2202,10 @@ tabPanel("Overview", value = "Overview",
         tabPanel("Pitcher", value = "bp_pitcher", palace_bullpen_ui("bp")),
         tabPanel("Staff Leaderboard", value = "bp_staff", palace_bullpen_leaderboard_ui("bplb")),
         tabPanel("Calendar", value = "bp_calendar", palace_bullpen_history_ui("sched")),
-        tabPanel("Batting Practice", value = "bp_hitting", palace_bp_ui("bph"))
+        tabPanel("Batting Practice", value = "bp_hitting",
+          tabsetPanel(id = "bp_hit_subtabs", type = "pills",
+            tabPanel("Hitter", value = "bph_hitter", palace_bp_hitter_ui("bph")),
+            tabPanel("Leaderboard", value = "bph_lb", palace_bp_leaderboard_ui("bplbh"))))
       )
     ),
 
@@ -2454,6 +2457,8 @@ tabPanel("Overview", value = "Overview",
         # on DRS26 + CCU bio positions (OF -> Outfield, INF -> Infield,
         # C -> Catching). All hidden until a hitter with that position
         # is selected.
+        # Coastal hitters: their batting practice (shown when BP data exists)
+        tabPanel("BP", value = "hp_bp", palace_bp_hitter_ui("hpbp")),
         tabPanel("Infield Defense", value = "hit_inf",
           uiOutput("hp_def_inf")),
         tabPanel("Outfield Defense", value = "hit_of",
