@@ -218,7 +218,7 @@ palace_bp_leaderboard_server <- function(input, output, session, prefix = "bplbh
       column(4, div(style = "padding-top:25px; display:flex; gap:6px; flex-wrap:wrap;",
                     actionButton(p("last_session"), "Last session"), actionButton(p("last_week"), "Last 7 days"), actionButton(p("all"), "All"))),
       column(5, div(style = "padding-top:25px; display:flex; gap:6px; flex-wrap:wrap;",
-                    downloadButton(p("dl_pdf"), "Leaderboard (PDF)"), downloadButton(p("dl_team"), "Every hitter's report (PDF)"))))
+                    downloadButton(p("dl_pdf"), "Leaderboard (PDF)"), downloadButton(p("dl_team"), "Every hitter's report (ZIP)"))))
   })
   observeEvent(input[[p("last_session")]], { d <- all_data(); req(d); updateDateRangeInput(session, p("range"), start = max(d$Date), end = max(d$Date)) })
   observeEvent(input[[p("last_week")]], { d <- all_data(); req(d); updateDateRangeInput(session, p("range"), start = max(min(d$Date), max(d$Date) - 6), end = max(d$Date)) })
@@ -241,7 +241,10 @@ palace_bp_leaderboard_server <- function(input, output, session, prefix = "bplbh
     filename = function() sprintf("BP_leaderboard_%s_to_%s.pdf", input[[p("range")]][1], input[[p("range")]][2]),
     content = function(file) create_bp_leaderboard_pdf(lb(), bp_date_label(wd()$Date), file, bp_data = wd()))
   output[[p("dl_team")]] <- downloadHandler(
-    filename = function() sprintf("BP_reports_%s_to_%s.pdf", input[[p("range")]][1], input[[p("range")]][2]),
-    content = function(file) { d <- wd(); weekly <- bp_is_weekly(d)
-      create_bp_team_pdf(d, file, report_title = if (weekly) "Weekly BP Report" else "BP Report", date_label = bp_date_label(d$Date), trends = weekly) })
+    filename = function() sprintf("BP_reports_%s_to_%s.zip", input[[p("range")]][1], input[[p("range")]][2]),
+    content = function(file) { d <- wd(); weekly <- bp_is_weekly(d); lab <- bp_date_label(d$Date); hitters <- sort(unique(d$Batter))
+      builders <- stats::setNames(lapply(hitters, function(nm) function(path)
+        create_bp_pdf(d, nm, path, report_title = if (weekly) "Weekly BP Report" else "BP Report", date_label = lab, trends = weekly)),
+        sprintf("BP_%s_%s.pdf", safe_file_name(hitters), format(max(d$Date))))
+      palace_zip_reports(file, builders) })
 }

@@ -145,6 +145,19 @@ See `scripts/README_process_master.md`. The pipeline reclassifies pitch types
 (same engine as `R/12`, verified identical), scores every pitch, and never
 trims outliers or velocity.
 
+## Practice tab (team views and report downloads)
+
+**Practice** holds the staff-wide practice views for both sides of the ball; the
+per-player views stay on the player pages (pitcher **Bullpens** pill, hitter **BP**
+pill, each with a per-session report download).
+
+- Bullpens: staff leaderboard, calendar, and **Reports** (a window + pitcher picker
+  -> ZIP with one landscape bullpen PDF per pitcher, `R/palace_bullpen_reports.R`).
+- Batting practice: leaderboard with team trends, **Reports** (ZIP with one BP PDF per
+  hitter, switch hitters per side, trends pages for multi-date windows, plus the
+  leaderboard PDF), and a hitter lookup (`R/palace_bp_reports.R`,
+  `R/palace_batting_practice.R`).
+
 ## Uploading data (admins)
 
 The **Upload** tab (admins only; `R/palace_upload.R` + `R/server/15_upload.R`)

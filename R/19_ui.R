@@ -2198,15 +2198,31 @@ tabPanel("Overview", value = "Overview",
     tabPanel("Bullpens", value = "Bullpens",
       tags$script(src = "https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"),
       tags$style(LB_CSS),
-      tabsetPanel(id = "bullpen_subtabs", type = "pills",
-        tabPanel("Pitcher", value = "bp_pitcher", palace_bullpen_ui("bp")),
-        tabPanel("Staff Leaderboard", value = "bp_staff", palace_bullpen_leaderboard_ui("bplb")),
-        tabPanel("Calendar", value = "bp_calendar", palace_bullpen_history_ui("sched")),
-        tabPanel("Batting Practice", value = "bp_hitting",
-          tabsetPanel(id = "bp_hit_subtabs", type = "pills",
-            tabPanel("Hitter", value = "bph_hitter", palace_bp_hitter_ui("bph")),
-            tabPanel("Leaderboard", value = "bph_lb", palace_bp_leaderboard_ui("bplbh"))))
-      )
+      div(style = "font-size:12px; color:#6B7280; margin:8px 0 0;",
+          "The selected pitcher's bullpens. Staff leaderboard, calendar, batting practice and multi-report downloads live in the Practice tab."),
+      palace_bullpen_ui("bp")
+    ),
+
+    # ============================ PRACTICE (team) ============================
+    # Team-level practice views for both sides of the ball plus multi-report
+    # downloads (ZIP, one PDF per player). Per-player views stay on the
+    # player pages (pitcher Bullpens pill, hitter BP pill).
+    tabPanel("Practice", value = "Practice",
+      tags$style(LB_CSS),
+      div(style = "text-align:center; margin:16px 0 4px;",
+          h3("Practice", class = "brand-teal", style = "margin-bottom:2px;"),
+          div(style = "color:#6B7280; font-size:13px;", "Bullpens and batting practice for the whole staff: leaderboards, calendar, trends and report downloads.")),
+      tabsetPanel(id = "practice_subtabs", type = "pills",
+        tabPanel("Bullpens", value = "pr_bullpens",
+          tabsetPanel(id = "practice_bp_subtabs", type = "pills",
+            tabPanel("Staff Leaderboard", value = "pr_bp_staff", palace_bullpen_leaderboard_ui("bplb")),
+            tabPanel("Calendar", value = "pr_bp_calendar", palace_bullpen_history_ui("sched")),
+            tabPanel("Reports", value = "pr_bp_reports", palace_bullpen_reports_ui("bprep")))),
+        tabPanel("Batting Practice", value = "pr_hitting",
+          tabsetPanel(id = "practice_hit_subtabs", type = "pills",
+            tabPanel("Leaderboard", value = "pr_hit_lb", palace_bp_leaderboard_ui("bplbh")),
+            tabPanel("Reports", value = "pr_hit_reports", palace_bp_reports_ui("bphrep")),
+            tabPanel("Hitter", value = "pr_hit_hitter", palace_bp_hitter_ui("bph")))))
     ),
 
     # ============================ SCOUTING ============================

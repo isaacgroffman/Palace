@@ -91,8 +91,9 @@ palace_bullpen_ui <- function(prefix = "bp") {
                       textOutput(p("session_info")),
                       textOutput(p("video_status"))))
       ),
-      div(style = "font-size:12px; color:#666; margin:-6px 0 8px 2px;",
-          "Click any pitch on the charts below to open its video."),
+      div(style = "font-size:12px; color:#666; margin:-6px 0 8px 2px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;",
+          "Click any pitch on the charts below to open its video.",
+          downloadButton(p("session_pdf"), "Session report (PDF)", class = "btn-sm")),
       hr(),
       fluidRow(column(12, h3("Summary", class = "brand-teal"),
                       gt::gt_output(p("summary_table")))),
@@ -238,6 +239,12 @@ palace_bullpen_server <- function(input, output, session,
     updateSelectInput(session, pfx("session"), choices = choices, selected = sel)
   })
 
+  output[[pfx("session_pdf")]] <- downloadHandler(
+    filename = function() { df <- bp_session_df(); sprintf("Bullpen_%s_%s.pdf", gsub("[^A-Za-z0-9]+", "_", pitcher() %||% "pitcher"), format(max(df$Date))) },
+    content = function(file) {
+      df <- bp_session_df(); validate(need(!is.null(df) && nrow(df) > 0, "No pitches in this session"))
+      rep <- bpr_frame(df); create_bullpen_pdf_report(rep, unique(rep$Pitcher)[1], file)
+    })
   bp_session_df <- reactive({
     # Scope to the selected PITCHER first: TrackMan practice sessions often
     # contain several pitchers back-to-back, and an unscoped session filter

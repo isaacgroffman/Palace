@@ -50,6 +50,7 @@ source("R/palace_video.R",       local = TRUE)
 source("R/palace_bullpen.R",     local = TRUE)
 source("R/palace_bp_reports.R",  local = TRUE)        # BP charts, leaderboard, PDF reports, trends
 source("R/palace_batting_practice.R", local = TRUE)   # BP hitter view + leaderboard (Storage practice/hitting/)
+source("R/palace_bullpen_reports.R", local = TRUE)    # bullpen PDF report + Practice tab ZIP downloads
 source("R/palace_upload.R",      local = TRUE)        # admin Upload panel: TrackMan API -> Supabase
 source("R/palace_artifacts.R", local = TRUE)
 for (f in sort(list.files("R", pattern = "^[0-9]{2}_.*\\.R$", full.names = TRUE)))

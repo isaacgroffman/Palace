@@ -2,7 +2,9 @@
   palace_bullpen_leaderboard_server(input, output, session, "bplb") # Leaderboards
   palace_bullpen_history_server(input, output, session, "sched")    # Schedule
   palace_bp_hitter_server(input, output, session, "bph")             # Bullpens > Batting Practice > Hitter
-  palace_bp_leaderboard_server(input, output, session, "bplbh")      # Bullpens > Batting Practice > Leaderboard
+  palace_bp_leaderboard_server(input, output, session, "bplbh")      # Practice > Batting Practice > Leaderboard
+  palace_bullpen_reports_server(input, output, session, "bprep")     # Practice > Bullpens > Reports (ZIP)
+  palace_bp_reports_server(input, output, session, "bphrep")         # Practice > Batting Practice > Reports (ZIP)
   palace_bp_hitter_server(input, output, session, "hpbp",            # player page BP pill, driven by the open hitter
                           hitter = reactive(input$hp_batter))
   # the BP pill shows only for hitters with batting practice in the store

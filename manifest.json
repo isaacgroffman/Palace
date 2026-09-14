@@ -4549,7 +4549,7 @@
       "checksum": "9fe6901695a7dd2b79a6746bfdb6a799"
     },
     "app.R": {
-      "checksum": "f885f35a68ba24e02b55bf5f7f7c06ef"
+      "checksum": "b7f768b285e129a2596250f88d7335b3"
     },
     "CONTRIBUTING.md": {
       "checksum": "4c0d9bffa643b69149966548b2ee257a"
@@ -4696,7 +4696,7 @@
       "checksum": "0fd20ed4996de364d3be0707962cddb2"
     },
     "R/19_ui.R": {
-      "checksum": "0c933e3a6b63711859728be6c11bc3f2"
+      "checksum": "add733d781bb60da2a1db86b7a38f534"
     },
     "R/20_pitch_arsenal.R": {
       "checksum": "70a978a61bb4c9b8c5d9ac7f3c23037c"
@@ -4708,7 +4708,7 @@
       "checksum": "6bb2449edb67b0051325dd01e12bf6e2"
     },
     "R/palace_bullpen.R": {
-      "checksum": "6bc4645944d7f488fe077ed34fed6440"
+      "checksum": "7e3a8b18239013e21d0ccc09076a75af"
     },
     "R/palace_supabase.R": {
       "checksum": "39e7a348a09e813cf104676c4242bba9"
@@ -4735,7 +4735,7 @@
       "checksum": "63b388cd8a6525ef491006af1d8340e3"
     },
     "R/server/06_bullpen_roster_team.R": {
-      "checksum": "14050b6b0aabeb24ca1378bf2bcaed54"
+      "checksum": "8304a285445ce3bd6c5711b21133c92d"
     },
     "R/server/07_scouting.R": {
       "checksum": "bfc04f1f44e739df402cec70d130e063"
@@ -4897,7 +4897,7 @@
       "checksum": "6459b0a593f3868bfa4667a9a7cb56f4"
     },
     "R/palace_batting_practice.R": {
-      "checksum": "69fb0488a6f3baa5afa95d326d41f2d5"
+      "checksum": "a7153ead2d4c41375d5c010c121ed7e5"
     },
     "R/server/15_upload.R": {
       "checksum": "e6fbd8c67e4b25974ec1913cff15bb80"
@@ -4910,6 +4910,9 @@
     },
     "R/palace_bp_reports.R": {
       "checksum": "686332e2532eb0345579f7101e58b2b3"
+    },
+    "R/palace_bullpen_reports.R": {
+      "checksum": "5e21f842e435541a7e379ec9177b0d22"
     }
   },
   "users": null,
