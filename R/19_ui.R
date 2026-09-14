@@ -2201,7 +2201,8 @@ tabPanel("Overview", value = "Overview",
       tabsetPanel(id = "bullpen_subtabs", type = "pills",
         tabPanel("Pitcher", value = "bp_pitcher", palace_bullpen_ui("bp")),
         tabPanel("Staff Leaderboard", value = "bp_staff", palace_bullpen_leaderboard_ui("bplb")),
-        tabPanel("Calendar", value = "bp_calendar", palace_bullpen_history_ui("sched"))
+        tabPanel("Calendar", value = "bp_calendar", palace_bullpen_history_ui("sched")),
+        tabPanel("Batting Practice", value = "bp_hitting", palace_bp_ui("bph"))
       )
     ),
 
@@ -2872,6 +2873,23 @@ tabPanel('Pitching Leaderboard',
               verbatimTextOutput("pa_debug"))))
         )
       )
+    ),
+
+    # ===================== UPLOAD (admins: TrackMan API -> Supabase) =====================
+    # The tab stays hidden until the server confirms an admin (palaceAdmin
+    # message from R/server/15_upload.R); the page itself is admin-gated too.
+    tabPanel("Upload", value = "Upload",
+      tags$style(HTML("
+        body:not(.palace-admin) #main_tabs.nav-tabs > li:has(> a[data-value='Upload']) { display: none !important; }
+      ")),
+      tags$script(HTML("
+        Shiny.addCustomMessageHandler('palaceAdmin', function(on) {
+          if (on) document.body.classList.add('palace-admin');
+          else document.body.classList.remove('palace-admin');
+        });
+      ")),
+      tags$style(LB_CSS),
+      uiOutput("upload_page")
     ),
 
     # ===================== REPORTS (team-level report artifacts) =====================

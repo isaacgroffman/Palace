@@ -145,6 +145,33 @@ See `scripts/README_process_master.md`. The pipeline reclassifies pitch types
 (same engine as `R/12`, verified identical), scores every pitch, and never
 trims outliers or velocity.
 
+## Uploading data (admins)
+
+The **Upload** tab (admins only; `R/palace_upload.R` + `R/server/15_upload.R`)
+pulls sessions straight from the TrackMan Data API and commits them to Supabase.
+Every step runs in a background R process, so the app stays responsive.
+
+| Type | Source | Writes to |
+|---|---|---|
+| Bullpens | practice endpoint, `Pitching` sessions (+ Edgertronic clip index) | `public.pitches` + `public.sessions` (the Bullpens tab) |
+| Batting practice | game endpoint `BattingPractice` sessions **and** practice endpoint `Hitting` sessions | Storage `practice/hitting/<date>_<session>.parquet` + `index.json` (Bullpens > Batting Practice pill); mirrored to `public.batting_practice` once `supabase/migrations/20260914_batting_practice.sql` has been run |
+| TrackMan games | game endpoint, scoped (Coastal / Sun Belt / D1 / all) | scored by `scripts/process_master.py`, then `pitchprofiler.pitches` + per-game aggregates (needs `SB_DB_*` with the `postgres.<ref>` role). Season tables and the Storage reference pools still come from the full-master batch pipeline below. |
+| TruMedia season stats | `scripts/build_leaderboards.R` | Storage `lb/<season>/` |
+
+Flow: **1 Fetch** (season window or any dates; discovery is chunked to TrackMan's
+date cap, sessions pulled one by one with plays joined to balls on playId) ->
+**2 Review** (editable table, find & replace, row / session exclusions, CSV /
+parquet download; the staged file is never modified) -> **3 Commit** (confirm
+modal; *dry run* does everything except write). **Completeness** compares what
+TrackMan lists against what Supabase holds day by day; **History** reads
+Storage `uploads/log.json` (every commit archives its raw / staged files under
+`uploads/<job id>/`); **Setup check** tests each credential and service.
+
+Env: `TM_CLIENT_ID` / `TM_CLIENT_SECRET` (fetch), `SUPABASE_URL` /
+`SUPABASE_SECRET_KEY` (bullpens, BP, log, archive), `SB_DB_*` (games only),
+`PALACE_UPLOAD_DIR` (job directory; defaults to `/data/palace_uploads` on
+Connect, `~/.palace_uploads` locally), `PALACE_PYTHON` (scorer for games).
+
 ## Logins and sessions
 
 - Accounts are per user (`R/palace_auth.R`). They live in Supabase Storage

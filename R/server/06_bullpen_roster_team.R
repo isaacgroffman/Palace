@@ -1,6 +1,7 @@
   palace_bullpen_server(input, output, session)                     # Fall 2026 pill
   palace_bullpen_leaderboard_server(input, output, session, "bplb") # Leaderboards
   palace_bullpen_history_server(input, output, session, "sched")    # Schedule
+  palace_bp_server(input, output, session, "bph")                    # Batting Practice pill
  
   # ===================== ROSTER LANDING =====================
   # Grid of clickable CCU pitcher cards (2026 roster).
