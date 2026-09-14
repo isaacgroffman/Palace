@@ -145,9 +145,9 @@ See `scripts/README_process_master.md`. The pipeline reclassifies pitch types
 (same engine as `R/12`, verified identical), scores every pitch, and never
 trims outliers or velocity.
 
-## Practice tab (team views and report downloads)
+## Reports > Bullpens / Batting Practice (team views and report downloads)
 
-**Practice** holds the staff-wide practice views for both sides of the ball; the
+The **Reports** tab holds the staff-wide practice views for both sides of the ball; the
 per-player views stay on the player pages (pitcher **Bullpens** pill, hitter **BP**
 pill, each with a per-session report download).
 
