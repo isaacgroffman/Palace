@@ -210,8 +210,9 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
     ok <- idt[!is.na(idt$tm_id) & !is.na(idt$player_id), , drop = FALSE]
     ok <- ok[order(match(ok$season_type, c("Spring", "Calendar", "Summer"))), , drop = FALSE]
     d$player_id <- ok$player_id[match(d$tm_id, ok$tm_id)]
-    sm <- unique(idt$tm_id[!is.na(idt$tm_id) & idt$season_type %in% "Summer"])
-    d$summer <- !is.na(d$tm_id) & d$tm_id %in% sm
+    sm <- idt[!is.na(idt$tm_id) & idt$season_type %in% "Summer", , drop = FALSE]
+    d$summer <- !is.na(d$tm_id) & d$tm_id %in% sm$tm_id
+    d$summer_club <- ifelse(d$summer, paste0(sm$team, ifelse(is.na(sm$conf), "", paste0(" (", sm$conf, ")")))[match(d$tm_id, sm$tm_id)], "")
   }
   if (exists("REF_PLAYERS") && !is.null(REF_PLAYERS)) {
     ri <- match(d$player_id, REF_PLAYERS$player_id)
@@ -226,7 +227,8 @@ REG_SEASON_LABELS <- c(Spring25 = "Spring 2025", Fall25 = "Fall 2025", PreSpring
   d$logo  <- ifelse(is.na(d$logo), "", as.character(d$logo))
   # labels
   sl <- vapply(strsplit(d$seasons, "|", fixed = TRUE), function(s) paste(REG_SEASON_LABELS[s][!is.na(REG_SEASON_LABELS[s])], collapse = " · "), character(1))
-  sl <- ifelse(d$summer, paste0(sl, " · Summer 2026"), sl)
+  if (!"summer_club" %in% names(d)) d$summer_club <- ""
+  sl <- ifelse(d$summer, paste0(sl, " · Summer 2026", ifelse(nzchar(d$summer_club) & !is.na(d$summer_club), paste0(": ", d$summer_club), "")), sl)
   d$meta  <- trimws(paste0(sl, ifelse(nzchar(d$class), paste0(" · ", d$class), ""),
                            ifelse(!is.na(d$conf) & nzchar(d$conf) & !d$coastal, paste0(" · ", d$conf), "")))
   d$label <- paste0(d$name, " — ", d$team, if (TRUE) ifelse(d$kind == "bat", " (Hitter)", ""))

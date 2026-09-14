@@ -45,7 +45,7 @@
     if (is.null(r) || !nrow(r)) return(NULL)
     src <- unique(r$Source)
     txt <- if ("team" %in% src) "TruMedia team lines" else if ("live" %in% src) "TruMedia (per team)"
-           else if ("calendar" %in% src) "TruMedia calendar-year totals (spring + summer combined until the team-scoped tables are rebuilt)"
+           else if ("calendar" %in% src) "TruMedia calendar-year totals: spring + summer combined on the college row; the summer club is listed on its own row"
            else "TrackMan / bullpens only"
     span(class = "ps-note", txt)
   })

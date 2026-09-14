@@ -81,17 +81,59 @@ ps_pitcher_id <- function(name) {
   hit <- rep(FALSE, nrow(df))
   if (!is.na(id) && "trackmanPlayerId" %in% names(df)) {
     hit <- !is.na(df$trackmanPlayerId) & .ref_id(df$trackmanPlayerId) == .ref_id(id)
-    if (strict_id) return(df[hit, , drop = FALSE])
+    if (any(hit)) return(df[hit, , drop = FALSE])
+    # the id is known but this frame has no TrackMan id on his row (about
+    # half of the league-wide rows carry none): the name may still find
+    # him, but only on his team (or on a summer club, which the identity's
+    # college team id can never match)
   }
-  if (!any(hit)) {
-    nc <- .tm_pick_col(df, c("fullName", "playerName", "^player$", "^name$"))
-    if (!is.null(nc)) hit <- .tm_norm(df[[nc]]) == .tm_norm(name)
-    if (!is.na(team_id)) {
-      tc <- intersect(c("teamId", "mostRecentTeamId"), names(df))
-      if (length(tc)) hit <- hit & !is.na(df[[tc[1]]]) & .ref_id(df[[tc[1]]]) == .ref_id(team_id)
+  nc <- .tm_pick_col(df, c("fullName", "playerName", "^player$", "^name$"))
+  if (is.null(nc)) return(df[0, , drop = FALSE])
+  hit <- .tm_norm(df[[nc]]) == .tm_norm(name)
+  if (!is.na(team_id) && any(hit)) {
+    tc <- intersect(c("teamId", "mostRecentTeamId"), names(df))
+    if (length(tc)) {
+      row_team <- .ref_id(df[[tc[1]]])
+      same <- hit & !is.na(row_team) & row_team == .ref_id(team_id)
+      if (any(same)) hit <- same
+      else {
+        lvl <- ref_team_level(row_team[hit])
+        summer <- !is.na(lvl) & lvl == "Summer"
+        # a single namesake whose most-recent club is a summer team: that is him
+        if (sum(hit) == 1 && any(summer)) hit <- hit
+        else if (sum(summer) == 1) { w <- which(hit)[summer]; hit <- rep(FALSE, nrow(df)); hit[w] <- TRUE }
+        else hit <- rep(FALSE, nrow(df))
+      }
     }
-  }
+  } else if (strict_id && any(hit) && sum(hit) > 1) hit <- rep(FALSE, nrow(df))
   df[hit, , drop = FALSE]
+}
+
+# A TruMedia row's season identity. Calendar-year rows combine spring and
+# summer; when the most-recent club is a summer team, the stats belong to
+# the SPRING row of the player's college (from his identity), and the
+# summer club is listed as its own row so the season is identified without
+# borrowing the totals.
+.ps_season_of <- function(rt, team, source, ident = NULL) {
+  is_cal <- identical(as.character(source), "calendar")
+  summer_club <- !is.na(rt$level) && rt$level == "Summer"
+  out <- list(college = rt$college, team = rt$team, team_id = rt$team_id, lg = rt$lg, level = rt$level, summer = NULL)
+  if (summer_club) {
+    club <- list(team = rt$team, team_id = rt$team_id, lg = if (!is.na(rt$lg) && rt$lg != "Summer") rt$lg else "Summer")
+    if (!is_cal) { out$college <- FALSE; out$lg <- club$lg; return(out) }   # a real summer line (team-scoped / live)
+    # calendar totals: attribute to the college; the club rides along
+    col_id <- if (!is.null(ident)) (if (isTRUE(ident$coastal)) "4104" else ident$team_id %||% NA_character_) else NA_character_
+    col <- if (!is.na(col_id %||% NA)) ref_team_info(team_id = col_id, by_name = FALSE) else NULL
+    if (!is.null(col) && !is.na(col$level[1]) && col$level[1] != "Summer") {
+      out$college <- TRUE; out$team <- col$team[1]; out$team_id <- col$team_id[1]; out$lg <- col$conf[1]; out$level <- col$level[1]
+    } else {
+      out$college <- TRUE; out$team <- rt$team; out$team_id <- NA_character_; out$lg <- NA_character_; out$level <- NA_character_
+    }
+    out$summer <- club
+  } else if (is_cal && is.na(rt$level)) {
+    out$college <- TRUE
+  }
+  out
 }
 
 # The teams a player is known to have played for (any season): current
@@ -239,15 +281,15 @@ season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), inc
     for (i in seq_len(nrow(rr))) {
       team <- as.character(rr$Team[i])
       rt <- ps_row_team(if ("TeamId" %in% names(rr)) rr$TeamId[i] else NA, team)
-      ncaa <- rt$college || (is.na(rt$level) && identical(as.character(rr$Source[i]), "calendar"))
+      so <- .ps_season_of(rt, team, rr$Source[i], ident); ncaa <- so$college
       pa <- g("PA", i); k <- g("K", i); bb <- g("BB", i); hbp <- g("HBP", i); hr <- g("HR", i); h <- g("H", i)
       sw <- g("SWING", i); miss <- g("MISS", i); ch <- g("CHASE", i); ooz <- g("OUTOFZONE", i); p <- g("P", i)
       d2 <- g("2B", i); d3 <- g("3B", i); ip_raw <- g("IP", i)
       ip_dec <- tm_ip_decimal(ip_raw)
       h1 <- h - d2 - d3 - hr
       row <- data.frame(
-        Year = yr, Season = if (ncaa) "Spring" else "Summer", Team = rt$team, TeamId = rt$team_id,
-        LG = if (ncaa) (rt$lg %||% NA_character_) else "Summer", Level = rt$level,
+        Year = yr, Season = if (ncaa) "Spring" else "Summer", Team = so$team, TeamId = so$team_id,
+        LG = so$lg %||% NA_character_, Level = so$level,
         Age = if (is.finite(age)) age - (TM_SEASON - yr) else NA_real_,
         G = g("G", i), GS = g("GS", i), W = g("W", i), L = g("L", i), SV = g("SV", i),
         IP = tm_ip_display(ip_raw), H = h, R = g("R", i), ER = g("ER", i), BB = bb, K = k, HBP = hbp, HR = hr,
@@ -263,6 +305,9 @@ season_rows_pitcher <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), inc
         xBA = NA_real_, xSLG = NA_real_, xwOBA = NA_real_,
         Source = as.character(rr$Source[i]), check.names = FALSE, stringsAsFactors = FALSE)
       out[[length(out) + 1]] <- row
+      if (!is.null(so$summer)) out[[length(out) + 1]] <- data.frame(
+        Year = yr, Season = "Summer", Team = so$summer$team, TeamId = so$summer$team_id, LG = so$summer$lg, Level = "Summer",
+        Age = if (is.finite(age)) age - (TM_SEASON - yr) else NA_real_, Source = "summer", check.names = FALSE, stringsAsFactors = FALSE)
     }
   }
   rows <- if (length(out)) dplyr::bind_rows(out) else NULL
@@ -350,15 +395,15 @@ season_rows_batter <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), iden
     for (i in seq_len(nrow(rr))) {
       team <- as.character(rr$Team[i])
       rt <- ps_row_team(if ("TeamId" %in% names(rr)) rr$TeamId[i] else NA, team)
-      ncaa <- rt$college || (is.na(rt$level) && identical(as.character(rr$Source[i]), "calendar"))
+      so <- .ps_season_of(rt, team, rr$Source[i], ident); ncaa <- so$college
       pa <- g("PA", i); ab <- g("AB", i); h <- g("H", i); d2 <- g("2B", i); d3 <- g("3B", i); hr <- g("HR", i)
       bb <- g("BB", i); hbp <- g("HBP", i); k <- g("K", i)
       sw <- g("SWING", i); con <- g("CONTACT", i); miss <- g("MISS", i); ch <- g("CHASE", i); ooz <- g("OUTOFZONE", i)
       avg <- g("BA", i); obp <- g("OBP", i); slg <- g("SLG", i)
       h1 <- h - d2 - d3 - hr
       row <- data.frame(
-        Year = yr, Season = if (ncaa) "Spring" else "Summer", Team = rt$team, TeamId = rt$team_id,
-        LG = if (ncaa) (rt$lg %||% NA_character_) else "Summer", Level = rt$level,
+        Year = yr, Season = if (ncaa) "Spring" else "Summer", Team = so$team, TeamId = so$team_id,
+        LG = so$lg %||% NA_character_, Level = so$level,
         Age = if (is.finite(age)) age - (TM_SEASON - yr) else NA_real_,
         G = g("G", i), PA = pa, AB = ab, H = h, `2B` = d2, `3B` = d3, HR = hr, BB = bb, HBP = hbp, K = k, SB = g("SB", i),
         AVG = round(avg, 3), OBP = round(obp, 3), SLG = round(slg, 3), OPS = round(obp + slg, 3),
@@ -373,6 +418,9 @@ season_rows_batter <- function(name, seasons = c(TM_SEASON - 1, TM_SEASON), iden
         EV90 = NA_real_, `HardHit%` = NA_real_, xwOBAcon = NA_real_, `Z-Whiff%` = NA_real_,
         Source = as.character(rr$Source[i]), check.names = FALSE, stringsAsFactors = FALSE)
       out[[length(out) + 1]] <- row
+      if (!is.null(so$summer)) out[[length(out) + 1]] <- data.frame(
+        Year = yr, Season = "Summer", Team = so$summer$team, TeamId = so$summer$team_id, LG = so$summer$lg, Level = "Summer",
+        Age = if (is.finite(age)) age - (TM_SEASON - yr) else NA_real_, Source = "summer", check.names = FALSE, stringsAsFactors = FALSE)
     }
   }
   rows <- if (length(out)) dplyr::bind_rows(out) else NULL
@@ -536,7 +584,8 @@ season_table_html <- function(rows, kind = c("pit", "bat"), mode = "Advanced", e
   # first stat column after the counting block gets the group divider
   first_rate <- which(vapply(spec, function(s) s[1] != 0, logical(1)))[1]
   first_exp  <- if (isTRUE(expected)) match(names(PS_COLS[[kind]]$expected)[1], names(spec)) else NA
-  cur <- max(which(rows$Year == max(rows$Year)))
+  cur_c <- which(rows$Year == max(rows$Year) & !rows$Source %in% c("summer", "bullpen"))
+  cur <- if (length(cur_c)) max(cur_c) else max(which(rows$Year == max(rows$Year)))
   hdr <- tags$tr(
     tags$th("Year", class = "l"), tags$th("Age"), tags$th("Team", class = "l"), tags$th("LG"),
     lapply(seq_along(spec), function(i)
@@ -545,7 +594,8 @@ season_table_html <- function(rows, kind = c("pit", "bat"), mode = "Advanced", e
     lab <- rows$Season[r]
     yr_txt <- if (identical(lab, "Spring")) as.character(rows$Year[r]) else paste0(rows$Year[r], " ", lab)
     src <- rows$Source[r]
-    src_txt <- if (identical(src, "calendar")) "calendar year" else if (identical(src, "trackman")) "TrackMan" else NULL
+    src_txt <- if (identical(src, "calendar")) "spring + summer totals" else if (identical(src, "trackman")) "TrackMan"
+               else if (identical(src, "summer")) "summer club" else NULL
     tags$tr(class = if (r == cur) "cur" else "",
       tags$td(yr_txt, class = "l"),
       tags$td(if (is.finite(rows$Age[r])) as.character(rows$Age[r]) else "—"),
